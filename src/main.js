@@ -550,6 +550,7 @@ let selectedAbaCodes = new Set()
 let abaCodePickerOptions = []
 let latestSearchCountyOptionsRequestId = 0
 let searchApplyInProgress = false
+const LAST_ACTIVE_CONTEXT_STORAGE_KEY = 'mrm_last_active_context_v1'
 const TAP_DEBUG_STORAGE_KEY = 'mrm_tap_debug_enabled'
 const TAP_DEBUG_MAX_ENTRIES = 40
 let tapDebugEnabled = false
@@ -740,6 +741,13 @@ function rememberLastGoodObservations(observations, countyName, countyRegion, ac
   lastGoodObservationSnapshot = payload
   const regionKey = String(payload.countyRegion || payload.activeCountyCode || '').toUpperCase()
   if (regionKey) lastGoodObservationsByRegion.set(regionKey, payload)
+  persistLastActiveContext({
+    regionCode: payload.countyRegion,
+    countyName: payload.countyName,
+    activeCountyCode: payload.activeCountyCode,
+    lat: Number.isFinite(lastCountyAnchorLat) ? lastCountyAnchorLat : null,
+    lng: Number.isFinite(lastCountyAnchorLng) ? lastCountyAnchorLng : null,
+  })
 }
 
 function getRecoverySnapshot(targetCountyRegion = null) {
@@ -752,6 +760,75 @@ function getRecoverySnapshot(targetCountyRegion = null) {
 
 function nextAnimationFrame() {
   return new Promise((resolve) => window.requestAnimationFrame(() => resolve()))
+}
+
+function persistLastActiveContext({ regionCode = null, countyName = null, activeCountyCode = null, lat = null, lng = null } = {}) {
+  const normalizedRegion = String(regionCode || '').toUpperCase()
+  if (!normalizedRegion) return
+  try {
+    localStorage.setItem(LAST_ACTIVE_CONTEXT_STORAGE_KEY, JSON.stringify({
+      regionCode: normalizedRegion,
+      countyName: countyName ? String(countyName).trim() : null,
+      activeCountyCode: activeCountyCode ? String(activeCountyCode).toUpperCase() : null,
+      lat: Number.isFinite(Number(lat)) ? Number(lat) : null,
+      lng: Number.isFinite(Number(lng)) ? Number(lng) : null,
+      ts: Date.now(),
+    }))
+  } catch (_) {}
+}
+
+function loadLastActiveContext() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(LAST_ACTIVE_CONTEXT_STORAGE_KEY) || 'null')
+    if (!raw || typeof raw !== 'object') return null
+    const regionCode = String(raw.regionCode || '').toUpperCase()
+    if (!regionCode) return null
+    return {
+      regionCode,
+      countyName: raw.countyName ? String(raw.countyName) : null,
+      activeCountyCode: raw.activeCountyCode ? String(raw.activeCountyCode).toUpperCase() : null,
+      lat: Number.isFinite(Number(raw.lat)) ? Number(raw.lat) : null,
+      lng: Number.isFinite(Number(raw.lng)) ? Number(raw.lng) : null,
+      ts: Number(raw.ts) || 0,
+    }
+  } catch {
+    return null
+  }
+}
+
+async function restoreLastActiveContextOnBoot() {
+  const saved = loadLastActiveContext()
+  if (!saved) return false
+
+  const normalizedRegion = String(saved.regionCode || '').toUpperCase()
+  if (!normalizedRegion) return false
+
+  if (normalizedRegion === US_REGION_CODE || isStateRegionCode(normalizedRegion)) {
+    await activateStateByRegion(normalizedRegion)
+    return true
+  }
+
+  if (isCountyRegionCode(normalizedRegion)) {
+    const parentState = stateRegionFromCountyRegion(normalizedRegion)
+    if (parentState && isStateRegionCode(parentState)) {
+      await activateStateByRegion(parentState)
+      const option = countyPickerOptions.find((opt) => String(opt.countyRegion || '').toUpperCase() === normalizedRegion)
+      if (option) {
+        await activateCountyFromOption(option)
+        return true
+      }
+    }
+
+    await activateCountyByRegion(
+      normalizedRegion,
+      Number.isFinite(saved.lat) ? saved.lat : null,
+      Number.isFinite(saved.lng) ? saved.lng : null,
+      saved.countyName || ''
+    )
+    return true
+  }
+
+  return false
 }
 
 async function cleanupLegacyServiceWorkersOnce() {
@@ -2577,6 +2654,7 @@ async function triggerHardRefresh() {
 
   try {
     localStorage.removeItem('mrm_last_pos')
+    localStorage.removeItem(LAST_ACTIVE_CONTEXT_STORAGE_KEY)
     localStorage.removeItem('mrm_runtime_log')
     const keysToRemove = []
     for (let index = 0; index < localStorage.length; index += 1) {
@@ -6119,6 +6197,19 @@ async function bootAppOnce() {
     } catch (error) {
       console.error('pending startup load failed:', error)
     }
+  }
+
+  try {
+    locationStatus.className = 'badge warn'
+    locationStatus.textContent = 'Restoring'
+    locationDetail.textContent = 'Restoring last viewed region…'
+    const restoredContext = await restoreLastActiveContextOnBoot()
+    if (restoredContext) {
+      updateRuntimeLog()
+      return
+    }
+  } catch (error) {
+    console.error('active context startup restore failed:', error)
   }
 
   // Default fallback: Netherlands (province-level state view).
