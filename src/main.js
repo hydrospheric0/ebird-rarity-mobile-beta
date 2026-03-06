@@ -8,8 +8,8 @@ import {
   normalizeRingCoordinates, buildInverseMaskFeaturesFromActiveFeatures,
 } from './modules/geo.js'
 import {
-  US_REGION_CODE, LOWER_48_STATES, STATE_CENTERS,
-  isCountyRegionCode, stateRegionFromCountyRegion, stateRegionFromAnyRegion,
+  US_REGION_CODE, LOWER_48_STATES, ALL_REGIONS, STATE_CENTERS,
+  isCountyRegionCode, isStateRegionCode, stateRegionFromCountyRegion, stateRegionFromAnyRegion,
   getStateNameByRegion, getStateAbbrevByRegion, normalizeCountyName, shortCountyName, escapeHtml,
 } from './modules/region-utils.js'
 import {
@@ -115,6 +115,7 @@ app.innerHTML = `
           <input id="filterDaysBack" class="filter-slider" type="range" min="1" max="14" value="14" step="1">
         </div>
         <div class="filter-group">
+          <div class="filter-group-header">Filter</div>
           <label for="filterAbaMin" class="filter-label">ABA Code ≥ <span id="filterAbaMinValue">1</span></label>
           <input id="filterAbaMin" class="filter-slider" type="range" min="1" max="5" value="1" step="1">
         </div>
@@ -765,7 +766,7 @@ function applyActiveFiltersAndRender(options = {}) {
     : filteredByStatus
 
   const activeCountyCode = String(currentActiveCountyCode || '').toUpperCase()
-  const isStateMode = /^US-[A-Z]{2}$/.test(activeRegion) && !isCountyRegionCode(activeCountyCode) && activeRegion !== US_REGION_CODE
+  const isStateMode = isStateRegionCode(activeRegion) && !isCountyRegionCode(activeCountyCode)
   const isNationalSummaryMode = activeRegion === US_REGION_CODE
 
   // State mode shows the full state's dataset; distance is used for sorting
@@ -1206,7 +1207,7 @@ function updateCountyDots() {
 
   const activeRegion = String(currentCountyRegion || '').toUpperCase()
   const activeCountyCode = String(currentActiveCountyCode || '').toUpperCase()
-  const isStateMode = /^US-[A-Z]{2}$/.test(activeRegion) && !isCountyRegionCode(activeCountyCode) && activeRegion !== US_REGION_CODE
+  const isStateMode = isStateRegionCode(activeRegion) && !isCountyRegionCode(activeCountyCode)
   const stateFiltered = (isStateMode && lastFilteredRegion === activeRegion && Array.isArray(lastFilteredObservations)) ? lastFilteredObservations : null
 
   const countsByCountyRegion = stateFiltered ? new Map() : null
@@ -1531,7 +1532,7 @@ function refreshHeaderStateOptions() {
   if (!headerStateSelect || !headerStateBtn) return
   const activeState = stateRegionFromAnyRegion(currentCountyRegion) || 'US-CA'
   const usEntry = { code: US_REGION_CODE, name: 'United States \u2014 All' }
-  const options = [usEntry, ...LOWER_48_STATES]
+  const options = [usEntry, ...ALL_REGIONS]
 
   headerStateSelect.innerHTML = options
     .map((state) => {
@@ -1563,7 +1564,7 @@ function renderStatePickerOptions() {
   if (!statePickerList) return
   const activeState = stateRegionFromAnyRegion(currentCountyRegion) || 'US-CA'
   const usEntry = { code: US_REGION_CODE, name: 'United States — All' }
-  const allOptions = [usEntry, ...LOWER_48_STATES]
+  const allOptions = [usEntry, ...ALL_REGIONS]
   statePickerList.innerHTML = allOptions
     .map((state) => {
       const abbrev = getStateAbbrevByRegion(state.code)
@@ -1782,16 +1783,16 @@ function refreshSearchRegionOptions() {
   let selectedState = ''
   if (currentIsUs) {
     selectedState = US_REGION_CODE
-  } else if (LOWER_48_STATES.some((s) => s.code === stateFromCurrent)) {
+  } else if (ALL_REGIONS.some((s) => s.code === stateFromCurrent)) {
     selectedState = stateFromCurrent
-  } else if (existing === US_REGION_CODE || LOWER_48_STATES.some((s) => s.code === existing)) {
+  } else if (existing === US_REGION_CODE || ALL_REGIONS.some((s) => s.code === existing)) {
     selectedState = existing
   }
 
   searchRegionSelect.innerHTML = [
     '<option value="">Select region…</option>',
     `<option value="${US_REGION_CODE}" ${selectedState === US_REGION_CODE ? 'selected' : ''}>United States</option>`,
-    ...LOWER_48_STATES.map((state) => {
+    ...ALL_REGIONS.map((state) => {
       const selected = selectedState && selectedState === state.code
       return `<option value="${escapeHtml(state.code)}" ${selected ? 'selected' : ''}>${escapeHtml(state.name)}</option>`
     }),
@@ -1815,7 +1816,7 @@ function refreshSearchSpeciesOptions(source) {
 }
 
 function buildStateCountyEntries(source, stateRegion = '') {
-  const normalizedState = /^US-[A-Z]{2}$/.test(String(stateRegion || '').toUpperCase())
+  const normalizedState = isStateRegionCode(String(stateRegion || '').toUpperCase())
     ? String(stateRegion || '').toUpperCase()
     : ''
   const buckets = new Map()
@@ -1991,11 +1992,11 @@ async function ensureSearchCountyOptionsForState(stateRegion) {
 }
 
 function refreshSearchCountyOptions(source, stateRegion = '') {
-  const normalizedState = /^US-[A-Z]{2}$/.test(String(stateRegion || '').toUpperCase())
+  const normalizedState = isStateRegionCode(String(stateRegion || '').toUpperCase())
     ? String(stateRegion || '').toUpperCase()
     : (stateRegionFromCountyRegion(currentCountyRegion || '') || '')
   const entries = buildStateCountyEntries(source, normalizedState)
-  if (/^US-[A-Z]{2}$/.test(normalizedState) && entries.length) {
+  if (isStateRegionCode(normalizedState) && entries.length) {
     stateCountyOptionsCache.set(normalizedState, entries)
   }
   applySearchCountyEntries(entries)
@@ -3023,16 +3024,11 @@ function computeClosestPointByGroup(observations, anchorLat, anchorLng) {
 }
 
 function getDateBubbleClass(kind, firstDate, lastDate) {
-  const firstOffset = dayOffsetFromToday(firstDate)
   const lastOffset = dayOffsetFromToday(lastDate)
-  // Red: this species was first recorded today — brand new find in the window
-  if (firstOffset === 0) return 'date-bubble-red-new'
-  // Light green: last seen yesterday
-  if (lastOffset === 1) return 'date-bubble-green-light'
-  // Dark green: last seen today (returning sighting) or 2–14 days ago
-  if (lastOffset !== null && lastOffset >= 0 && lastOffset <= 14) return 'date-bubble-green-dark'
-  // Colorless: not seen in the past 14 days (or date unknown)
-  return 'date-bubble-neutral'
+  if (lastOffset === 0) return 'date-bubble-red-new'       // last seen today
+  if (lastOffset === 1) return 'date-bubble-green-dark'    // last seen yesterday
+  if (lastOffset === 2) return 'date-bubble-green-light'   // last seen two days ago
+  return 'date-bubble-neutral'                             // older or unknown
 }
 
 function renderDateBubble(label, bubbleClass) {

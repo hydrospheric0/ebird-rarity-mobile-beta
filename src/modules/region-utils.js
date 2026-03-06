@@ -1,9 +1,20 @@
 /**
- * US region data and pure utility functions for region/string handling.
+ * Region data and pure utility functions for region/string handling.
+ * Supports US (state→county hierarchy) and international regions where
+ * the subnational-1 level (ISO 3166-2) is the finest boundary available.
  * No external imports, no side-effects.
  */
 
 export const US_REGION_CODE = 'US'
+
+/**
+ * Countries where subnational-1 boundaries (ISO 3166-2) are the leaf
+ * boundary level supported by the app — there is no sub-county tier.
+ * For these countries a two-segment code like "NL-GR" is treated as
+ * the "county" equivalent and the bare country code ("NL") as the
+ * "state" equivalent.
+ */
+export const LEAF_SUBNATIONAL1_COUNTRIES = new Set(['NL'])
 
 /**
  * All supported US states + DC (includes AK and HI).
@@ -70,6 +81,16 @@ export const ALL_STATES = [
 export const LOWER_48_STATES = ALL_STATES
 
 /**
+ * All supported regions at the "state" level, including international
+ * country entries. Each entry's `code` is the key used to load the
+ * corresponding boundary file (public/data/counties/${code}.json).
+ */
+export const ALL_REGIONS = [
+  ...ALL_STATES,
+  { code: 'NL', name: 'Netherlands' },
+]
+
+/**
  * Approximate geographic centroids used for state-level map markers.
  * Includes AK, HI, and DC.
  */
@@ -125,15 +146,37 @@ export const STATE_CENTERS = new Map([
   ['US-WV', { lat: 38.6, lng: -80.6 }],
   ['US-WI', { lat: 44.6, lng: -90.0 }],
   ['US-WY', { lat: 43.0, lng: -107.5 }],
+  // International
+  ['NL',    { lat: 52.3, lng:    5.3 }],
 ])
 
 // ---------------------------------------------------------------------------
 // Region-code utilities
 // ---------------------------------------------------------------------------
 
-/** Returns true for county-level region codes like "US-CA-113". */
+/**
+ * Returns true for state-level region codes: US states ("US-CA") and
+ * LEAF_SUBNATIONAL1_COUNTRIES country codes ("NL").
+ * Returns false for the national US code and for county-level codes.
+ */
+export function isStateRegionCode(region) {
+  const r = String(region || '').toUpperCase()
+  if (/^US-[A-Z]{2,3}$/.test(r)) return true
+  if (LEAF_SUBNATIONAL1_COUNTRIES.has(r)) return true
+  return false
+}
+
+/**
+ * Returns true for county-level region codes:
+ *   US counties like "US-CA-113"
+ *   Subnational-1 codes for LEAF_SUBNATIONAL1_COUNTRIES like "NL-GR"
+ */
 export function isCountyRegionCode(region) {
-  return /^US-[A-Z]{2}-\d{3}$/.test(String(region || '').toUpperCase())
+  const r = String(region || '').toUpperCase()
+  if (/^US-[A-Z]{2,3}-\d{3}$/.test(r)) return true
+  const parts = r.split('-')
+  if (parts.length === 2 && LEAF_SUBNATIONAL1_COUNTRIES.has(parts[0])) return true
+  return false
 }
 
 /**
@@ -141,8 +184,11 @@ export function isCountyRegionCode(region) {
  * Returns null if not a valid county code.
  */
 export function stateRegionFromCountyRegion(countyRegion) {
-  if (!countyRegion || !/^US-[A-Z]{2}-\d{3}$/.test(countyRegion)) return null
-  return countyRegion.slice(0, 5)
+  const r = String(countyRegion || '').toUpperCase()
+  if (/^US-[A-Z]{2,3}-\d{3}$/.test(r)) return r.slice(0, 5)          // "US-CA-113" → "US-CA"
+  const parts = r.split('-')
+  if (parts.length === 2 && LEAF_SUBNATIONAL1_COUNTRIES.has(parts[0])) return parts[0]  // "NL-GR" → "NL"
+  return null
 }
 
 /**
@@ -153,16 +199,20 @@ export function stateRegionFromCountyRegion(countyRegion) {
 export function stateRegionFromAnyRegion(regionCode) {
   const normalized = String(regionCode || '').toUpperCase()
   if (normalized === US_REGION_CODE) return US_REGION_CODE
-  if (/^US-[A-Z]{2}$/.test(normalized)) return normalized
-  if (/^US-[A-Z]{2}-\d{3}$/.test(normalized)) return stateRegionFromCountyRegion(normalized)
+  if (/^US-[A-Z]{2,3}$/.test(normalized)) return normalized
+  if (/^US-[A-Z]{2,3}-\d{3}$/.test(normalized)) return stateRegionFromCountyRegion(normalized)
+  // LEAF countries: country code IS the state level
+  if (LEAF_SUBNATIONAL1_COUNTRIES.has(normalized)) return normalized
+  // LEAF subnational1 codes: "NL-GR" → "NL"
+  const parts = normalized.split('-')
+  if (parts.length === 2 && LEAF_SUBNATIONAL1_COUNTRIES.has(parts[0])) return parts[0]
   return null
 }
 
 /** Human-readable state name from a state region code (e.g. "US-CA" → "California"). */
 export function getStateNameByRegion(stateRegion) {
   const normalizedState = String(stateRegion || '').toUpperCase()
-  if (!/^US-[A-Z]{2}$/.test(normalizedState)) return normalizedState
-  const found = ALL_STATES.find((state) => state.code === normalizedState)
+  const found = ALL_REGIONS.find((r) => r.code === normalizedState)
   return found?.name || normalizedState
 }
 
