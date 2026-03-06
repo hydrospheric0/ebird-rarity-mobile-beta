@@ -1,3 +1,7 @@
+// SW_VERSION is stamped by pushit-beta.sh on every deploy so the browser
+// detects a change and re-installs, triggering the activate handler which
+// clears all caches and reloads every open tab to the latest build.
+const SW_VERSION = '0.7.0-beta.17'
 const LEGACY_CACHE_PREFIXES = ['rarity-mobile-', 'workbox-', 'vite-']
 
 self.addEventListener('install', (event) => {
@@ -6,6 +10,7 @@ self.addEventListener('install', (event) => {
 
 self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
+    // Clear every cache that belongs to this app.
     try {
       const keys = await caches.keys()
       await Promise.all(
@@ -17,15 +22,15 @@ self.addEventListener('activate', (event) => {
       // ignore cache cleanup failures
     }
 
-    const registrations = await self.registration.unregister().catch(() => [])
     await self.clients.claim()
 
+    // Force all open tabs to reload so they pick up the new assets.
     const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true })
     await Promise.all(clients.map((client) => client.navigate(client.url).catch(() => null)))
-    return registrations
   })())
 })
 
 self.addEventListener('fetch', () => {
-  // No-op: this worker exists only to clean up legacy registrations/caches.
+  // No-op: this worker exists only to invalidate caches on each new deploy.
+  // All fetches pass through to the network unchanged.
 })
