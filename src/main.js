@@ -209,7 +209,7 @@ app.innerHTML = `
 
     <!-- Location bar — country + province/state + county selectors + days back + reload -->
     <div class="bottom-location-bar" aria-label="Location">
-      <button id="headerCountryBtn" class="loc-btn-country bottom-select" type="button" aria-label="Country" title="Country">NL</button>
+      <button id="headerCountryBtn" class="loc-btn bottom-select" type="button" aria-label="Country" title="Country">NL</button>
       <button id="headerStateBtn" class="loc-btn-state top-menu-select top-menu-btn bottom-select" type="button" aria-label="State" title="Choose state" hidden>-</button>
       <select id="headerStateSelect" class="top-menu-select" aria-label="Province/State" hidden aria-hidden="true" tabindex="-1">
         <option value="NL">Netherlands</option>
@@ -397,6 +397,10 @@ const statePickerAbaPills = document.querySelector('#statePickerAbaPills')
 const abaCodePicker = document.querySelector('#abaCodePicker')
 const abaCodePickerList = document.querySelector('#abaCodePickerList')
 const notableRows = document.querySelector('#notableRows')
+const speciesDetailPanel = document.querySelector('#speciesDetailPanel')
+const speciesDetailBody = document.querySelector('#speciesDetailBody')
+const speciesDetailTitle = document.querySelector('#speciesDetailTitle')
+const speciesDetailBackBtn = document.querySelector('#speciesDetailBackBtn')
 const tableRenderStatus = document.querySelector('#tableRenderStatus')
 const perfBadge = document.querySelector('#perfBadge')
 const perfDetail = document.querySelector('#perfDetail')
@@ -5603,9 +5607,11 @@ headerCountryBtn?.addEventListener('click', (event) => {
     if (!item) return
     cleanup()
     const code = item.dataset.code
-    setPendingLocationSelection({ regionCode: code === 'NL' ? 'NL' : US_REGION_CODE, countyOption: null })
     const isNl = code === 'NL'
-    // Open next-level picker: for US open state picker, for NL open province (county) picker
+    const targetRegion = isNl ? 'NL' : US_REGION_CODE
+    // Immediately start loading records for the chosen country domain
+    void activateStateByRegion(targetRegion)
+    // For US also open state picker so user can drill to a specific state
     if (!isNl) {
       renderStatePickerOptions()
       toggleStatePicker()
@@ -6056,8 +6062,35 @@ notableRows.addEventListener('click', (event) => {
   const newRow = newBtn?.closest('tr')
   if (newRow) newRow.classList.add('row-highlighted')
 
-  // Zoom map to point(s)
   const pts = speciesMarkers.get(species)
+
+  // In list or hybrid mode: show species detail panel with observation info
+  if (currentMode === 'list' || currentMode === 'hybrid') {
+    selectedSpecies = species
+    const targetPt = pts?.length ? pickBestSpeciesPoint(pts, species) : null
+    if (speciesDetailPanel && speciesDetailBody && speciesDetailTitle) {
+      speciesDetailTitle.textContent = species
+      speciesDetailBody.innerHTML = targetPt
+        ? buildObservationPopupHtml(targetPt)
+        : '<div class="obs-popup-inner"><p>No recent observations found.</p></div>'
+      speciesDetailPanel.removeAttribute('hidden')
+    }
+    // In hybrid mode, also zoom the map since it is visible
+    if (currentMode === 'hybrid' && pts?.length && map) {
+      map.invalidateSize()
+      const targetPt2 = targetPt
+      if (pts.length === 1 && targetPt2) {
+        map.setView([targetPt2.lat, targetPt2.lng], Math.max(map.getZoom(), 13), { animate: true })
+      } else if (pts.length > 1) {
+        const lats = pts.map((p) => p.lat)
+        const lngs = pts.map((p) => p.lng)
+        map.fitBounds(L.latLngBounds([Math.min(...lats), Math.min(...lngs)], [Math.max(...lats), Math.max(...lngs)]), { padding: [40, 40], maxZoom: 13, animate: true })
+      }
+    }
+    return
+  }
+
+  // Map mode: zoom to point(s) and open popup
   if (!pts || pts.length === 0 || !map) return
   if (map) map.invalidateSize()
   const targetPt = pickBestSpeciesPoint(pts, species)
@@ -6072,6 +6105,11 @@ notableRows.addEventListener('click', (event) => {
       window.setTimeout(() => openObservationPopup(targetPt), 120)
     }
   }
+})
+
+// Close species detail panel when back button is clicked
+speciesDetailBackBtn?.addEventListener('click', () => {
+  if (speciesDetailPanel) speciesDetailPanel.setAttribute('hidden', 'hidden')
 })
 
 document.querySelector('#reportsHelpBtn')?.addEventListener('click', (event) => {

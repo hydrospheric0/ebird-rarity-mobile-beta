@@ -1997,3 +1997,70 @@ a.obs-popup-species {
 .country-pick-item:active {
   background: rgba(255, 255, 255, 0.12);
 }
+
+/* -------------------------------------------------------------------------
+   Species detail panel — slides over the table/content area in list / hybrid
+   mode when a species row is tapped.
+   ------------------------------------------------------------------------- */
+.species-detail-panel {
+  position: fixed;
+  top: calc(var(--header-height) + env(safe-area-inset-top));
+  left: 0;
+  right: 0;
+  bottom: calc(var(--bottom-tab-height) + var(--bottom-loc-height) + env(safe-area-inset-bottom));
+  background: var(--card);
+  z-index: 1350;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.species-detail-panel[hidden] {
+  display: none;
+}
+
+.species-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.7rem;
+  background: var(--brand);
+  color: #f8fafc;
+  flex-shrink: 0;
+  min-height: 2.8rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.species-detail-back {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #f8fafc;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.25rem 0.6rem;
+  border-radius: 0.48rem;
+  flex-shrink: 0;
+  white-space: nowrap;
+  min-height: 1.8rem;
+}
+
+.species-detail-back:active {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.species-detail-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.species-detail-body {
+  flex: 1 1 0;
+  overflow-y: auto;
+  padding: 0.85rem 0.9rem;
+  -webkit-overflow-scrolling: touch;
+}
