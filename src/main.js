@@ -754,6 +754,33 @@ function nextAnimationFrame() {
   return new Promise((resolve) => window.requestAnimationFrame(() => resolve()))
 }
 
+async function cleanupLegacyServiceWorkersOnce() {
+  const CLEANUP_KEY = 'mrm_legacy_sw_cleanup_v1'
+  try {
+    if (localStorage.getItem(CLEANUP_KEY) === '1') return
+  } catch (_) {}
+
+  try {
+    if ('serviceWorker' in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations()
+      await Promise.all(registrations.map((registration) => registration.unregister().catch(() => false)))
+    }
+
+    if ('caches' in window) {
+      const keys = await caches.keys()
+      await Promise.all(
+        keys
+          .filter((key) => /^rarity-mobile-|^workbox-|^vite-/.test(String(key || '')))
+          .map((key) => caches.delete(key))
+      )
+    }
+
+    try { localStorage.setItem(CLEANUP_KEY, '1') } catch (_) {}
+  } catch (error) {
+    console.warn('legacy service worker cleanup skipped:', error)
+  }
+}
+
 function isStaleLocationRequest(requestId) {
   return requestId !== latestLocationRequestId
 }
@@ -6048,6 +6075,8 @@ let appBooted = false
 async function bootAppOnce() {
   if (appBooted) return
   appBooted = true
+
+  await cleanupLegacyServiceWorkersOnce()
 
   hideApiKeyGate()
   await checkApi()
