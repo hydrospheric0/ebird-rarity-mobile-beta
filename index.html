@@ -11,9 +11,45 @@
     <title>Twitcher - find eBird Rarities</title>
     <link rel="manifest" href="./assets/manifest-WrvQHCem.webmanifest" />
     <link rel="icon" href="./assets/icon-EYQ1AWFl.svg" type="image/svg+xml" />
-    <script type="module" crossorigin src="./assets/index-BnnNCjF8.js"></script>
+    <script type="module" crossorigin src="./assets/index-CbtyltnG.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-CMVCawCy.css">
   </head>
   <body>
     <div id="app"></div>
+    <!-- Plain (non-module) script so Vite preserves it verbatim in the build output.
+         Registers the SW with updateViaCache:'none' so the browser byte-checks sw.js
+         on every load, and does a one-time cache+SW wipe when CACHE_RESET_VERSION changes. -->
+    <script>
+      (function () {
+        var CACHE_RESET_VERSION = '2026-03-06-3'
+        var CACHE_RESET_KEY = 'mrm_bootstrap_cache_reset_version'
+        function nukeAndReload() {
+          try {
+            if (navigator.serviceWorker) {
+              navigator.serviceWorker.getRegistrations().then(function (regs) {
+                regs.forEach(function (r) { r.unregister() })
+              })
+            }
+            if (window.caches) {
+              caches.keys().then(function (keys) {
+                keys.forEach(function (k) { caches.delete(k) })
+              })
+            }
+            localStorage.setItem(CACHE_RESET_KEY, CACHE_RESET_VERSION)
+          } catch (e) {}
+        }
+        try {
+          if (localStorage.getItem(CACHE_RESET_KEY) !== CACHE_RESET_VERSION) {
+            nukeAndReload()
+          }
+        } catch (e) {}
+        if ('serviceWorker' in navigator) {
+          window.addEventListener('load', function () {
+            navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
+              .catch(function () {})
+          })
+        }
+      })()
+    </script>
   </body>
 </html>
