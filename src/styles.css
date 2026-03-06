@@ -8,6 +8,7 @@
   --accent: #009688;
   --border: rgba(15, 23, 42, 0.12);
   --map-strip-height: 40dvh;
+  --header-height: 2.6rem;
   --bottom-tab-height: 3.2rem;
   --bottom-loc-height: 2.75rem;
   --bottom-aba-filter-height: 0rem;
@@ -47,7 +48,7 @@ body {
 .app-header {
   background: var(--brand);
   color: #f8fafc;
-  height: var(--bottom-aba-height);
+  height: var(--header-height);
   padding: 0 0.7rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.18);
   position: relative;
@@ -718,7 +719,6 @@ body.is-resizing {
 
 /* ABA filter bar — topmost of the 3 bottom bars */
 .bottom-aba-filter-bar {
-  display: none;
   position: fixed;
   left: 0;
   right: 0;
@@ -727,11 +727,11 @@ body.is-resizing {
   background: var(--brand);
   border-top: 1px solid rgba(255, 255, 255, 0.18);
   z-index: 1290;
-  display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   gap: 0.4rem;
   padding: 0 0.55rem;
+  display: none;
 }
 
 .bottom-aba-filter-bar .top-aba-pills {
