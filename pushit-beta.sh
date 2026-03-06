@@ -190,6 +190,7 @@ git -C "$TMP_DIR" remote set-url origin "$BETA_REPO_URL"
 
 mkdir -p "$TMP_DIR/assets"
 find "$TMP_DIR" -mindepth 1 -maxdepth 1 ! -name '.git' ! -name 'assets' -exec rm -rf {} +
+find "$TMP_DIR/assets" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
 
 for entry in "$DIST_DIR"/*; do
   base="$(basename "$entry")"
