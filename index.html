@@ -14,38 +14,41 @@
   </head>
   <body>
     <div id="app"></div>
-    <script type="module">
-      ;(async () => {
-        const CACHE_RESET_VERSION = '2026-03-06-2'
-        const CACHE_RESET_KEY = 'mrm_bootstrap_cache_reset_version'
-
+    <!-- Plain (non-module) script so Vite preserves it verbatim in the build output.
+         Registers the SW with updateViaCache:'none' so the browser byte-checks sw.js
+         on every load, and does a one-time cache+SW wipe when CACHE_RESET_VERSION changes. -->
+    <script>
+      (function () {
+        var CACHE_RESET_VERSION = '2026-03-06-3'
+        var CACHE_RESET_KEY = 'mrm_bootstrap_cache_reset_version'
+        function nukeAndReload() {
+          try {
+            if (navigator.serviceWorker) {
+              navigator.serviceWorker.getRegistrations().then(function (regs) {
+                regs.forEach(function (r) { r.unregister() })
+              })
+            }
+            if (window.caches) {
+              caches.keys().then(function (keys) {
+                keys.forEach(function (k) { caches.delete(k) })
+              })
+            }
+            localStorage.setItem(CACHE_RESET_KEY, CACHE_RESET_VERSION)
+          } catch (e) {}
+        }
         try {
           if (localStorage.getItem(CACHE_RESET_KEY) !== CACHE_RESET_VERSION) {
-            if ('serviceWorker' in navigator) {
-              const registrations = await navigator.serviceWorker.getRegistrations()
-              await Promise.all(registrations.map((registration) => registration.unregister().catch(() => false)))
-            }
-
-            if ('caches' in window) {
-              const keys = await caches.keys()
-              await Promise.all(keys.map((key) => caches.delete(key).catch(() => false)))
-            }
-
-            localStorage.setItem(CACHE_RESET_KEY, CACHE_RESET_VERSION)
+            nukeAndReload()
           }
-        } catch (error) {
-          console.warn('bootstrap cache reset skipped:', error)
-        }
-
-        // Register the SW with updateViaCache:'none' so the browser always
-        // byte-checks sw.js against the network, guaranteeing that a new
-        // deploy (which stamps a new SW_VERSION) triggers a re-install.
+        } catch (e) {}
         if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).catch(() => {})
+          window.addEventListener('load', function () {
+            navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
+              .catch(function () {})
+          })
         }
-
-        await import('./src/main.js')
       })()
     </script>
+    <script type="module" src="./src/main.js"></script>
   </body>
 </html>
