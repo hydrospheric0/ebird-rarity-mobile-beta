@@ -1,0 +1,15 @@
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(self), camera=(), microphone=()
+  Content-Security-Policy: default-src 'self'; style-src 'self'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com https://server.arcgisonline.com; connect-src 'self' https://ebird-rarity-mapper.bartwickel.workers.dev; worker-src 'self'; frame-ancestors 'none'
+
+/*.html
+  Cache-Control: no-store
+
+/
+  Cache-Control: no-store
+
+/*.webmanifest
+  Cache-Control: no-store
