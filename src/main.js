@@ -200,7 +200,7 @@ app.innerHTML = `
     </main>
 
     <!-- ABA filter bar — shows interactive ABA code filter pills -->
-    <div class="bottom-aba-filter-bar" aria-label="ABA code filter">
+    <div class="bottom-aba-filter-bar" aria-label="ABA code filter" hidden aria-hidden="true">
       <button id="shareTableBtn" class="aba-share-btn" type="button" hidden aria-label="Share list" title="Share visible list">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
       </button>
@@ -385,6 +385,7 @@ const notableMeta = document.querySelector('#notableMeta')
 const shareTableBtn = document.querySelector('#shareTableBtn')
 const topAbaPills = document.querySelector('#topAbaPills')
 const bottomAbaBar = document.querySelector('.bottom-aba-filter-bar')
+const bottomLocationBar = document.querySelector('.bottom-location-bar')
 const countyPicker = document.querySelector('#countyPicker')
 const countyPickerList = document.querySelector('#countyPickerList')
 const pickerAbaPills = document.querySelector('#pickerAbaPills')
@@ -562,6 +563,7 @@ let currentMode = 'hybrid' // 'hybrid' | 'list' | 'map' | 'species'
 // Pending location selections — set by pickers, applied only when Reload is pressed.
 let pendingRegionCode = null   // e.g. 'NL', 'US', 'US-CA' — not yet loaded
 let pendingCountyOption = null // countyPickerOption — not yet loaded
+const PENDING_LOCATION_STORAGE_KEY = 'mrm_pending_location_v1'
 let speciesPickerOptions = []
 let explodeClustersOnNextCountySwitch = false
 let mapFitMaxZoomOnce = null
@@ -913,14 +915,133 @@ function syncSpeciesModeUi() {
 }
 
 function refreshLocationBar() {
-  const stateRegion = stateRegionFromAnyRegion(currentCountyRegion) || 'NL'
+  syncLocationBarState()
+}
+
+function clonePendingCountyOption(option) {
+  if (!option) return null
+  const countyRegion = String(option.countyRegion || '').toUpperCase()
+  return {
+    countyRegion: countyRegion || null,
+    countyName: String(option.countyName || '').trim() || 'County',
+    lat: Number.isFinite(Number(option.lat)) ? Number(option.lat) : null,
+    lng: Number.isFinite(Number(option.lng)) ? Number(option.lng) : null,
+  }
+}
+
+function hasPendingLocationSelection() {
+  return Boolean(pendingRegionCode || pendingCountyOption)
+}
+
+function savePendingLocationSelection() {
+  try {
+    if (!hasPendingLocationSelection()) {
+      localStorage.removeItem(PENDING_LOCATION_STORAGE_KEY)
+      return
+    }
+    localStorage.setItem(PENDING_LOCATION_STORAGE_KEY, JSON.stringify({
+      regionCode: pendingRegionCode ? String(pendingRegionCode).toUpperCase() : null,
+      countyOption: clonePendingCountyOption(pendingCountyOption),
+      ts: Date.now(),
+    }))
+  } catch (_) {}
+}
+
+function syncLocationBarState() {
+  const activeRegion = String(currentCountyRegion || '').toUpperCase()
+  const pendingCountyRegion = String(pendingCountyOption?.countyRegion || '').toUpperCase()
+  const pendingRegion = String(pendingRegionCode || '').toUpperCase()
+  const displayRegion = pendingCountyRegion || pendingRegion || activeRegion || 'NL'
+  const stateRegion = stateRegionFromAnyRegion(displayRegion) || stateRegionFromAnyRegion(activeRegion) || 'NL'
   const isNl = LEAF_SUBNATIONAL1_COUNTRIES.has(stateRegion)
   const isUs = stateRegion.startsWith('US')
+  const hasPending = hasPendingLocationSelection()
+
+  let countyLabel = String(currentCountyName || '').trim()
+  if (headerCountySelect?.selectedOptions?.[0]?.textContent) {
+    countyLabel = String(headerCountySelect.selectedOptions[0].textContent || '').trim() || countyLabel
+  }
+  if (pendingCountyOption) {
+    countyLabel = String(pendingCountyOption.countyName || 'County')
+  } else if (pendingRegion) {
+    countyLabel = pendingRegion === 'NL'
+      ? 'Select Province'
+      : pendingRegion === US_REGION_CODE
+        ? 'Select State'
+        : 'Select County'
+  } else if (!countyLabel) {
+    countyLabel = activeRegion === 'NL'
+      ? 'Select Province'
+      : activeRegion === US_REGION_CODE
+        ? 'Select State'
+        : isStateRegionCode(activeRegion)
+          ? 'Select County'
+          : 'County'
+  }
+
   if (headerCountryBtn) {
     headerCountryBtn.textContent = isNl ? 'NL' : isUs ? 'US' : stateRegion.split('-')[0] || stateRegion
+    headerCountryBtn.classList.toggle('is-pending', hasPending)
   }
-  // State btn shows 2-letter state abbrev — only meaningful in US mode
-  if (headerStateBtn) headerStateBtn.toggleAttribute('hidden', isNl)
+
+  if (headerStateBtn) {
+    headerStateBtn.toggleAttribute('hidden', isNl)
+    if (!isNl) {
+      headerStateBtn.textContent = stateRegion === US_REGION_CODE ? 'US' : (getStateAbbrevByRegion(stateRegion) || stateRegion)
+      headerStateBtn.title = getStateNameByRegion(stateRegion) || 'Choose state'
+    }
+    headerStateBtn.classList.toggle('is-pending', hasPending)
+  }
+
+  if (headerCountyBtn) {
+    headerCountyBtn.textContent = countyLabel
+    headerCountyBtn.title = hasPending ? `Pending: ${countyLabel}` : countyLabel
+    headerCountyBtn.classList.toggle('is-pending', hasPending)
+  }
+
+  if (bottomLocationBar) {
+    bottomLocationBar.classList.toggle('has-pending', hasPending)
+    bottomLocationBar.dataset.pending = hasPending ? 'true' : 'false'
+  }
+
+  if (bottomReloadBtn) {
+    bottomReloadBtn.classList.toggle('has-pending', hasPending)
+    bottomReloadBtn.classList.toggle('active', hasPending)
+    const label = hasPending ? 'Apply pending location' : 'Reload current location'
+    bottomReloadBtn.title = label
+    bottomReloadBtn.setAttribute('aria-label', label)
+  }
+}
+
+function setPendingLocationSelection({ regionCode = null, countyOption = null, persist = true } = {}) {
+  pendingCountyOption = clonePendingCountyOption(countyOption)
+  const normalizedRegion = String(regionCode || pendingCountyOption?.countyRegion || '').toUpperCase()
+  pendingRegionCode = normalizedRegion || null
+  if (persist) savePendingLocationSelection()
+  syncLocationBarState()
+}
+
+function clearPendingLocationSelection({ persist = true } = {}) {
+  pendingRegionCode = null
+  pendingCountyOption = null
+  if (persist) savePendingLocationSelection()
+  syncLocationBarState()
+}
+
+function restorePendingLocationSelection() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(PENDING_LOCATION_STORAGE_KEY) || 'null')
+    if (!raw || typeof raw !== 'object') return false
+    const countyOption = clonePendingCountyOption(raw.countyOption)
+    const regionCode = String(raw.regionCode || countyOption?.countyRegion || '').toUpperCase()
+    if (!countyOption && !regionCode) return false
+    pendingCountyOption = countyOption
+    pendingRegionCode = regionCode || null
+    syncLocationBarState()
+    return true
+  } catch {
+    return false
+  }
 }
 
 function closeSpeciesPicker() {
@@ -1548,7 +1669,7 @@ function refreshHeaderCountyOptions() {
     loadingOption.value = ''
     loadingOption.textContent = 'Loading…'
     headerCountySelect.appendChild(loadingOption)
-    if (headerCountyBtn) headerCountyBtn.textContent = 'Loading…'
+    syncLocationBarState()
     return
   }
   const activeRegion = String(currentCountyRegion || '').toUpperCase()
@@ -1594,10 +1715,7 @@ function refreshHeaderCountyOptions() {
     headerCountySelect.selectedIndex = 0
   }
 
-  if (headerCountyBtn) {
-    const selectedOpt = headerCountySelect.selectedOptions?.[0]
-    headerCountyBtn.textContent = selectedOpt?.textContent || String(options[headerCountySelect.selectedIndex]?.countyName || 'County')
-  }
+  syncLocationBarState()
 }
 
 function refreshHeaderStateOptions() {
@@ -1612,9 +1730,6 @@ function refreshHeaderStateOptions() {
       return `<option value="${escapeHtml(state.code)}" ${selected ? 'selected' : ''}>${escapeHtml(state.name)}</option>`
     })
     .join('')
-
-  const abbrev = getStateAbbrevByRegion(activeState)
-  headerStateBtn.textContent = abbrev
   const stateObj = options.find((s) => s.code === activeState)
   headerStateBtn.title = stateObj ? stateObj.name : 'Choose state'
   refreshLocationBar()
@@ -1657,7 +1772,8 @@ function renderStatePickerOptions() {
     [usEntry, ...usRegions].map(makeBtn).join('')
 }
 
-async function activateStateByRegion(stateRegion) {
+async function activateStateByRegion(stateRegion, { preservePending = false } = {}) {
+  if (!preservePending) clearPendingLocationSelection()
   const normalized = String(stateRegion || '').toUpperCase()
   if (normalized === US_REGION_CODE) {
     // US-wide mode: default to ABA 3/4/5 only
@@ -1668,6 +1784,7 @@ async function activateStateByRegion(stateRegion) {
     await loadNationalNotables(US_REGION_CODE, 3)
     refreshHeaderStateOptions()
     renderStatePickerOptions()
+    syncLocationBarState()
     return
   }
   if (!isStateRegionCode(normalized)) return
@@ -1678,14 +1795,15 @@ async function activateStateByRegion(stateRegion) {
   refreshHeaderStateOptions()
   renderStatePickerOptions()
   refreshHeaderCountyOptions()
+  syncLocationBarState()
 }
 
-function switchToCountyOption(option) {
+async function switchToCountyOption(option) {
   if (!option) return
   const optionRegion = String(option.countyRegion || '').toUpperCase()
   const activeRegion = String(currentCountyRegion || '').toUpperCase()
   if (optionRegion && optionRegion === activeRegion) return
-  void loadNeighborCounty(option.lat, option.lng, option.countyRegion, option.countyName)
+  return loadNeighborCounty(option.lat, option.lng, option.countyRegion, option.countyName)
 }
 
 function resetFiltersForCountySwitch() {
@@ -1809,16 +1927,17 @@ function activateCountyByRegion(countyRegion, lat = null, lng = null, countyName
     }
   }
 
-  activateCountyFromOption(option)
+  return activateCountyFromOption(option)
 }
 
-function activateCountyFromOption(option) {
+async function activateCountyFromOption(option, { preservePending = false } = {}) {
   if (!option) return
+  if (!preservePending) clearPendingLocationSelection()
   const region = String(option.countyRegion || '').toUpperCase()
   if (!region) {
     if (Number.isFinite(Number(option.lat)) && Number.isFinite(Number(option.lng))) {
       resetFiltersForCountySwitch()
-      void loadNeighborCounty(Number(option.lat), Number(option.lng), null, option.countyName || '')
+      return loadNeighborCounty(Number(option.lat), Number(option.lng), null, option.countyName || '')
     }
     return
   }
@@ -1832,12 +1951,6 @@ function activateCountyFromOption(option) {
     }
   }
 
-  if (headerCountyBtn) {
-    const selectedOpt = headerCountySelect?.selectedOptions?.[0]
-    const fallbackName = option.countyName || 'County'
-    headerCountyBtn.textContent = selectedOpt?.textContent || String(fallbackName)
-  }
-
   if (isCountyRegionCode(region)) {
     activeSortCountyRegion = region
   }
@@ -1849,7 +1962,8 @@ function activateCountyFromOption(option) {
   const resolvedOption = countyPickerOptions.find((opt) => String(opt.countyRegion || '').toUpperCase() === region) || option
 
   resetFiltersForCountySwitch()
-  switchToCountyOption(resolvedOption)
+  syncLocationBarState()
+  return switchToCountyOption(resolvedOption)
 }
 
 function refreshSearchRegionOptions() {
@@ -5385,21 +5499,12 @@ headerCountryBtn?.addEventListener('click', (event) => {
     if (!item) return
     cleanup()
     const code = item.dataset.code
-    pendingRegionCode = code === 'NL' ? 'NL' : US_REGION_CODE
-    pendingCountyOption = null
+    setPendingLocationSelection({ regionCode: code === 'NL' ? 'NL' : US_REGION_CODE, countyOption: null })
     const isNl = code === 'NL'
-    if (headerCountryBtn) headerCountryBtn.textContent = isNl ? 'NL' : 'US'
-    if (headerStateBtn) {
-      headerStateBtn.toggleAttribute('hidden', isNl)
-      if (!isNl) headerStateBtn.textContent = '-'
-    }
-    if (headerCountyBtn) headerCountyBtn.textContent = isNl ? 'Select Province' : 'Select State'
     // Open next-level picker: for US open state picker, for NL open province (county) picker
     if (!isNl) {
       renderStatePickerOptions()
       toggleStatePicker()
-    } else {
-      toggleCountyPicker()
     }
   })
   window.setTimeout(() => document.addEventListener('click', cleanup, { once: true, capture: true }), 0)
@@ -5414,7 +5519,7 @@ headerStateBtn?.addEventListener('click', (event) => {
 headerStateSelect?.addEventListener('change', async (event) => {
   const next = String(event?.target?.value || '').toUpperCase()
   if (next !== US_REGION_CODE && !isStateRegionCode(next)) return
-  await activateStateByRegion(next)
+  setPendingLocationSelection({ regionCode: next, countyOption: null })
 })
 
 headerCountySelect?.addEventListener('change', (event) => {
@@ -5423,12 +5528,11 @@ headerCountySelect?.addEventListener('change', (event) => {
   if (!countyRegion) return
   const option = countyPickerOptions.find((opt) => String(opt.countyRegion || '').toUpperCase() === countyRegion) || null
   if (option) {
-    activateCountyFromOption(option)
+    setPendingLocationSelection({ countyOption: option })
     return
   }
 
-  // Fallback: activate by region with unknown center (loadNeighborCounty will resolve from cached/geojson if possible)
-  activateCountyByRegion(countyRegion, null, null, '')
+  setPendingLocationSelection({ regionCode: countyRegion, countyOption: { countyRegion, countyName: '' } })
 })
 filterDaysBackInput?.addEventListener('input', (event) => {
   filterDaysBack = Number(event.target.value) || 7
@@ -5541,23 +5645,33 @@ menuPinBtn?.addEventListener('click', () => {
 bottomReloadBtn?.addEventListener('click', async () => {
   const targetRegion = pendingRegionCode
   const targetCounty = pendingCountyOption
-  pendingRegionCode = null
-  pendingCountyOption = null
-  if (targetCounty) {
-    await activateCountyFromOption(targetCounty)
-  } else if (targetRegion) {
-    await activateStateByRegion(targetRegion)
-  } else {
-    // Re-fetch current location (no pending changes)
+  try {
+    if (targetCounty) {
+      await activateCountyFromOption(targetCounty, { preservePending: true })
+      clearPendingLocationSelection()
+      return
+    }
+    if (targetRegion) {
+      await activateStateByRegion(targetRegion, { preservePending: true })
+      clearPendingLocationSelection()
+      return
+    }
+
+    // Re-fetch current context (no pending changes)
     const cr = String(currentCountyRegion || '').toUpperCase()
     if (!cr) return
     if (cr === US_REGION_CODE || isStateRegionCode(cr)) {
       await activateStateByRegion(cr)
-    } else {
-      const opt = countyPickerOptions.find((o) => String(o.countyRegion || '').toUpperCase() === cr)
-      if (opt) await activateCountyFromOption(opt)
-      else await activateStateByRegion(stateRegionFromAnyRegion(cr) || 'NL')
+      return
     }
+    const opt = countyPickerOptions.find((o) => String(o.countyRegion || '').toUpperCase() === cr)
+    if (opt) {
+      await activateCountyFromOption(opt)
+      return
+    }
+    await activateStateByRegion(stateRegionFromAnyRegion(cr) || 'NL')
+  } catch (error) {
+    console.error('soft reload failed:', error)
   }
 })
 mapFullscreenToggleBtn.addEventListener('click', () => {
@@ -5613,9 +5727,7 @@ countyPickerList?.addEventListener('click', (event) => {
   const option = countyPickerOptions[index]
   if (!option) return
   closeCountyPicker()
-  // Set pending selection — data loads only when Reload is pressed
-  pendingCountyOption = option
-  if (headerCountyBtn) headerCountyBtn.textContent = String(option.countyName || 'County')
+  setPendingLocationSelection({ countyOption: option })
 })
 
 speciesPickerList?.addEventListener('click', (event) => {
@@ -5654,19 +5766,7 @@ statePickerList?.addEventListener('click', (event) => {
   const code = String(btn.dataset.code || '').toUpperCase()
   if (!code) return
   closeStatePicker()
-  // Set pending selection — data loads only when Reload is pressed
-  pendingRegionCode = code
-  pendingCountyOption = null
-  const isNl = LEAF_SUBNATIONAL1_COUNTRIES.has(code)
-  const isUs = code.startsWith('US')
-  if (headerCountryBtn) headerCountryBtn.textContent = isNl ? 'NL' : isUs ? 'US' : code.split('-')[0] || code
-  if (headerStateBtn) {
-    headerStateBtn.toggleAttribute('hidden', isNl)
-    if (!isNl) headerStateBtn.textContent = getStateAbbrevByRegion(code) || code
-  }
-  if (headerCountyBtn) {
-    headerCountyBtn.textContent = isNl ? 'Select Province' : code === US_REGION_CODE ? 'Select State' : 'Select County'
-  }
+  setPendingLocationSelection({ regionCode: code, countyOption: null })
 })
 
 function activateAbaPill(pill) {
@@ -5972,6 +6072,24 @@ async function bootAppOnce() {
     }
   } else {
     statePrefetchDaysBack = DEFAULT_STATE_PREFETCH_DAYS_BACK
+  }
+
+  if (restorePendingLocationSelection()) {
+    try {
+      locationStatus.className = 'badge warn'
+      locationStatus.textContent = 'Pending'
+      locationDetail.textContent = 'Applying saved selection…'
+      if (pendingCountyOption) {
+        await activateCountyFromOption(pendingCountyOption, { preservePending: true })
+      } else if (pendingRegionCode) {
+        await activateStateByRegion(pendingRegionCode, { preservePending: true })
+      }
+      clearPendingLocationSelection()
+      updateRuntimeLog()
+      return
+    } catch (error) {
+      console.error('pending startup load failed:', error)
+    }
   }
 
   // Default fallback: Netherlands (province-level state view).
