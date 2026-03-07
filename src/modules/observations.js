@@ -162,8 +162,8 @@ export function matchesAbaSelection(item, abaMinValue, selectedCodes) {
     if (codeIsNull) return selected.has(0)
     return selected.has(code)
   }
-  if (!Number.isFinite(code)) return false
   const minCode = Math.max(1, Number(abaMinValue) || 1)
+  if (!Number.isFinite(code)) return minCode <= 1
   return code >= minCode
 }
 
@@ -281,7 +281,17 @@ export function getItemStateAbbrev(item) {
 
 /** County display name from subnational2Name or subnational2Code. */
 export function getItemCountyName(item) {
-  return String(item?.subnational2Name || item?.subnational2Code || '')
+  const county = String(item?.subnational2Name || item?.subnational2Code || '').trim()
+  if (county) return county
+
+  // LEAF countries (e.g. NL): province is stored at subnational1.*
+  const stateCode = String(item?.subnational1Code || '').toUpperCase()
+  if (stateCode.startsWith('NL-')) {
+    const province = String(item?.subnational1Name || item?.subnational1Code || '').trim()
+    if (province) return province
+  }
+
+  return ''
 }
 
 /** Composite group key: "species::state::county" (used for table row deduplication). */

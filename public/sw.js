@@ -30,7 +30,5 @@ self.addEventListener('activate', (event) => {
   })())
 })
 
-self.addEventListener('fetch', () => {
-  // No-op: this worker exists only to invalidate caches on each new deploy.
-  // All fetches pass through to the network unchanged.
-})
+// No fetch handler on purpose: navigation and asset requests go directly to
+// the network; this worker is only for install/activate cache invalidation.

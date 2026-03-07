@@ -1,0 +1,7 @@
+{
+  "species": {},
+  "meta": {
+    "source": "Manual scaffold",
+    "notes": "Populate via scripts/build-nl-species-reference.py using authoritative NL rarity inputs."
+  }
+}

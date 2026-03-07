@@ -3,6 +3,10 @@ import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 import { API_BASE_URL, fetchWorkerHealth } from './config/api.js'
 import { getYoloSpeciesInfo, getSpeciesMapLabel, getAbaCodeOverride } from './data/species-reference.js'
+import LOCAL_SPECIES_NAMES from './data/species-local-names.json'
+import NL_SPECIES_REFERENCE_DATA from './data/nl-species-reference.json'
+import NL_CDNA_REVIEW_SCIENTIFIC from './data/nl-cdna-review-scientific.json'
+import AVIBASE_NL_CHECKLIST_DATA from './data/avibase-nl-checklist.json'
 import {
   distanceKm, pointInRing, pointInPolygon, featureContainsPoint,
   normalizeRingCoordinates, buildInverseMaskFeaturesFromActiveFeatures, getFeatureVisualCenter,
@@ -16,7 +20,7 @@ import {
   cutoffDateForDaysBack, getAbaCodeNumber, matchesAbaSelection,
   filterObservationsToCountyRegion, filterObservationsToStateRegion,
   summarizeCountyObservations, formatCountySummary, formatCountySummaryPills,
-  parseObsDate, formatShortDate, formatObsDateTime, formatObsDayMonthTime24, formatObservationDate,
+  parseObsDate, formatShortDate, formatObservationDate,
   parseFirstAvailableObsDate, getObservationGroupKey, getItemStateAbbrev, getItemCountyName,
   getLocationKeyForItem, buildLocationIndexForPopup, isConfirmedObservation, dayOffsetFromToday,
 } from './modules/observations.js'
@@ -87,6 +91,7 @@ app.innerHTML = `
       <button id="menuSearch" class="header-toggle" type="button" aria-label="Search region" title="Search / filter region">
         <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
       </button>
+      <button id="speciesLangToggle" class="header-toggle header-toggle-lang" type="button" aria-label="Toggle species language" title="Species labels: English">EN</button>
       <button id="menuInfo" class="header-toggle" type="button" aria-label="About this page" title="About this page">i</button>
 
       <section id="statusPopover" class="status-popover status-hidden" aria-hidden="true">
@@ -102,6 +107,11 @@ app.innerHTML = `
           <span id="perfBadge" class="badge badge--perf">—</span>
         </div>
         <p id="perfDetail" class="detail detail--perf"></p>
+
+        <div class="row">
+          <span>Poly Block</span>
+          <span id="polygonBlockBadge" class="badge warn">Off</span>
+        </div>
 
         <div class="row">
           <span>My Location</span>
@@ -133,6 +143,12 @@ app.innerHTML = `
         </button>
         <button id="mapLocateBtn" class="map-ctrl-btn" type="button" aria-label="Zoom to my location" title="My location">
           <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><polygon points="12,3 19,20 12,16 5,20"/></svg>
+        </button>
+        <button id="mapMeasureBtn" class="map-ctrl-btn" type="button" aria-pressed="false" aria-label="Measure distance" title="Measure distance">
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l12-6 6 12-12 6z"/><path d="M8 6l2 4"/><path d="M12 4l2 4"/><path d="M7 12l2 4"/><path d="M11 10l2 4"/></svg>
+        </button>
+        <button id="mapNearbyRadiusBtn" class="map-ctrl-btn map-radius-btn" type="button" aria-label="Nearby observations radius" title="Nearby radius">
+          1km
         </button>
         <button id="mapLabelToggle" class="map-ctrl-btn" type="button" aria-pressed="true" aria-label="Toggle point labels" title="Toggle labels">
           <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><text x="12" y="17" text-anchor="middle" font-size="9" font-weight="700" font-family="sans-serif" fill="currentColor" stroke="none">B</text></svg>
@@ -175,6 +191,7 @@ app.innerHTML = `
                 <tr>
                   <th class="col-code sortable" id="thCode" data-sort="code">Code<span class="sort-icon" aria-hidden="true"></span></th>
                   <th class="col-species sortable" id="thSpecies" data-sort="species">Species<span class="sort-icon" aria-hidden="true"></span></th>
+                  <th class="col-state sortable" id="thState" data-sort="state">State<span class="sort-icon" aria-hidden="true"></span></th>
                   <th class="col-county sortable" id="thCounty" data-sort="county">County<span class="sort-icon" aria-hidden="true"></span></th>
                   <th class="col-date sortable" id="thLast" data-sort="last"><span class="th-two-line">Last<br>Seen</span><span class="sort-icon" aria-hidden="true"></span></th>
                   <th class="col-reports" id="thReports">
@@ -200,10 +217,7 @@ app.innerHTML = `
     </main>
 
     <!-- ABA filter bar — shows interactive ABA code filter pills -->
-    <div class="bottom-aba-filter-bar" aria-label="ABA code filter" hidden aria-hidden="true">
-      <button id="shareTableBtn" class="aba-share-btn" type="button" hidden aria-label="Share list" title="Share visible list">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-      </button>
+    <div class="bottom-aba-filter-bar" aria-label="ABA code filter" aria-hidden="false">
       <div id="topAbaPills" class="top-aba-pills" aria-label="ABA counts"></div>
     </div>
 
@@ -284,6 +298,7 @@ app.innerHTML = `
       <div class="species-detail-header">
         <button id="speciesDetailBackBtn" class="species-detail-back" type="button" aria-label="Back">&#x2190; Back</button>
         <span id="speciesDetailTitle" class="species-detail-title"></span>
+        <span id="speciesDetailStatus" class="species-detail-status" hidden></span>
       </div>
       <div id="speciesDetailBody" class="species-detail-body obs-popup"></div>
     </div>
@@ -296,7 +311,7 @@ app.innerHTML = `
           <select id="searchRegionSelect" class="top-menu-select" aria-label="Search state"></select>
         </label>
         <label class="menu-popover-field" for="searchCountySelect">
-          <span>County:</span>
+          <span id="searchCountyLabel">County:</span>
           <select id="searchCountySelect" class="top-menu-select" aria-label="Search county"></select>
         </label>
         <label class="menu-popover-field" for="searchSpeciesSelect">
@@ -344,6 +359,7 @@ const statusPopover = document.querySelector('#statusPopover')
 const menuInfoBtn = document.querySelector('#menuInfo')
 const menuSearchBtn = document.querySelector('#menuSearch')
 const menuPinBtn = document.querySelector('#menuPin')
+const speciesLangToggleBtn = document.querySelector('#speciesLangToggle')
 const bottomReloadBtn = document.querySelector('#bottomReloadBtn')
 const infoModal = document.querySelector('#infoModal')
 const infoCloseBtn = document.querySelector('#infoCloseBtn')
@@ -353,6 +369,7 @@ const tapDebugLog = document.querySelector('#tapDebugLog')
 const searchPopover = document.querySelector('#searchPopover')
 const searchRegionSelect = document.querySelector('#searchRegionSelect')
 const searchCountySelect = document.querySelector('#searchCountySelect')
+const searchCountyLabel = document.querySelector('#searchCountyLabel')
 const searchSpeciesSelect = document.querySelector('#searchSpeciesSelect')
 const searchAbaMinInput = document.querySelector('#searchAbaMinInput')
 const searchAbaMinValue = document.querySelector('#searchAbaMinValue')
@@ -367,6 +384,8 @@ const mapLoadingText = document.querySelector('#mapLoadingText')
 const mapFullscreenToggleBtn = document.querySelector('#mapFullscreenToggle')
 const mapBasemapToggleBtn = document.querySelector('#mapBasemapToggle')
 const mapLocateBtn = document.querySelector('#mapLocateBtn')
+const mapMeasureBtn = document.querySelector('#mapMeasureBtn')
+const mapNearbyRadiusBtn = document.querySelector('#mapNearbyRadiusBtn')
 const mapLabelToggleBtn = document.querySelector('#mapLabelToggle')
 const mapTableSplitter = document.querySelector('#mapTableSplitter')
 const appShell = document.querySelector('#appShell')
@@ -382,12 +401,12 @@ const locPermRetryBtn = document.querySelector('#locPermRetryBtn')
 const locPermDeclineBtn = document.querySelector('#locPermDeclineBtn')
 const notableCount = document.querySelector('#notableCount')
 const notableMeta = document.querySelector('#notableMeta')
-const shareTableBtn = document.querySelector('#shareTableBtn')
 const topAbaPills = document.querySelector('#topAbaPills')
 const bottomAbaBar = document.querySelector('.bottom-aba-filter-bar')
 const bottomLocationBar = document.querySelector('.bottom-location-bar')
 const countyPicker = document.querySelector('#countyPicker')
 const countyPickerList = document.querySelector('#countyPickerList')
+const countyPickerTitle = countyPicker?.querySelector('.county-picker-title')
 const pickerAbaPills = document.querySelector('#pickerAbaPills')
 const speciesPicker = document.querySelector('#speciesPicker')
 const speciesPickerList = document.querySelector('#speciesPickerList')
@@ -400,10 +419,13 @@ const notableRows = document.querySelector('#notableRows')
 const speciesDetailPanel = document.querySelector('#speciesDetailPanel')
 const speciesDetailBody = document.querySelector('#speciesDetailBody')
 const speciesDetailTitle = document.querySelector('#speciesDetailTitle')
+const speciesDetailDebug = document.querySelector('#speciesDetailDebug')
+const speciesDetailStatus = document.querySelector('#speciesDetailStatus')
 const speciesDetailBackBtn = document.querySelector('#speciesDetailBackBtn')
 const tableRenderStatus = document.querySelector('#tableRenderStatus')
 const perfBadge = document.querySelector('#perfBadge')
 const perfDetail = document.querySelector('#perfDetail')
+const polygonBlockBadge = document.querySelector('#polygonBlockBadge')
 
 function syncPickerInsets() {
   const headerEl = document.querySelector('.app-header')
@@ -547,8 +569,25 @@ let currentActiveCountyCode = ''
 let latestCountyContextGeojson = null
 let filterDaysBack = 7
 let filterAbaMin = 1
-let selectedReviewFilter = null
+let selectedReviewFilters = new Set()
 let selectedSpecies = null
+let mapPointSpeciesFilter = new Set()
+let lastSpeciesDetailStateRegion = null
+let currentPhysicalCountryCode = null
+let latestSpeciesFrequencyRequestId = 0
+const speciesFrequencyRegionCache = new Map()
+const FREQUENCY_MONTH_LABELS = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D']
+const FREQUENCY_WEEKLY_Y_MAX = 50
+const FREQUENCY_WEEKLY_AXIS_BINS = [
+  { threshold: 2, axisMax: 5 },
+  { threshold: 10, axisMax: 10 },
+  { threshold: 30, axisMax: 25 },
+  { threshold: Infinity, axisMax: 50 },
+]
+const FREQUENCY_WEEKLY_BAR_HEADROOM_PCT = 46
+const FREQUENCY_WEEKLY_STRETCH_MULTIPLIER = 2.6
+let frequencyWeeklyScaleMode = 'stretched'
+let _frequencyScaleToggleHandlerInstalled = false
 let countyPickerOptions = []
 let selectedAbaCodes = new Set()
 let abaCodePickerOptions = []
@@ -565,6 +604,13 @@ let lastFilteredObservations = []
 let lastFilteredObservationsNoSpecies = []
 let lastFilteredRegion = null
 let currentMode = 'hybrid' // 'hybrid' | 'list' | 'map' | 'species'
+let speciesNameLanguage = 'en' // 'en' | 'nl'
+let mapMeasureMode = false
+let mapMeasurePoints = []
+let mapMeasureLineLayer = null
+let mapMeasureLabelMarker = null
+let nearbyObservationRadiusKm = 1
+const nearbyObservationRadiusOptionsKm = [0.5, 1, 2]
 // Pending location selections — set by pickers, applied only when Reload is pressed.
 let pendingRegionCode = null   // e.g. 'NL', 'US', 'US-CA' — not yet loaded
 let pendingCountyOption = null // countyPickerOption — not yet loaded
@@ -579,6 +625,197 @@ const stateSummaryByRegion = new Map()
 const stateCountyOptionsCache = new Map()
 const lastGoodObservationsByRegion = new Map()
 let lastGoodObservationSnapshot = null
+
+function normalizeSpeciesLookupKey(value) {
+  return String(value || '')
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\([^)]*\)/g, ' ')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+}
+
+function normalizeScientificName(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/[^a-z\s-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+const LOCAL_SPECIES_NAME_LOOKUP = (() => {
+  const map = new Map()
+  const source = (LOCAL_SPECIES_NAMES && typeof LOCAL_SPECIES_NAMES === 'object') ? LOCAL_SPECIES_NAMES : {}
+  Object.entries(source).forEach(([englishName, payload]) => {
+    const key = normalizeSpeciesLookupKey(englishName)
+    if (!key) return
+    const addPayload = (entryKey, entryPayload) => {
+      if (!entryKey) return
+      map.set(entryKey, entryPayload)
+    }
+    if (typeof payload === 'string') {
+      const packed = { nl: payload }
+      addPayload(key, packed)
+      return
+    }
+    if (payload && typeof payload === 'object') {
+      const normalized = {}
+      Object.entries(payload).forEach(([cc, value]) => {
+        const country = String(cc || '').trim().toLowerCase()
+        const name = String(value || '').trim()
+        if (!country || !name) return
+        normalized[country] = name
+      })
+      if (Object.keys(normalized).length > 0) addPayload(key, normalized)
+    }
+  })
+  return map
+})()
+
+const NL_SPECIES_REFERENCE_LOOKUP = (() => {
+  const map = new Map()
+  const source = (NL_SPECIES_REFERENCE_DATA && typeof NL_SPECIES_REFERENCE_DATA === 'object')
+    ? (NL_SPECIES_REFERENCE_DATA.species || {})
+    : {}
+  Object.entries(source).forEach(([englishName, payload]) => {
+    const key = normalizeSpeciesLookupKey(englishName)
+    if (!key || !payload || typeof payload !== 'object') return
+    map.set(key, payload)
+  })
+  return map
+})()
+
+const AVIBASE_NL_ENGLISH_LOOKUP = (() => {
+  const map = new Map()
+  const source = (AVIBASE_NL_CHECKLIST_DATA && typeof AVIBASE_NL_CHECKLIST_DATA === 'object')
+    ? (AVIBASE_NL_CHECKLIST_DATA.entries || [])
+    : []
+  source.forEach((row) => {
+    if (!row || typeof row !== 'object') return
+    const englishKey = normalizeSpeciesLookupKey(row.englishName)
+    if (!englishKey) return
+    const current = Array.isArray(map.get(englishKey)) ? map.get(englishKey) : []
+    current.push(row)
+    map.set(englishKey, current)
+  })
+  return map
+})()
+
+const AVIBASE_NL_SCIENTIFIC_LOOKUP = (() => {
+  const map = new Map()
+  const source = (AVIBASE_NL_CHECKLIST_DATA && typeof AVIBASE_NL_CHECKLIST_DATA === 'object')
+    ? (AVIBASE_NL_CHECKLIST_DATA.entries || [])
+    : []
+  source.forEach((row) => {
+    if (!row || typeof row !== 'object') return
+    const sciKey = normalizeScientificName(row.scientificName)
+    if (!sciKey) return
+    if (!map.has(sciKey)) map.set(sciKey, row)
+  })
+  return map
+})()
+
+const NL_CDNA_REVIEW_SCIENTIFIC_SET = (() => {
+  const set = new Set()
+  const source = Array.isArray(NL_CDNA_REVIEW_SCIENTIFIC) ? NL_CDNA_REVIEW_SCIENTIFIC : []
+  source.forEach((name) => {
+    const normalized = normalizeScientificName(name)
+    if (normalized) set.add(normalized)
+  })
+  return set
+})()
+
+const NL_RARITY_RANK = new Map([
+  ['R', 6],
+  ['A', 5], ['B', 4], ['C', 3], ['D', 2], ['E', 1],
+  ['1', 5], ['2', 4], ['3', 3], ['4', 2], ['5', 1],
+])
+
+function getNlSpeciesReference(speciesName) {
+  const key = normalizeSpeciesLookupKey(speciesName)
+  if (!key) return null
+  return NL_SPECIES_REFERENCE_LOOKUP.get(key) || null
+}
+
+function getAvibaseNlChecklistInfo(speciesName, scientificName = '') {
+  const sciKey = normalizeScientificName(scientificName)
+  if (sciKey && AVIBASE_NL_SCIENTIFIC_LOOKUP.has(sciKey)) {
+    return AVIBASE_NL_SCIENTIFIC_LOOKUP.get(sciKey) || null
+  }
+
+  const englishKey = normalizeSpeciesLookupKey(speciesName)
+  if (!englishKey) return null
+  const rows = Array.isArray(AVIBASE_NL_ENGLISH_LOOKUP.get(englishKey))
+    ? AVIBASE_NL_ENGLISH_LOOKUP.get(englishKey)
+    : []
+  if (!rows.length) return null
+
+  if (sciKey) {
+    const exactScientific = rows.find((row) => normalizeScientificName(row?.scientificName) === sciKey)
+    if (exactScientific) return exactScientific
+  }
+  return rows[0] || null
+}
+
+function isNlCdnaReviewScientificName(scientificName) {
+  const normalized = normalizeScientificName(scientificName)
+  if (!normalized) return false
+  if (NL_CDNA_REVIEW_SCIENTIFIC_SET.has(normalized)) return true
+  const parts = normalized.split(' ')
+  if (parts.length >= 2) {
+    const binomial = `${parts[0]} ${parts[1]}`
+    if (NL_CDNA_REVIEW_SCIENTIFIC_SET.has(binomial)) return true
+  }
+  return false
+}
+
+function getNlRarityCodeForSpecies(speciesName, scientificName = '') {
+  const info = getNlSpeciesReference(speciesName)
+  const code = String(info?.nlRarityCode || '').trim().toUpperCase()
+  const sci = String(scientificName || info?.scientificName || '').trim()
+  if (code === 'R') {
+    return isNlCdnaReviewScientificName(sci) ? 'R' : null
+  }
+  if (code) return code
+  if (isNlCdnaReviewScientificName(sci)) return 'R'
+  return null
+}
+
+function validateNlReviewLabelConsistency() {
+  const mismatches = []
+  NL_SPECIES_REFERENCE_LOOKUP.forEach((payload, key) => {
+    const rarityCode = String(payload?.nlRarityCode || '').trim().toUpperCase()
+    if (rarityCode !== 'R') return
+    const sci = String(payload?.scientificName || '').trim()
+    if (!isNlCdnaReviewScientificName(sci)) {
+      mismatches.push({ key, scientificName: sci || 'missing scientific name' })
+    }
+  })
+  if (mismatches.length > 0) {
+    console.warn('NL review-label mismatch: species marked R but not in CDNA review scientific list', mismatches.slice(0, 25))
+  }
+}
+
+function isNlRarityPillMode(regionCode = currentCountyRegion) {
+  const state = stateRegionFromAnyRegion(regionCode) || String(regionCode || '').toUpperCase()
+  return LEAF_SUBNATIONAL1_COUNTRIES.has(String(state || '').toUpperCase())
+}
+
+function getReviewPillCodeForObservation(item) {
+  const species = String(item?.comName || '').trim()
+  const scientific = String(item?.sciName || item?.scientificName || '').trim()
+  const code = String(getNlRarityCodeForSpecies(species, scientific) || '').toUpperCase()
+  return code === 'R' ? 'R' : 'N'
+}
+
+function getNlRarityRank(code) {
+  if (code === null || code === undefined) return -1
+  const normalized = String(code).trim().toUpperCase()
+  if (!normalized) return -1
+  if (NL_RARITY_RANK.has(normalized)) return NL_RARITY_RANK.get(normalized)
+  return -1
+}
 
 const DEFAULT_STATE_PREFETCH_DAYS_BACK = 14
 let statePrefetchDaysBack = DEFAULT_STATE_PREFETCH_DAYS_BACK
@@ -686,7 +923,7 @@ function armUiFailsafeTimer() {
         notableCount.textContent = '0'
       }
       if (notableMeta) notableMeta.textContent = 'Recovered from a stuck loading state'
-      if (notableRows) notableRows.innerHTML = '<tr><td colspan="7">A stuck loading operation was reset. Try your action again.</td></tr>'
+      if (notableRows) notableRows.innerHTML = '<tr><td colspan="8">A stuck loading operation was reset. Try your action again.</td></tr>'
       updateStatPills('0', '0', '0')
       setTableRenderStatus('failsafe-watchdog-reset')
     }
@@ -894,9 +1131,21 @@ function applyActiveFiltersAndRender(options = {}) {
     return true
   })
   updateAbaCodePickerOptions(filteredByDays)
+  const isNlMode = isNlRarityPillMode(activeRegion)
+  const hasReviewFilter = selectedReviewFilters instanceof Set && selectedReviewFilters.size > 0
   const filteredByStatus = filteredByDays.filter((item) => {
-    if (selectedReviewFilter === 'confirmed') return isConfirmedObservation(item)
-    if (selectedReviewFilter === 'pending') return !isConfirmedObservation(item)
+    if (isNlMode) {
+      if (!hasReviewFilter) return true
+      const reviewCode = getReviewPillCodeForObservation(item)
+      return selectedReviewFilters.has(reviewCode)
+    }
+    if (!hasReviewFilter) {
+      return true
+    }
+    const confirmedOnly = selectedReviewFilters.has('confirmed') && !selectedReviewFilters.has('pending')
+    const pendingOnly = selectedReviewFilters.has('pending') && !selectedReviewFilters.has('confirmed')
+    if (confirmedOnly) return isConfirmedObservation(item)
+    if (pendingOnly) return !isConfirmedObservation(item)
     return true
   })
 
@@ -907,9 +1156,13 @@ function applyActiveFiltersAndRender(options = {}) {
   lastPopupLocationIndexAllSpecies = buildLocationIndexForPopup(filteredNoSpecies)
 
   updateSpeciesPickerOptions(filteredByStatus)
+  const hasMapPointFilter = mapPointSpeciesFilter instanceof Set && mapPointSpeciesFilter.size > 0
+  const filteredByPointSpecies = hasMapPointFilter
+    ? filteredByStatus.filter((item) => mapPointSpeciesFilter.has(String(item?.comName || '')))
+    : filteredByStatus
   const filteredBySpecies = selectedSpecies
     ? filteredByStatus.filter((item) => String(item?.comName || '') === selectedSpecies)
-    : filteredByStatus
+    : filteredByPointSpecies
 
   const activeCountyCode = String(currentActiveCountyCode || '').toUpperCase()
   const isStateMode = isStateRegionCode(activeRegion) && !isCountyRegionCode(activeCountyCode)
@@ -926,8 +1179,11 @@ function applyActiveFiltersAndRender(options = {}) {
     if (selectedSpecies && filteredByStatus.length > 0) {
       selectedSpecies = null
       recovered = true
-    } else if (selectedReviewFilter) {
-      selectedReviewFilter = null
+    } else if (hasMapPointFilter && filteredByStatus.length > 0) {
+      mapPointSpeciesFilter = new Set()
+      recovered = true
+    } else if (selectedReviewFilters instanceof Set && selectedReviewFilters.size > 0) {
+      selectedReviewFilters = new Set()
       recovered = true
     }
 
@@ -996,8 +1252,9 @@ function renderSpeciesPickerOptions() {
   for (const opt of speciesPickerOptions) {
     const isActive = selectedSpecies === opt.name
     const badge = renderAbaCodeBadge(opt.maxAba)
+    const displayName = getDisplaySpeciesLabel(opt.name)
     rows.push(
-      `<button type="button" class="county-option${isActive ? ' is-active' : ''}" data-species="${escapeHtml(opt.name)}" role="option" aria-selected="${isActive ? 'true' : 'false'}"><span class="county-option-name">${escapeHtml(opt.name)}</span><span class="county-option-meta county-option-meta-pills">${badge}</span></button>`
+      `<button type="button" class="county-option${isActive ? ' is-active' : ''}" data-species="${escapeHtml(opt.name)}" role="option" aria-selected="${isActive ? 'true' : 'false'}"><span class="county-option-name">${escapeHtml(displayName || opt.name)}</span><span class="county-option-meta county-option-meta-pills">${badge}</span></button>`
     )
   }
   speciesPickerList.innerHTML = rows.join('')
@@ -1005,7 +1262,7 @@ function renderSpeciesPickerOptions() {
 
 function updateSpeciesButtonLabel() {
   if (!headerSpeciesBtn) return
-  headerSpeciesBtn.textContent = selectedSpecies ? String(selectedSpecies) : 'Species'
+  headerSpeciesBtn.textContent = selectedSpecies ? getDisplaySpeciesLabel(String(selectedSpecies)) : 'Species'
 }
 
 function syncSpeciesModeUi() {
@@ -1075,13 +1332,13 @@ function syncLocationBarState() {
     countyLabel = pendingRegion === 'NL'
       ? 'Select Province'
       : pendingRegion === US_REGION_CODE
-        ? 'Select State'
+        ? 'Select County'
         : 'Select County'
   } else if (!countyLabel) {
     countyLabel = activeRegion === 'NL'
       ? 'Select Province'
       : activeRegion === US_REGION_CODE
-        ? 'Select State'
+        ? 'Select County'
         : isStateRegionCode(activeRegion)
           ? 'Select County'
           : 'County'
@@ -1095,8 +1352,8 @@ function syncLocationBarState() {
   if (headerStateBtn) {
     headerStateBtn.toggleAttribute('hidden', isNl)
     if (!isNl) {
-      headerStateBtn.textContent = stateRegion === US_REGION_CODE ? 'US' : (getStateAbbrevByRegion(stateRegion) || stateRegion)
-      headerStateBtn.title = getStateNameByRegion(stateRegion) || 'Choose state'
+      headerStateBtn.textContent = stateRegion === US_REGION_CODE ? 'State' : (getStateAbbrevByRegion(stateRegion) || stateRegion)
+      headerStateBtn.title = stateRegion === US_REGION_CODE ? 'Choose state' : (getStateNameByRegion(stateRegion) || 'Choose state')
     }
     headerStateBtn.classList.toggle('is-pending', hasPending)
   }
@@ -1105,6 +1362,17 @@ function syncLocationBarState() {
     headerCountyBtn.textContent = countyLabel
     headerCountyBtn.title = hasPending ? `Pending: ${countyLabel}` : countyLabel
     headerCountyBtn.classList.toggle('is-pending', hasPending)
+  }
+
+  if (countyPickerTitle) {
+    countyPickerTitle.textContent = isNl ? 'Provinces' : 'Counties'
+  }
+
+  if (searchCountyLabel) {
+    searchCountyLabel.textContent = isNl ? 'Province:' : 'County:'
+  }
+  if (searchCountySelect) {
+    searchCountySelect.setAttribute('aria-label', isNl ? 'Search province' : 'Search county')
   }
 
   if (bottomLocationBar) {
@@ -1177,9 +1445,13 @@ function setPillExpandedLabel(pill, prefix) {
 
 function syncFilterPillUi() {
   const abaPills = document.querySelectorAll('#topAbaPills .stat-aba-pill, .picker-aba-pills .stat-aba-pill')
+  const isNlMode = isNlRarityPillMode()
   abaPills.forEach((pill) => {
-    const code = Number(pill.dataset.code)
-    const isActive = Number.isFinite(code) && selectedAbaCodes instanceof Set && selectedAbaCodes.has(code)
+    const rawCode = String(pill.dataset.code || '').toUpperCase()
+    const code = Number(rawCode)
+    const isActive = isNlMode
+      ? (rawCode === 'R' || rawCode === 'N') && selectedReviewFilters instanceof Set && selectedReviewFilters.has(rawCode)
+      : (Number.isFinite(code) && selectedAbaCodes instanceof Set && selectedAbaCodes.has(code))
     pill.classList.toggle('is-active', isActive)
     pill.setAttribute('aria-pressed', String(isActive))
   })
@@ -1277,7 +1549,7 @@ function buildCountyGeojsonWithActiveRegion(sourceGeojson, countyRegion) {
   const targetRegion = String(countyRegion).toUpperCase()
   let found = false
   const features = sourceGeojson.features.map((feature) => {
-    const regionRaw = feature?.properties?.countyRegion || feature?.properties?.subnational2Code || null
+    const regionRaw = feature?.properties?.countyRegion || feature?.properties?.subnational2Code || feature?.properties?.subnational1Code || null
     const region = regionRaw ? String(regionRaw).toUpperCase() : null
     const isActive = region === targetRegion
     if (isActive) found = true
@@ -1300,6 +1572,15 @@ function buildCountyGeojsonWithActiveRegion(sourceGeojson, countyRegion) {
   }
 }
 
+function getFeatureCountyRegionCode(feature) {
+  return String(
+    feature?.properties?.countyRegion
+    || feature?.properties?.subnational2Code
+    || feature?.properties?.subnational1Code
+    || ''
+  ).toUpperCase().trim()
+}
+
 function getFeatureCenter(feature) {
   try {
     const center = getFeatureVisualCenter(feature)
@@ -1312,11 +1593,56 @@ function getFeatureCenter(feature) {
 
 function findNeighborCountyFeatureAtLatLng(lat, lng) {
   const features = Array.isArray(latestCountyContextGeojson?.features) ? latestCountyContextGeojson.features : []
+  const activeRegion = String(currentCountyRegion || latestCountyContextGeojson?.activeCountyRegion || '').toUpperCase().trim()
   for (const feature of features) {
+    const featureRegion = getFeatureCountyRegionCode(feature)
     if (feature?.properties?.isActiveCounty) continue
+    if (activeRegion && featureRegion && featureRegion === activeRegion) continue
     if (featureContainsPoint(feature, lng, lat)) return feature
   }
   return null
+}
+
+function hasRenderedMapPoints() {
+  const source = Array.isArray(fastCanvasData) && fastCanvasData.length > 0
+    ? fastCanvasData
+    : (Array.isArray(fastCanvasBaseData) ? fastCanvasBaseData : [])
+  return source.some((pt) => pt && !pt.hidden)
+}
+
+function countyRegionHasRenderedSpeciesPoints(countyRegion) {
+  const region = String(countyRegion || '').toUpperCase()
+  if (!isCountyRegionCode(region)) return false
+  const source = Array.isArray(fastCanvasData) && fastCanvasData.length > 0
+    ? fastCanvasData
+    : (Array.isArray(fastCanvasBaseData) ? fastCanvasBaseData : [])
+  return source.some((pt) => {
+    if (!pt || pt.hidden) return false
+    const pointRegion = String(pt?.item?.subnational2Code || pt?.item?.subnational1Code || '').toUpperCase()
+    return pointRegion === region
+  })
+}
+
+function shouldBlockPolygonSwitch(targetCountyRegion = '') {
+  const activeRegion = String(currentCountyRegion || '').toUpperCase().trim()
+  const targetRegion = String(targetCountyRegion || '').toUpperCase()
+  return Boolean(activeRegion && targetRegion && targetRegion === activeRegion)
+}
+
+function syncPolygonBlockDebugBadge() {
+  if (!polygonBlockBadge) return
+  polygonBlockBadge.textContent = 'Off'
+  polygonBlockBadge.className = 'badge warn'
+}
+
+function isTapInsideActiveCounty(lat, lng) {
+  if (!Number.isFinite(Number(lat)) || !Number.isFinite(Number(lng))) return false
+  const features = Array.isArray(latestCountyContextGeojson?.features) ? latestCountyContextGeojson.features : []
+  for (const feature of features) {
+    if (!feature?.properties?.isActiveCounty) continue
+    if (featureContainsPoint(feature, Number(lng), Number(lat))) return true
+  }
+  return false
 }
 
 function zoomToActiveCounty(geojson, countyRegion = null, options = {}) {
@@ -1347,7 +1673,7 @@ function zoomToStateBounds(geojson, stateRegion) {
   if (!isStateRegionCode(normalizedState)) return false
   const prefix = `${normalizedState}-`
   const stateFeatures = geojson.features.filter((feature) => {
-    const countyRegion = String(feature?.properties?.countyRegion || feature?.properties?.subnational2Code || '').toUpperCase()
+    const countyRegion = String(feature?.properties?.countyRegion || feature?.properties?.subnational2Code || feature?.properties?.subnational1Code || '').toUpperCase()
     // Match exact (for a LEAF province feature: NL-GR === NL-GR) or prefix (US-CA counties start NL-GR-...)
     return countyRegion === normalizedState || countyRegion.startsWith(prefix)
   })
@@ -1465,7 +1791,49 @@ function renderStateMarkersOnMap(observations) {
   }
 
   for (const [stateCode, { count, maxAba }] of stateBuckets.entries()) {
-    const center = STATE_CENTERS.get(stateCode)
+    let center = null
+
+    // Prefer geometry-derived centres from currently loaded features.
+    const geoFeatures = Array.isArray(latestCountyContextGeojson?.features) ? latestCountyContextGeojson.features : []
+    const stateFeatures = geoFeatures.filter((f) => {
+      const featureState = String(f?.properties?.subnational1Code || '').toUpperCase()
+      const featureCounty = String(f?.properties?.countyRegion || f?.properties?.subnational2Code || '').toUpperCase()
+      return featureState === stateCode || featureCounty.startsWith(`${stateCode}-`)
+    })
+    if (stateFeatures.length > 0) {
+      let latSum = 0
+      let lngSum = 0
+      let n = 0
+      for (const feature of stateFeatures) {
+        const c = getFeatureCenter(feature)
+        if (!c) continue
+        latSum += c.lat
+        lngSum += c.lng
+        n += 1
+      }
+      if (n > 0) center = { lat: latSum / n, lng: lngSum / n }
+    }
+
+    // Fallback to data-driven center from loaded observations.
+    if (!center) {
+      let latSum = 0
+      let lngSum = 0
+      let n = 0
+      for (const item of observations) {
+        const itemState = String(item?.subnational1Code || '').toUpperCase()
+        if (itemState !== stateCode) continue
+        const lat = Number(item?.lat)
+        const lng = Number(item?.lng)
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue
+        latSum += lat
+        lngSum += lng
+        n += 1
+      }
+      if (n > 0) center = { lat: latSum / n, lng: lngSum / n }
+    }
+
+    // Final fallback: static precomputed centers.
+    if (!center) center = STATE_CENTERS.get(stateCode)
     if (!center) continue
     const abbrev = getStateAbbrevByRegion(stateCode)
     const dotAba = DOT_ABA_VALID.has(maxAba) ? maxAba : 0
@@ -1681,7 +2049,10 @@ function renderInfoTechMetrics() {
   const abaSel = (selectedAbaCodes instanceof Set && selectedAbaCodes.size > 0)
     ? Array.from(selectedAbaCodes).sort((a, b) => a - b).join(',')
     : 'all'
-  const activeFiltersSummary = `days=${filterDaysBack} species=${selectedSpecies || 'all'} abaMin=${filterAbaMin} aba=${abaSel} review=${selectedReviewFilter || 'all'}`
+  const reviewSel = (selectedReviewFilters instanceof Set && selectedReviewFilters.size > 0)
+    ? Array.from(selectedReviewFilters).sort().join(',')
+    : 'all'
+  const activeFiltersSummary = `days=${filterDaysBack} species=${selectedSpecies || 'all'} abaMin=${filterAbaMin} aba=${abaSel} review=${reviewSel}`
   const lines = [
     `Build: ${BUILD_TAG}`,
     `API: ${apiStatus?.textContent || '—'}`,
@@ -1770,24 +2141,27 @@ function updateRuntimeLog() {
 function refreshHeaderCountyOptions() {
   if (!headerCountySelect) return
   const options = countyPickerOptions
+  const activeRegion = String(currentCountyRegion || '').toUpperCase()
+  const isStateOrUsContext = activeRegion === US_REGION_CODE || isStateRegionCode(activeRegion)
+  const activeState = stateRegionFromAnyRegion(activeRegion) || activeRegion
+  const isNlContext = LEAF_SUBNATIONAL1_COUNTRIES.has(String(activeState || '').split('-')[0])
+  const selectPrompt = isNlContext ? 'Select Province' : 'Select County'
   if (!Array.isArray(options) || options.length === 0) {
     headerCountySelect.innerHTML = ''
-    const loadingOption = document.createElement('option')
-    loadingOption.value = ''
-    loadingOption.textContent = 'Loading…'
-    headerCountySelect.appendChild(loadingOption)
+    const placeholderOption = document.createElement('option')
+    placeholderOption.value = ''
+    placeholderOption.textContent = isStateOrUsContext ? selectPrompt : 'Loading…'
+    headerCountySelect.appendChild(placeholderOption)
     syncLocationBarState()
     return
   }
-  const activeRegion = String(currentCountyRegion || '').toUpperCase()
-  const isStateOrUsContext = activeRegion === US_REGION_CODE || isStateRegionCode(activeRegion)
   headerCountySelect.innerHTML = ''
 
   // In state/US context there is no active county; keep header as "Select County".
   if (isStateOrUsContext) {
     const placeholder = document.createElement('option')
     placeholder.value = ''
-    placeholder.textContent = 'Select County'
+    placeholder.textContent = selectPrompt
     headerCountySelect.appendChild(placeholder)
   }
 
@@ -1885,7 +2259,9 @@ async function activateStateByRegion(stateRegion, { preservePending = false } = 
   if (normalized === US_REGION_CODE) {
     // US-wide mode: default to ABA 3/4/5 only
     resetFiltersForCountySwitch()
+    filterAbaMin = 3
     selectedAbaCodes = new Set([3, 4, 5])
+    updateFilterUi()
     refreshHeaderStateOptions()
     renderStatePickerOptions()
     await loadNationalNotables(US_REGION_CODE, 3)
@@ -1896,6 +2272,11 @@ async function activateStateByRegion(stateRegion, { preservePending = false } = 
   }
   if (!isStateRegionCode(normalized)) return
   resetFiltersForCountySwitch()
+  if (normalized.startsWith('US-')) {
+    filterAbaMin = 1
+    selectedAbaCodes = new Set([3, 4, 5])
+    updateFilterUi()
+  }
   refreshHeaderStateOptions()
   renderStatePickerOptions()
   await loadStateNotables(normalized)
@@ -1915,8 +2296,10 @@ async function switchToCountyOption(option) {
 
 function resetFiltersForCountySwitch() {
   selectedSpecies = null
-  selectedReviewFilter = null
+  mapPointSpeciesFilter = new Set()
+  selectedReviewFilters = new Set()
   selectedAbaCodes = new Set()
+  filterAbaMin = 1
   if (!preservePinnedSpeciesOnce) {
     pinnedSpecies = null
   }
@@ -1959,7 +2342,12 @@ function switchCountyFromMapTap(countyRegion, lat = null, lng = null, countyName
 
   if (!region && Number.isFinite(tapLat) && Number.isFinite(tapLng)) {
     const neighborAtPoint = findNeighborCountyFeatureAtLatLng(tapLat, tapLng)
-    region = String(neighborAtPoint?.properties?.countyRegion || neighborAtPoint?.properties?.subnational2Code || '').toUpperCase() || null
+    region = String(
+      neighborAtPoint?.properties?.countyRegion
+      || neighborAtPoint?.properties?.subnational2Code
+      || neighborAtPoint?.properties?.subnational1Code
+      || ''
+    ).toUpperCase() || null
     if (!countyName) {
       countyName = neighborAtPoint?.properties?.countyName || neighborAtPoint?.properties?.NAME || neighborAtPoint?.properties?.name || ''
     }
@@ -2162,6 +2550,35 @@ function buildStateCountyEntries(source, stateRegion = '') {
     }
   })
 
+  if (isLeaf && normalizedState) {
+    const existing = new Set(entries.map((entry) => String(entry.countyRegion || '').toUpperCase()))
+    const featureCenterByRegion = new Map()
+    const features = Array.isArray(latestCountyContextGeojson?.features) ? latestCountyContextGeojson.features : []
+    for (const feature of features) {
+      const region = String(feature?.properties?.countyRegion || feature?.properties?.subnational1Code || feature?.properties?.subnational2Code || '').toUpperCase()
+      if (!region || featureCenterByRegion.has(region)) continue
+      const center = getFeatureCenter(feature)
+      if (center) featureCenterByRegion.set(region, center)
+    }
+
+    const allLeafRegions = ALL_REGIONS
+      .filter((region) => String(region?.code || '').toUpperCase().startsWith(`${normalizedState}-`))
+
+    for (const region of allLeafRegions) {
+      const provinceCode = String(region?.code || '').toUpperCase()
+      if (!provinceCode || existing.has(provinceCode)) continue
+      const center = featureCenterByRegion.get(provinceCode) || null
+      entries.push({
+        countyRegion: provinceCode,
+        countyName: String(region?.name || provinceCode),
+        count: 0,
+        summary: summarizeCountyObservations([]),
+        lat: center?.lat ?? null,
+        lng: center?.lng ?? null,
+      })
+    }
+  }
+
   entries.sort((a, b) => a.countyName.localeCompare(b.countyName))
   return entries
 }
@@ -2169,6 +2586,10 @@ function buildStateCountyEntries(source, stateRegion = '') {
 function applySearchCountyEntries(entries) {
   if (!searchCountySelect) return
   const list = Array.isArray(entries) ? entries : []
+  const activeRegion = String(currentCountyRegion || '').toUpperCase()
+  const activeState = stateRegionFromAnyRegion(activeRegion) || activeRegion
+  const isNlContext = LEAF_SUBNATIONAL1_COUNTRIES.has(String(activeState || '').split('-')[0])
+  const allLabel = isNlContext ? 'All provinces' : 'All counties'
   const existing = String(searchCountySelect.value || '').toUpperCase()
   const currentCounty = /^US-[A-Z]{2}-\d{3}$/.test(String(currentCountyRegion || '').toUpperCase())
     ? String(currentCountyRegion || '').toUpperCase()
@@ -2178,7 +2599,7 @@ function applySearchCountyEntries(entries) {
     : (list.some((entry) => entry.countyRegion === currentCounty) ? currentCounty : '')
 
   searchCountySelect.innerHTML = [
-    '<option value="">All counties</option>',
+    `<option value="">${escapeHtml(allLabel)}</option>`,
     ...list.map((entry) => {
       const selected = selectedCounty && selectedCounty === entry.countyRegion
       const label = entry.countyRegion
@@ -2307,7 +2728,7 @@ async function ensureSearchCountyOptionsForState(stateRegion) {
 function refreshSearchCountyOptions(source, stateRegion = '') {
   const normalizedState = isStateRegionCode(String(stateRegion || '').toUpperCase())
     ? String(stateRegion || '').toUpperCase()
-    : (stateRegionFromCountyRegion(currentCountyRegion || '') || '')
+    : (stateRegionFromAnyRegion(currentCountyRegion || '') || '')
   const entries = buildStateCountyEntries(source, normalizedState)
   if (isStateRegionCode(normalizedState) && entries.length) {
     stateCountyOptionsCache.set(normalizedState, entries)
@@ -2361,24 +2782,29 @@ function updateCountyPickerFromGeojson(geojson) {
   const options = features
     .map((feature) => {
       const center = getFeatureCenter(feature)
-      if (!center) return null
-      const resolvedRegion = String(feature?.properties?.countyRegion || feature?.properties?.subnational2Code || '').toUpperCase() || null
+      const resolvedRegion = String(feature?.properties?.countyRegion || feature?.properties?.subnational2Code || feature?.properties?.subnational1Code || '').toUpperCase() || null
       return {
         countyName: feature?.properties?.countyName || feature?.properties?.NAME || feature?.properties?.name || 'Unknown county',
         countyRegion: resolvedRegion,
         isActive: Boolean(feature?.properties?.isActiveCounty),
-        lat: center.lat,
-        lng: center.lng,
+        lat: center?.lat ?? null,
+        lng: center?.lng ?? null,
         summary: getCountySummary(resolvedRegion, Boolean(feature?.properties?.isActiveCounty)),
       }
     })
-    .filter(Boolean)
+    .filter((entry) => Boolean(entry && entry.countyRegion))
 
   const active = options.find((opt) => opt.isActive)
   countyPickerOptions = options
     .map((opt) => ({
       ...opt,
-      distanceKm: active ? distanceKm(active.lat, active.lng, opt.lat, opt.lng) : Infinity,
+      distanceKm: (active
+        && Number.isFinite(active.lat)
+        && Number.isFinite(active.lng)
+        && Number.isFinite(opt.lat)
+        && Number.isFinite(opt.lng))
+        ? distanceKm(active.lat, active.lng, opt.lat, opt.lng)
+        : Infinity,
     }))
     .sort((a, b) => {
       if (a.isActive && !b.isActive) return -1
@@ -2405,7 +2831,43 @@ function updateStatPills(total, confirmed, pending) {
 }
 
 function renderAbaStatPills(sorted) {
-  if (!topAbaPills && !pickerAbaPills && !statePickerAbaPills) return
+  if (!topAbaPills) return
+  const isNlMode = isNlRarityPillMode()
+  if (isNlMode) {
+    let rCount = 0
+    let nCount = 0
+    sorted.forEach((item) => {
+      const rarityCode = String(item?.nlRarityCode || '').trim().toUpperCase()
+      if (rarityCode === 'R') rCount += 1
+      else nCount += 1
+    })
+
+    const pillsHtml = [
+      {
+        code: 'R',
+        count: rCount,
+        badgeClass: 'aba-code-5',
+        active: selectedReviewFilters instanceof Set && selectedReviewFilters.has('R'),
+        title: 'Toggle NL review species filter',
+      },
+      {
+        code: 'N',
+        count: nCount,
+        badgeClass: 'aba-code-unknown',
+        active: selectedReviewFilters instanceof Set && selectedReviewFilters.has('N'),
+        title: 'Toggle NL non-review species filter',
+      },
+    ]
+      .map((pill) => `<button type="button" class="stat-aba-pill${pill.active ? ' is-active' : ''}" data-code="${pill.code}" aria-pressed="${pill.active ? 'true' : 'false'}" title="${pill.title}"><span class="stat-aba-pill-badge ${pill.badgeClass}"><span class="aba-pill-count">${pill.count}</span></span><span class="stat-aba-pill-code" aria-hidden="true">${pill.code}</span></button>`)
+      .join('')
+
+    const labelHtml = '<span class="aba-pill-label" aria-hidden="true">Review<br>code</span>'
+    if (topAbaPills) topAbaPills.innerHTML = labelHtml + pillsHtml
+    if (pickerAbaPills) pickerAbaPills.innerHTML = ''
+    if (statePickerAbaPills) statePickerAbaPills.innerHTML = ''
+    return
+  }
+
   const counts = new Map()
   sorted.forEach((item) => {
     const code = Number.isFinite(item.abaCode) ? item.abaCode : 0
@@ -2413,9 +2875,8 @@ function renderAbaStatPills(sorted) {
   })
 
   const isUsMode = String(currentCountyRegion || '').toUpperCase() === US_REGION_CODE
-  // In US mode codes 0 (N), 1, 2 are locked out — only 3/4/5 available
   const lockedInUsMode = new Set([0, 1, 2])
-  const orderedCodes = [0, 1, 2, 3, 4, 5]
+  const orderedCodes = isUsMode ? [3, 4, 5] : [0, 1, 2, 3, 4, 5]
   const pillsHtml = orderedCodes
     .map((c) => {
       const count = counts.get(c) || 0
@@ -2428,19 +2889,53 @@ function renderAbaStatPills(sorted) {
     .join('')
   const labelHtml = '<span class="aba-pill-label" aria-hidden="true">ABA<br>code</span>'
 
-  // Label only belongs in the bottom bar; pickers get pills-only
+  // Label only belongs in the bottom bar.
   if (topAbaPills) topAbaPills.innerHTML = labelHtml + pillsHtml
-  if (pickerAbaPills) pickerAbaPills.innerHTML = pillsHtml
-  if (statePickerAbaPills) statePickerAbaPills.innerHTML = pillsHtml
+  if (pickerAbaPills) pickerAbaPills.innerHTML = ''
+  if (statePickerAbaPills) statePickerAbaPills.innerHTML = ''
+}
+
+async function refreshCurrentRegionDataForDaysBack() {
+  const activeRegion = String(currentCountyRegion || '').toUpperCase()
+  if (!activeRegion) {
+    applyActiveFiltersAndRender({ fitToObservations: true })
+    return
+  }
+
+  if (activeRegion === US_REGION_CODE) {
+    await loadNationalNotables(US_REGION_CODE, 3)
+    return
+  }
+
+  if (isStateRegionCode(activeRegion)) {
+    await loadStateNotables(activeRegion)
+    return
+  }
+
+  if (isCountyRegionCode(activeRegion)) {
+    const option = countyPickerOptions.find((opt) => String(opt?.countyRegion || '').toUpperCase() === activeRegion) || null
+    const lat = Number(option?.lat)
+    const lng = Number(option?.lng)
+    const fallbackLat = Number.isFinite(lastCountyAnchorLat) ? lastCountyAnchorLat : (Number.isFinite(lastUserLat) ? lastUserLat : null)
+    const fallbackLng = Number.isFinite(lastCountyAnchorLng) ? lastCountyAnchorLng : (Number.isFinite(lastUserLng) ? lastUserLng : null)
+    await loadNeighborCounty(
+      Number.isFinite(lat) ? lat : fallbackLat,
+      Number.isFinite(lng) ? lng : fallbackLng,
+      activeRegion,
+      option?.countyName || currentCountyName || ''
+    )
+    return
+  }
+
+  applyActiveFiltersAndRender({ fitToObservations: true })
 }
 
 function setNotablesUnavailableState(metaMessage, rowMessage, statusMessage = 'notables-unavailable') {
   notableCount.className = 'badge warn'
   notableCount.textContent = '0'
   notableMeta.textContent = metaMessage
-  if (shareTableBtn) shareTableBtn.hidden = true
   updateStatPills('—', '—', '—')
-  notableRows.innerHTML = `<tr><td colspan="7">${rowMessage}</td></tr>`
+  notableRows.innerHTML = `<tr><td colspan="8">${rowMessage}</td></tr>`
   setTableRenderStatus(statusMessage)
 }
 
@@ -2632,8 +3127,10 @@ function setMode(mode) {
 
   // panelMap holds the table card; always active except in map-only mode
   const showTable = currentMode !== 'map'
+  const showSpeciesLanguageToggle = currentMode === 'hybrid' || currentMode === 'list'
   if (panelMap) panelMap.classList.toggle('active', showTable)
   if (panelTable) panelTable.classList.toggle('active', false)
+  if (speciesLangToggleBtn) speciesLangToggleBtn.toggleAttribute('hidden', !showSpeciesLanguageToggle)
 
   if (currentMode === 'map' || currentMode === 'hybrid') {
     initializeMap()
@@ -2658,6 +3155,7 @@ async function triggerHardRefresh() {
   try {
     localStorage.removeItem('mrm_last_pos')
     localStorage.removeItem(LAST_ACTIVE_CONTEXT_STORAGE_KEY)
+    localStorage.removeItem(PENDING_LOCATION_STORAGE_KEY)
     localStorage.removeItem('mrm_runtime_log')
     const keysToRemove = []
     for (let index = 0; index < localStorage.length; index += 1) {
@@ -2684,7 +3182,7 @@ async function triggerHardRefresh() {
 
   const url = new URL(window.location.href)
   url.searchParams.set('refresh', String(Date.now()))
-  url.searchParams.set('force_location', '1')
+  url.searchParams.set('reset_nl', '1')
   window.location.replace(url.toString())
 }
 
@@ -3118,7 +3616,7 @@ function buildStateMaskGeojson(stateRegion, sourceGeojson) {
   if (!isStateRegionCode(normalizedState)) return null
 
   const features = sourceGeojson.features.map((feature) => {
-    const regionRaw = feature?.properties?.countyRegion || feature?.properties?.subnational2Code || null
+    const regionRaw = feature?.properties?.countyRegion || feature?.properties?.subnational2Code || feature?.properties?.subnational1Code || null
     const region = regionRaw ? String(regionRaw).toUpperCase() : null
     return {
       ...feature,
@@ -3207,10 +3705,18 @@ function drawCountyOverlay(geojson) {
   updateCountyPickerFromGeojson(geojson)
 
   const allFeatures = Array.isArray(geojson?.features) ? geojson.features : []
-  const activeOverlayRegion = String(geojson?.activeCountyRegion || '').toUpperCase()
+  const activeOverlayRegion = String(geojson?.activeCountyRegion || currentCountyRegion || '').toUpperCase()
   const isStateOverlayMode = isStateRegionCode(activeOverlayRegion)
   const neighborFeatures = isStateOverlayMode
-    ? allFeatures
+    ? allFeatures.filter((f) => {
+      const region = String(
+        f?.properties?.countyRegion
+        || f?.properties?.subnational2Code
+        || f?.properties?.subnational1Code
+        || ''
+      ).toUpperCase()
+      return !activeOverlayRegion || region !== activeOverlayRegion
+    })
     : allFeatures.filter((f) => !f?.properties?.isActiveCounty)
   const activeFeatures = isStateOverlayMode
     ? []
@@ -3253,17 +3759,51 @@ function drawCountyOverlay(geojson) {
         ? { color: neighborStroke, weight: 0.75, fillColor: '#94a3b8', fillOpacity: 0 }
         : { color: neighborStroke, weight: 0.75, fillColor: '#94a3b8', fillOpacity: 0.46 },
       onEachFeature: (feature, layer) => {
-        const region = String(feature?.properties?.countyRegion || feature?.properties?.subnational2Code || '').toUpperCase() || null
+        const region = String(
+          feature?.properties?.countyRegion
+          || feature?.properties?.subnational2Code
+          || feature?.properties?.subnational1Code
+          || ''
+        ).toUpperCase() || null
         const name = feature?.properties?.countyName || feature?.properties?.NAME || feature?.properties?.name || ''
         layer.on({
           click: (e) => {
+            if (mapMeasureMode && e?.latlng) {
+              addMeasurePoint(e.latlng)
+              if (e?.originalEvent) {
+                L.DomEvent.stopPropagation(e.originalEvent)
+                L.DomEvent.preventDefault(e.originalEvent)
+              }
+              return
+            }
+            const blockPolygonSwitch = shouldBlockPolygonSwitch(region)
+            if (blockPolygonSwitch) {
+              if (e?.originalEvent) {
+                L.DomEvent.stopPropagation(e.originalEvent)
+                L.DomEvent.preventDefault(e.originalEvent)
+              }
+              return
+            }
+            if (map && e?.latlng) {
+              const cp = map.latLngToContainerPoint(e.latlng)
+              if (handleMapPointTap(cp)) {
+                if (e?.originalEvent) {
+                  L.DomEvent.stopPropagation(e.originalEvent)
+                  L.DomEvent.preventDefault(e.originalEvent)
+                }
+                return
+              }
+            }
+            const tapLat = Number(e?.latlng?.lat)
+            const tapLng = Number(e?.latlng?.lng)
+            if (hasRenderedMapPoints() && isTapInsideActiveCounty(tapLat, tapLng)) {
+              return
+            }
             if (e?.originalEvent) {
               L.DomEvent.stopPropagation(e.originalEvent)
               L.DomEvent.preventDefault(e.originalEvent)
             }
             flashNeighborLayer(layer)
-            const tapLat = Number(e?.latlng?.lat)
-            const tapLng = Number(e?.latlng?.lng)
             switchCountyFromMapTap(
               region,
               Number.isFinite(tapLat) ? tapLat : null,
@@ -3393,6 +3933,77 @@ function renderAbaCodeBadge(code) {
   return `<span class="aba-code-badge aba-code-${safe}" title="ABA code ${safe}">${safe}</span>`
 }
 
+function renderNlRarityCodeBadge(code) {
+  const raw = String(code || '').trim().toUpperCase()
+  if (!raw) {
+    return ''
+  }
+  const safe = escapeHtml(raw)
+  return `<span class="nl-rarity-badge" title="NL rarity code ${safe}">${safe}</span>`
+}
+
+function makeObsLocationKey(candidatePt) {
+  if (!candidatePt) return ''
+  const lat = Number(candidatePt?.lat)
+  const lng = Number(candidatePt?.lng)
+  const locId = candidatePt?.item?.locId ? String(candidatePt.item.locId) : ''
+  if (candidatePt?.locKey) return String(candidatePt.locKey)
+  if (locId) return locId
+  if (Number.isFinite(lat) && Number.isFinite(lng)) return `${lat.toFixed(4)}|${lng.toFixed(4)}`
+  return ''
+}
+
+function getNearbySpeciesObservations(pt, speciesName, radiusKm = 1) {
+  const species = String(speciesName || '').trim()
+  if (!pt || !species) return []
+  const centerLat = Number(pt.lat)
+  const centerLng = Number(pt.lng)
+  if (!Number.isFinite(centerLat) || !Number.isFinite(centerLng)) return []
+
+  const points = Array.isArray(speciesMarkers.get(species)) ? speciesMarkers.get(species) : []
+  const dedup = new Set()
+  const collected = []
+
+  points.forEach((candidatePt) => {
+    const lat = Number(candidatePt?.lat)
+    const lng = Number(candidatePt?.lng)
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return
+    if (distanceKm(centerLat, centerLng, lat, lng) > radiusKm) return
+
+    const locKey = makeObsLocationKey(candidatePt)
+    const locObs = Array.isArray(lastPopupLocationIndexAllSpecies?.get?.(locKey))
+      ? lastPopupLocationIndexAllSpecies.get(locKey)
+      : []
+
+    let addedAny = false
+    locObs.forEach((entry) => {
+      if (String(entry?.species || '').trim() !== species) return
+      const dedupKey = `${species}|${String(entry?.subId || '')}|${String(entry?.obsDt || '')}|${locKey}`
+      if (dedup.has(dedupKey)) return
+      dedup.add(dedupKey)
+      collected.push(entry)
+      addedAny = true
+    })
+
+    if (!addedAny) {
+      const item = candidatePt?.item || null
+      if (!item) return
+      if (String(item?.comName || '').trim() !== species) return
+      const dedupKey = `${species}|${String(item?.subId || '')}|${String(item?.obsDt || '')}|${locKey}`
+      if (dedup.has(dedupKey)) return
+      dedup.add(dedupKey)
+      collected.push({
+        species,
+        abaCode: getAbaCodeNumber(item),
+        obsDt: item?.obsDt ? String(item.obsDt) : null,
+        subId: item?.subId ? String(item.subId) : null,
+      })
+    }
+  })
+
+  return collected
+}
+
 function renderYoloCodeBadge(species, abaCode) {
   const yoloInfo = getYoloSpeciesInfo(species)
   const yCode = Number(yoloInfo?.yoloCode)
@@ -3456,6 +4067,7 @@ function buildGroupedRowsFromObservations(observations) {
     )
 
     const abaCode = getAbaCodeNumber(item)
+    const scientificName = String(item?.sciName || item?.scientificName || getNlSpeciesReference(species)?.scientificName || '').trim()
     const lat = Number(item.lat)
     const lng = Number(item.lng)
 
@@ -3473,6 +4085,8 @@ function buildGroupedRowsFromObservations(observations) {
         first: firstCandidate,
         last: lastCandidate,
         abaCode,
+        scientificName,
+        nlRarityCode: getNlRarityCodeForSpecies(species, scientificName),
         confirmedAny: isConfirmedObservation(item),
         lat: Number.isFinite(lat) ? lat : null,
         lng: Number.isFinite(lng) ? lng : null,
@@ -3495,6 +4109,12 @@ function buildGroupedRowsFromObservations(observations) {
     if (lastCandidate) {
       if (!entry.last || lastCandidate > entry.last) entry.last = lastCandidate
     }
+    if (!entry.scientificName && scientificName) {
+      entry.scientificName = scientificName
+    }
+    if (!entry.nlRarityCode) {
+      entry.nlRarityCode = getNlRarityCodeForSpecies(species, entry.scientificName || scientificName)
+    }
   })
 
   return grouped
@@ -3511,10 +4131,8 @@ function renderNotableTable(observations, countyName, regionCode, abaPillObserva
   const normalizedRegion = String(regionCode || '').toUpperCase()
   const isStateRegion = isStateRegionCode(normalizedRegion)
   const isUsRegion = normalizedRegion === US_REGION_CODE
-  if (isUsRegion) {
-    renderStateCountySummaryTable(observations, countyName, normalizedRegion, abaPillObservations)
-    return
-  }
+  const tableEl = document.querySelector('.notable-table')
+  if (tableEl) tableEl.classList.toggle('show-state-col', normalizedRegion.startsWith('US'))
 
   // For state selection, render the normal species table (same as county mode)
   // but sort by distance from the user's county (fallback: GPS / map center).
@@ -3527,16 +4145,27 @@ function renderNotableTable(observations, countyName, regionCode, abaPillObserva
     notableCount.textContent = '0'
     updateStatPills('0', '0', '0')
     renderAbaStatPills(Array.from(abaPillGrouped.values()))
+    const isNlMode = isNlRarityPillMode(regionCode)
     const activeAba = (selectedAbaCodes instanceof Set && selectedAbaCodes.size > 0)
       ? Array.from(selectedAbaCodes)[0]
       : null
     const days = Math.max(1, Math.min(14, Number(filterDaysBack) || 7))
-    const emptyMessage = activeAba
-      ? `No records for ABA ${activeAba} species in past ${days} days.`
-      : isStateRegion
-        ? 'No notable observations found for this state.'
-        : 'No notable observations found for this county.'
-    notableRows.innerHTML = `<tr><td colspan="7">${emptyMessage}</td></tr>`
+    const reviewOnly = selectedReviewFilters instanceof Set && selectedReviewFilters.size === 1 && selectedReviewFilters.has('R')
+    const nonReviewOnly = selectedReviewFilters instanceof Set && selectedReviewFilters.size === 1 && selectedReviewFilters.has('N')
+    const emptyMessage = isNlMode
+      ? (reviewOnly
+        ? `No records for review species in past ${days} days.`
+        : nonReviewOnly
+          ? `No records for non-review species in past ${days} days.`
+          : isStateRegion
+            ? 'No notable observations found for this state.'
+            : 'No notable observations found for this county.')
+      : (activeAba
+        ? `No records for ABA ${activeAba} species in past ${days} days.`
+        : isStateRegion
+          ? 'No notable observations found for this state.'
+          : 'No notable observations found for this county.')
+    notableRows.innerHTML = `<tr><td colspan="8">${emptyMessage}</td></tr>`
     setTableRenderStatus('table-empty')
     return
   }
@@ -3730,7 +4359,7 @@ function renderStateCountySummaryTable(observations, countyName, stateRegion, ab
     notableCount.className = 'badge ok'
     notableCount.textContent = '0'
     updateStatPills('0', '0', '0')
-    notableRows.innerHTML = `<tr><td colspan="7">No ${isUS ? 'state' : 'county'} summaries found for this region and filter set.</td></tr>`
+    notableRows.innerHTML = `<tr><td colspan="8">No ${isUS ? 'state' : 'county'} summaries found for this region and filter set.</td></tr>`
     currentTableData = []
     setTableRenderStatus('state-summary-empty')
     return
@@ -3774,80 +4403,6 @@ function renderStateCountySummaryTable(observations, countyName, stateRegion, ab
   setTableRenderStatus(`state-summary rows=${stateRows.length}`)
 }
 
-function buildShareText() {
-  const meta = notableMeta?.textContent || ''
-  const activeRegion = String(currentCountyRegion || '').toUpperCase()
-  const days = Math.max(1, Math.min(14, Number(filterDaysBack) || 7))
-  const today = new Date()
-  const dateStr = today.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
-  const header = `\uD83E\uDD85 eBird Rarities \u2014 ${meta} \u00B7 ${days}d \u00B7 ${dateStr}`
-
-  // Detect county-summary rows (US or state summary mode): these have .county-summary-btn
-  const summaryTrs = [...(notableRows?.querySelectorAll('tr') || [])]
-    .filter((tr) => tr.querySelector('.county-summary-btn') != null)
-
-  const speciesData = Array.isArray(currentTableData) ? currentTableData : []
-
-  if (!summaryTrs.length && !speciesData.length) return null
-
-  const lines = [header, '']
-
-  if (summaryTrs.length) {
-    // County / state summary table
-    summaryTrs.forEach((tr) => {
-      const regionCode = String(tr.dataset?.countyRegion || '').toUpperCase()
-      const name = tr.querySelector('.county-summary-btn')?.textContent?.trim() || regionCode
-      const count = tr.querySelector('.count-pill')?.textContent?.trim() || '—'
-      const last = tr.querySelector('.date-bubble')?.textContent?.trim() || '—'
-      lines.push(`${name}: ${count} · ${last}`)
-      if (regionCode) lines.push(`  https://ebird.org/region/${regionCode}`)
-    })
-    if (activeRegion) {
-      lines.push('')
-      lines.push(`eBird: https://ebird.org/region/${activeRegion}`)
-    }
-  } else {
-    // Species list
-    speciesData.forEach((row) => {
-      const aba = Number.isFinite(row.abaCode) ? row.abaCode : 'N'
-      const county = shortCountyName(row.county || '')
-      const last = row.last ? `${row.last.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}` : '—'
-      const checkmark = row.confirmedAny ? '\u2713' : ''
-      const countStr = checkmark ? `${row.count}${checkmark}` : String(row.count)
-      lines.push(`[${aba}] ${row.species} \u00B7 ${county} \u00B7 ${last} (${countStr})`)
-    })
-    const regionCode = String(currentActiveCountyCode || activeRegion || '').toUpperCase()
-    if (regionCode) {
-      lines.push('')
-      lines.push(`https://ebird.org/region/${regionCode}`)
-    }
-  }
-
-  return lines.join('\n')
-}
-
-shareTableBtn?.addEventListener('click', async () => {
-  const text = buildShareText()
-  if (!text) return
-  const title = `eBird Rarities \u2014 ${notableMeta?.textContent || ''}`
-  if (navigator.share) {
-    try {
-      await navigator.share({ title, text })
-      return
-    } catch (err) {
-      if (err.name === 'AbortError') return // user cancelled
-      // fall through to clipboard
-    }
-  }
-  try {
-    await navigator.clipboard.writeText(text)
-    shareTableBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>'
-    window.setTimeout(() => {
-      shareTableBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>'
-    }, 2000)
-  } catch { /* clipboard blocked */ }
-})
-
 function applySortAndRender() {
   if (!currentTableData.length) return
   const { col, dir } = sortState
@@ -3857,8 +4412,12 @@ function applySortAndRender() {
   const isCountyView = isCountyRegionCode(normalizedRegion)
   const isYoloCountyView = isCountyView && normalizedRegion === YOLO_COUNTY_REGION
   const isLeafCountryView = LEAF_SUBNATIONAL1_COUNTRIES.has(normalizedRegion.split('-')[0])
+  const isNlCountryView = normalizedRegion.split('-')[0] === 'NL'
 
   const getPreferredCode = (row) => {
+    if (isNlCountryView) {
+      return getNlRarityRank(row?.nlRarityCode)
+    }
     const aba = Number(row?.abaCode)
     return Number.isFinite(aba) ? Math.round(aba) : -1
   }
@@ -3899,6 +4458,16 @@ function applySortAndRender() {
       return String(a.county || '').localeCompare(String(b.county || ''))
     }
 
+    if (col === 'state') {
+      const aState = String(a.state || '')
+      const bState = String(b.state || '')
+      const cmp = aState.localeCompare(bState)
+      if (cmp !== 0) return dir === 'desc' ? -cmp : cmp
+      if (aCode !== bCode) return bCode - aCode
+      if (aLast !== bLast) return bLast - aLast
+      return String(a.species || '').localeCompare(String(b.species || ''))
+    }
+
     if (col === 'county') {
       const aCounty = String(a.county || '')
       const bCounty = String(b.county || '')
@@ -3937,7 +4506,8 @@ function applySortAndRender() {
   const fragment = document.createDocumentFragment()
   data.forEach((item) => {
     const lastBubble = renderDateBubble(formatShortDate(item.last), getDateBubbleClass('last', item.first, item.last))
-    const abaBadge = isLeafCountryView ? '' : renderAbaCodeBadge(item.abaCode)
+    const abaBadge = (!isLeafCountryView && !isNlCountryView) ? renderAbaCodeBadge(item.abaCode) : ''
+    const nlBadge = isNlCountryView ? renderNlRarityCodeBadge(item.nlRarityCode) : ''
     const yoloBadge = isYoloCountyView ? renderYoloCodeBadge(item.species, item.abaCode) : ''
     const statusBullets = isYoloCountyView ? renderSpeciesStatusBullets(item.species) : ''
     const isConfirmed = Boolean(item.confirmedAny)
@@ -3948,14 +4518,17 @@ function applySortAndRender() {
       : ''
     const row = document.createElement('tr')
     const safeSpecies = escapeHtml(item.species)
+    const speciesDisplayLabel = getDisplaySpeciesLabel(item.species, item.scientificName)
+    const speciesLabel = escapeHtml(speciesDisplayLabel || item.species)
     const safeCountyFull = escapeHtml(String(item.county || ''))
     const safeCountyShort = escapeHtml(shortCountyName(item.county))
     row.dataset.species = item.species
     row.dataset.county = String(item.county || '')
     row.dataset.countyRegion = String(item.countyRegion || '').toUpperCase()
     row.innerHTML = `
-      <td class="col-code"><div class="code-cell">${abaBadge}${yoloBadge}</div></td>
-      <td><div class="species-cell">${statusBullets}<button type="button" class="species-btn" data-species="${safeSpecies}">${safeSpecies}</button></div></td>
+      <td class="col-code"><div class="code-cell">${nlBadge}${abaBadge}${yoloBadge}</div></td>
+      <td><div class="species-cell">${statusBullets}<button type="button" class="species-btn" data-species="${safeSpecies}">${speciesLabel}</button></div></td>
+      <td class="col-state">${escapeHtml(String(item.state || ''))}</td>
       <td class="col-county"><button type="button" class="county-cell county-cell-btn" data-county-region="${escapeHtml(String(item.countyRegion || '').toUpperCase())}" title="${safeCountyFull}">${safeCountyShort}</button></td>
       <td class="col-date col-last">${lastBubble}</td>
       <td class="col-reports">${countPill}</td>
@@ -3977,6 +4550,7 @@ function applySortAndRender() {
   ;[
     { id: 'thCode', col: 'code' },
     { id: 'thSpecies', col: 'species' },
+    { id: 'thState', col: 'state' },
     { id: 'thCounty', col: 'county' },
     { id: 'thLast', col: 'last' },
   ].forEach(({ id, col: mappedCol }) => {
@@ -4025,6 +4599,612 @@ function setActiveSortCountyRegion(nextRegion) {
   if (!isCountyRegionCode(normalized)) return
   activeSortCountyRegion = normalized
   applySortAndRender()
+}
+
+function countryCodeFromRegionCode(regionCode) {
+  const normalized = String(regionCode || '').toUpperCase().trim()
+  if (!normalized) return null
+  const head = normalized.split('-')[0]
+  return head || null
+}
+
+function getEffectivePhysicalCountryCode() {
+  const gpsCode = String(currentPhysicalCountryCode || '').toUpperCase()
+  if (gpsCode) return gpsCode
+  return countryCodeFromRegionCode(currentCountyRegion || currentActiveCountyCode || '')
+}
+
+function shouldShowSpeciesAlphaCodes() {
+  const activeCountry = countryCodeFromRegionCode(currentCountyRegion || currentActiveCountyCode || '')
+  return activeCountry !== 'NL'
+}
+
+function getDisplaySpeciesLabel(englishName, scientificName = '') {
+  const english = String(englishName || '').trim()
+  if (!english) return ''
+  if (speciesNameLanguage !== 'nl') return english
+  const dutch = String(getNlLocalNameForSpecies(english, scientificName) || '').trim()
+  if (!dutch) return english
+  if (normalizeSpeciesLookupKey(dutch) === normalizeSpeciesLookupKey(english)) return english
+  return dutch
+}
+
+function syncSpeciesLanguageToggleUi() {
+  if (!speciesLangToggleBtn) return
+  const isNl = speciesNameLanguage === 'nl'
+  speciesLangToggleBtn.textContent = isNl ? 'NL' : 'EN'
+  speciesLangToggleBtn.setAttribute('title', `Species labels: ${isNl ? 'Dutch' : 'English'}`)
+  speciesLangToggleBtn.setAttribute('aria-pressed', String(isNl))
+}
+
+function useUsDateTimeFormat() {
+  return getEffectivePhysicalCountryCode() === 'US'
+}
+
+function formatObsDateTimeByRegion(obsDt) {
+  const d = parseObsDate(obsDt)
+  if (!d) return obsDt || 'Unknown date'
+
+  const month = d.getMonth() + 1
+  const day = d.getDate()
+  const yearShort = String(d.getFullYear()).slice(-2)
+  const minutes = String(d.getMinutes()).padStart(2, '0')
+
+  if (useUsDateTimeFormat()) {
+    const hour = d.getHours()
+    const normalizedAmPm = hour >= 12 ? 'PM' : 'AM'
+    const hour12 = hour % 12 || 12
+    return `${month}/${day}/${yearShort} ${hour12}:${minutes}${normalizedAmPm}`
+  }
+
+  const hour24 = d.getHours()
+  return `${day}/${month}/${yearShort} ${hour24}:${minutes}`
+}
+
+function getLocalSpeciesNameFromAliases(info, englishName, scientificName) {
+  const aliases = Array.isArray(info?.aliases) ? info.aliases : []
+  const englishNeedle = normalizeSpeciesLookupKey(englishName)
+  const sciNeedle = String(scientificName || '').trim().toLowerCase()
+  const wantedCountry = String(getEffectivePhysicalCountryCode() || '').toLowerCase()
+  const nlRef = getNlSpeciesReference(englishName)
+
+  const normalizedCandidates = aliases
+    .map((entry) => String(entry || '').trim())
+    .filter(Boolean)
+
+  const tagged = normalizedCandidates
+    .map((entry) => {
+      const match = entry.match(/^([a-z]{2})\s*[:|-]\s*(.+)$/i)
+      if (!match) return null
+      const cc = String(match[1] || '').toLowerCase()
+      const value = String(match[2] || '').trim()
+      if (!value) return null
+      return { cc, value }
+    })
+    .filter(Boolean)
+
+  if (wantedCountry) {
+    const exact = tagged.find((entry) => entry.cc === wantedCountry)
+    if (exact) return { name: exact.value, source: 'alias-tag' }
+  }
+
+  if (wantedCountry === 'nl') {
+    const avibase = getAvibaseNlChecklistInfo(englishName, scientificName)
+    const avibaseDutch = String(avibase?.dutchName || '').trim()
+    if (avibaseDutch) return { name: avibaseDutch, source: 'avibase' }
+  }
+
+  if (wantedCountry === 'nl') {
+    const nlRefName = String(nlRef?.localName || nlRef?.dutchName || nlRef?.nlName || '').trim()
+    if (nlRefName) return { name: nlRefName, source: 'nl-ref' }
+  }
+
+  const plain = normalizedCandidates.find((name) => {
+    const lower = normalizeSpeciesLookupKey(name)
+    return lower !== englishNeedle && lower !== sciNeedle && !/^[a-z]{2}\s*[:|-]/i.test(name)
+  })
+  if (plain) return { name: plain, source: 'alias' }
+
+  const supplemental = LOCAL_SPECIES_NAME_LOOKUP.get(englishNeedle)
+  if (!supplemental || typeof supplemental !== 'object') return { name: null, source: 'none' }
+  if (wantedCountry && typeof supplemental[wantedCountry] === 'string' && supplemental[wantedCountry].trim()) {
+    return { name: supplemental[wantedCountry].trim(), source: 'supp' }
+  }
+  if (typeof supplemental.nl === 'string' && supplemental.nl.trim()) {
+    return { name: supplemental.nl.trim(), source: 'supp' }
+  }
+  return { name: null, source: 'none' }
+}
+
+function getNlLocalNameForSpecies(englishName, scientificName = '') {
+  const avibase = getAvibaseNlChecklistInfo(englishName, scientificName)
+  const avibaseDutch = String(avibase?.dutchName || '').trim()
+  if (avibaseDutch) return avibaseDutch
+
+  const info = getYoloSpeciesInfo(englishName)
+  const local = getLocalSpeciesNameFromAliases(info, englishName, scientificName)
+  const localName = String(local?.name || '').trim()
+  if (localName) return localName
+  const nlRef = getNlSpeciesReference(englishName)
+  const nlRefName = String(nlRef?.localName || nlRef?.dutchName || nlRef?.nlName || '').trim()
+  if (nlRefName) return nlRefName
+  return ''
+}
+
+function getScientificNameForSpecies(englishName) {
+  const info = getYoloSpeciesInfo(englishName)
+  const refSci = String(info?.scientificName || '').trim()
+  if (refSci) return { name: refSci, source: 'ref' }
+
+  const nlRef = getNlSpeciesReference(englishName)
+  const nlSci = String(nlRef?.scientificName || '').trim()
+  if (nlSci) return { name: nlSci, source: 'nl-ref' }
+
+  const source = Array.isArray(currentRawObservations) ? currentRawObservations : []
+  const match = source.find((item) => String(item?.comName || '').trim() === String(englishName || '').trim()) || null
+  const obsSci = String(match?.sciName || match?.scientificName || '').trim()
+  if (obsSci) return { name: obsSci, source: 'obs' }
+  return { name: null, source: 'none' }
+}
+
+function setSpeciesDetailDebug(meta = {}) {
+  if (!speciesDetailDebug) return
+  speciesDetailDebug.textContent = ''
+  speciesDetailDebug.removeAttribute('title')
+  speciesDetailDebug.setAttribute('hidden', 'hidden')
+}
+
+function chooseFrequencyWeeklyAxisMax(maxObservedPercent) {
+  const maxPct = Math.max(0, Number(maxObservedPercent) || 0)
+  return FREQUENCY_WEEKLY_AXIS_BINS.find((bin) => maxPct <= bin.threshold)?.axisMax || FREQUENCY_WEEKLY_Y_MAX
+}
+
+function getSpeciesDetailTargetPoint(speciesName) {
+  const species = String(speciesName || '').trim()
+  if (!species) return null
+  const points = Array.isArray(speciesMarkers.get(species)) ? speciesMarkers.get(species) : []
+  const currentLocKey = String(speciesDetailBody?.querySelector?.('.obs-popup-inner')?.dataset?.locKey || '')
+  return points.find((pt) => String(pt?.locKey || '') === currentLocKey) || pickBestSpeciesPoint(points, species)
+}
+
+function ensureFrequencyScaleToggleHandler() {
+  if (_frequencyScaleToggleHandlerInstalled) return
+  _frequencyScaleToggleHandlerInstalled = true
+  document.addEventListener('click', (event) => {
+    const btn = event.target?.closest?.('.species-freq-scale-toggle')
+    if (!btn) return
+    event.preventDefault()
+    frequencyWeeklyScaleMode = frequencyWeeklyScaleMode === 'stretched' ? 'standard' : 'stretched'
+    if (!speciesDetailPanel || speciesDetailPanel.hasAttribute('hidden') || !selectedSpecies) return
+    const targetPt = getSpeciesDetailTargetPoint(String(selectedSpecies))
+    if (!targetPt) return
+    speciesDetailBody.innerHTML = buildObservationPopupHtml(targetPt, { hideHeader: true })
+    void updateSpeciesDetailFrequencyCharts(String(selectedSpecies), targetPt)
+  })
+}
+
+function setSpeciesDetailTitle(speciesName) {
+  if (!speciesDetailTitle) return
+  const english = String(speciesName || '').trim()
+  if (!english) {
+    speciesDetailTitle.textContent = ''
+    if (speciesDetailDebug) speciesDetailDebug.setAttribute('hidden', 'hidden')
+    return
+  }
+
+  const sci = getScientificNameForSpecies(english)
+  const scientificName = String(sci?.name || '').trim()
+  const localName = String(getNlLocalNameForSpecies(english, scientificName) || '').trim()
+
+  setSpeciesDetailDebug({
+    latinSource: sci?.source || 'none',
+    localSource: localName ? 'nl' : 'none',
+  })
+
+  const titleParts = [english]
+  if (scientificName) titleParts.push(`(${scientificName})`)
+  if (localName && normalizeSpeciesLookupKey(localName) !== normalizeSpeciesLookupKey(english)) titleParts.push(localName)
+  speciesDetailTitle.innerHTML = `<span class="species-detail-title-en">${escapeHtml(titleParts.join(' · '))}</span>`
+}
+
+function setSpeciesDetailHeader(speciesName) {
+  setSpeciesDetailTitle(speciesName)
+  if (!speciesDetailStatus) return
+
+  const species = String(speciesName || '')
+  const row = Array.isArray(currentTableData)
+    ? currentTableData.find((entry) => String(entry?.species || '') === species)
+    : null
+
+  if (!row) {
+    speciesDetailStatus.innerHTML = ''
+    speciesDetailStatus.setAttribute('hidden', 'hidden')
+    return
+  }
+
+  const isConfirmed = Boolean(row.confirmedAny)
+  const labelParts = [isConfirmed ? 'Confirmed' : 'Unconfirmed']
+  const scientificName = String(row?.scientificName || getScientificNameForSpecies(species)?.name || '').trim()
+  const avibase = getAvibaseNlChecklistInfo(species, scientificName)
+  const avibaseStatusEn = String(avibase?.statusEn || '').trim()
+  if (avibaseStatusEn) labelParts.push(avibaseStatusEn)
+
+  const cls = isConfirmed ? 'status-dot-confirmed' : 'status-dot-pending'
+  speciesDetailStatus.innerHTML = `<span class="status-dot ${cls}" aria-hidden="true"></span><span>${escapeHtml(labelParts.join(' · '))}</span>`
+  speciesDetailStatus.removeAttribute('hidden')
+}
+
+function normalizeFrequencyNeedle(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+}
+
+function deriveSpeciesFrequencyRegions(targetPt = null) {
+  const candidate = String(
+    targetPt?.item?.subnational2Code
+    || targetPt?.item?.subnational1Code
+    || currentCountyRegion
+    || currentActiveCountyCode
+    || ''
+  ).toUpperCase()
+  if (!candidate) return { nationalRegion: null, stateRegion: null, countyRegion: null }
+
+  const parts = candidate.split('-').filter(Boolean)
+  const nationalRegion = String(parts[0] || '').toUpperCase() || null
+  const stateRegion = parts.length >= 2
+    ? `${parts[0]}-${parts[1]}`.toUpperCase()
+    : null
+  const countyRegion = parts.length >= 3
+    ? `${parts[0]}-${parts[1]}-${parts[2]}`.toUpperCase()
+    : null
+
+  if (!isValidRegionCodeForFrequency(nationalRegion)) {
+    return { nationalRegion: null, stateRegion: null, countyRegion: null }
+  }
+  const stateValid = isValidRegionCodeForFrequency(stateRegion) && stateRegion !== nationalRegion
+  const countyValid = isValidRegionCodeForFrequency(countyRegion) && countyRegion !== stateRegion
+  return {
+    nationalRegion,
+    stateRegion: stateValid ? stateRegion : null,
+    countyRegion: countyValid ? countyRegion : null,
+  }
+}
+
+function isValidRegionCodeForFrequency(value) {
+  const region = String(value || '').toUpperCase().trim()
+  if (!region) return false
+  if (/^[A-Z]{2,3}$/.test(region)) return true
+  if (/^US-[A-Z]{2,3}-\d{3}$/.test(region)) return true
+  if (/^[A-Z]{2,3}-[A-Z0-9]{1,6}$/.test(region)) return true
+  return false
+}
+
+function getSpeciesCodeForFrequency(speciesName, targetPt = null) {
+  const fromItem = String(targetPt?.item?.speciesCode || targetPt?.item?.speciesCodeEb || '').trim().toLowerCase()
+  if (fromItem) return fromItem
+  const yolo = getYoloSpeciesInfo(speciesName)
+  const fromYolo = String(yolo?.speciesCode || yolo?.ebirdSpeciesCode || '').trim().toLowerCase()
+  if (fromYolo) return fromYolo
+  const nlRef = getNlSpeciesReference(speciesName)
+  const fromNlRef = String(nlRef?.speciesCode || nlRef?.ebirdSpeciesCode || '').trim().toLowerCase()
+  if (fromNlRef) return fromNlRef
+  return ''
+}
+
+function findFrequencyRecordInDoc(doc, { speciesName, scientificName, speciesCode }) {
+  const rows = Array.isArray(doc?.species) ? doc.species : []
+  if (!rows.length) return null
+
+  const codeNeedle = String(speciesCode || '').trim().toLowerCase()
+  if (codeNeedle) {
+    const byCode = rows.find((row) => String(row?.speciesCode || '').trim().toLowerCase() === codeNeedle)
+    if (byCode) return byCode
+  }
+
+  const englishNeedle = normalizeFrequencyNeedle(speciesName)
+  const scientificNeedle = normalizeFrequencyNeedle(scientificName)
+  return rows.find((row) => {
+    const rowEnglish = normalizeFrequencyNeedle(row?.comName || row?.commonName || '')
+    const rowScientific = normalizeFrequencyNeedle(row?.sciName || row?.scientificName || '')
+    if (englishNeedle && rowEnglish === englishNeedle) return true
+    if (scientificNeedle && rowScientific === scientificNeedle) return true
+    return false
+  }) || null
+}
+
+async function fetchFrequencyRegionDocStatic(region) {
+  const normalized = String(region || '').toUpperCase().trim()
+  if (!isValidRegionCodeForFrequency(normalized)) return null
+  if (speciesFrequencyRegionCache.has(normalized)) return speciesFrequencyRegionCache.get(normalized)
+
+  const endpoint = `/data/frequency/regions/${encodeURIComponent(normalized)}.json`
+  try {
+    const response = await fetchWithTimeout(endpoint, 8000)
+    if (!response.ok) return null
+    const json = await response.json()
+    speciesFrequencyRegionCache.set(normalized, json)
+    return json
+  } catch {
+    return null
+  }
+}
+
+async function fetchSpeciesFrequencyFromApi(region, speciesName, speciesCode = '') {
+  const normalized = String(region || '').toUpperCase().trim()
+  if (!isValidRegionCodeForFrequency(normalized)) return null
+  if (!getStoredEbirdApiKey()) return null
+
+  const params = new URLSearchParams({ region: normalized, species: speciesName })
+  if (speciesCode) params.set('speciesCode', speciesCode)
+  const endpoint = `${API_BASE_URL}/api/species_frequency?${params.toString()}`
+
+  try {
+    const response = await fetchWithTimeout(endpoint, 10000)
+    if (!response.ok) return null
+    const payload = await response.json()
+    const monthly = Array.isArray(payload?.frequencyMonthly)
+      ? payload.frequencyMonthly.map((n) => Number(n) || 0).slice(0, 12)
+      : []
+    while (monthly.length < 12) monthly.push(0)
+    const weekly = Array.isArray(payload?.frequencyWeekly)
+      ? payload.frequencyWeekly.map((n) => Number(n) || 0).slice(0, 48)
+      : []
+    while (weekly.length < 48 && weekly.length > 0) weekly.push(0)
+    const annual = Number(payload?.frequencyAnnual)
+    return {
+      region: normalized,
+      source: String(payload?.source || 'worker-api'),
+      monthly,
+      weekly: weekly.length === 48 ? weekly : null,
+      annual: Number.isFinite(annual) ? annual : (monthly.reduce((sum, n) => sum + n, 0) / 12),
+    }
+  } catch {
+    return null
+  }
+}
+
+async function fetchSpeciesFrequency(region, speciesName, scientificName, speciesCode = '') {
+  const normalized = String(region || '').toUpperCase().trim()
+  if (!isValidRegionCodeForFrequency(normalized)) return null
+
+  const fromApi = await fetchSpeciesFrequencyFromApi(normalized, speciesName, speciesCode)
+  const apiMonthlySum = fromApi
+    ? (Array.isArray(fromApi.monthly) ? fromApi.monthly.reduce((sum, n) => sum + (Number(n) || 0), 0) : 0)
+    : 0
+
+  const doc = await fetchFrequencyRegionDocStatic(normalized)
+  if (!doc) return fromApi || null
+  const record = findFrequencyRecordInDoc(doc, { speciesName, scientificName, speciesCode })
+  if (!record) return fromApi || null
+
+  const monthly = Array.isArray(record?.frequencyMonthly)
+    ? record.frequencyMonthly.map((n) => Number(n) || 0).slice(0, 12)
+    : []
+  while (monthly.length < 12) monthly.push(0)
+  const weekly = Array.isArray(record?.frequencyWeekly)
+    ? record.frequencyWeekly.map((n) => Number(n) || 0).slice(0, 48)
+    : []
+  while (weekly.length < 48 && weekly.length > 0) weekly.push(0)
+  const annual = Number(record?.frequencyAnnual)
+  const fromStatic = {
+    region: normalized,
+    source: String(doc?.source || 'static-json'),
+    monthly,
+    weekly: weekly.length === 48 ? weekly : null,
+    annual: Number.isFinite(annual) ? annual : (monthly.reduce((sum, n) => sum + n, 0) / 12),
+  }
+  const staticMonthlySum = monthly.reduce((sum, n) => sum + (Number(n) || 0), 0)
+
+  if (fromApi) {
+    const apiWeeklySum = Array.isArray(fromApi.weekly)
+      ? fromApi.weekly.reduce((sum, n) => sum + (Number(n) || 0), 0)
+      : 0
+    const staticWeeklySum = Array.isArray(fromStatic.weekly)
+      ? fromStatic.weekly.reduce((sum, n) => sum + (Number(n) || 0), 0)
+      : 0
+    if (staticWeeklySum > 0 && apiWeeklySum <= 0) return fromStatic
+    return staticMonthlySum > apiMonthlySum ? fromStatic : fromApi
+  }
+  return fromStatic
+}
+
+function renderSpeciesFrequencyPanel(title, frequencyData, options = {}) {
+  const panelTitle = String(title || '')
+  const isNationalPanel = /^National\b/i.test(panelTitle)
+  const monthly = Array.isArray(frequencyData?.monthly) ? frequencyData.monthly : []
+  const weekly = Array.isArray(frequencyData?.weekly) ? frequencyData.weekly : []
+  const hasWeekly = weekly.length === 48
+  const bins = hasWeekly ? weekly : monthly
+  if (!bins.length) return ''
+  const getCurrentFrequencyWeekIndex = () => {
+    const now = new Date()
+    const month = now.getMonth()
+    const day = now.getDate()
+    const daysInMonth = new Date(now.getFullYear(), month + 1, 0).getDate()
+    const quarter = Math.min(3, Math.floor(((day - 1) / Math.max(1, daysInMonth)) * 4))
+    const index = (month * 4) + quarter
+    return Math.max(0, Math.min(47, index))
+  }
+  const formatFrequencyPercent = (value) => {
+    const numeric = Number(value)
+    if (!Number.isFinite(numeric)) return '—'
+    const pct = numeric * 100
+    if (pct <= 0) return '0.0%'
+    if (pct < 1) return `${pct.toFixed(2)}%`
+    return `${pct.toFixed(1)}%`
+  }
+  const maxValue = Math.max(0, ...bins)
+  const weeklyPctValues = hasWeekly
+    ? bins.map((n) => Math.max(0, (Number(n) || 0) * 100))
+    : []
+  const weeklyMaxObservedPct = hasWeekly ? Math.max(0, ...weeklyPctValues) : 0
+  const sharedWeeklyAxisMax = Number(options?.sharedWeeklyAxisMax)
+  const weeklyAxisMax = hasWeekly
+    ? (Number.isFinite(sharedWeeklyAxisMax) && sharedWeeklyAxisMax > 0
+      ? sharedWeeklyAxisMax
+      : chooseFrequencyWeeklyAxisMax(weeklyMaxObservedPct))
+    : FREQUENCY_WEEKLY_Y_MAX
+  const currentWeekIndex = hasWeekly ? getCurrentFrequencyWeekIndex() : -1
+  const bars = bins.map((value, index) => {
+    const safeValue = Number(value) || 0
+    const safeValuePct = Math.max(0, safeValue * 100)
+    const monthIndex = hasWeekly ? Math.floor(index / 4) : index
+    const weekInMonth = hasWeekly ? (index % 4) + 1 : null
+    const label = FREQUENCY_MONTH_LABELS[monthIndex] || ''
+    const isMonthBoundary = hasWeekly && index > 0 && (index % 4 === 0)
+    const wrapClass = isMonthBoundary ? 'species-freq-bar-wrap species-freq-week-split' : 'species-freq-bar-wrap'
+    if (hasWeekly) {
+      const linearRatio = weeklyAxisMax > 0
+        ? Math.max(0, Math.min(1, safeValuePct / weeklyAxisMax))
+        : 0
+      const stretchedRatio = 1 - Math.exp(-linearRatio * FREQUENCY_WEEKLY_STRETCH_MULTIPLIER)
+      const magnitudeRatio = frequencyWeeklyScaleMode === 'stretched' ? stretchedRatio : linearRatio
+      const magnitudePct = Math.max(0, Math.min(FREQUENCY_WEEKLY_BAR_HEADROOM_PCT, magnitudeRatio * FREQUENCY_WEEKLY_BAR_HEADROOM_PCT))
+      const tooltipText = formatFrequencyPercent(safeValue)
+      return `<div class="${wrapClass}"><span class="species-freq-bar species-freq-bar-centered" style="height:${magnitudePct.toFixed(2)}%" data-freq-tooltip="${escapeHtml(tooltipText)}"></span></div>`
+    }
+
+    const pct = maxValue > 0
+      ? Math.max(0, Math.min(100, (safeValue / maxValue) * 100))
+      : 0
+    const tooltipText = formatFrequencyPercent(safeValue)
+    return `<div class="${wrapClass}"><span class="species-freq-bar" style="height:${pct.toFixed(2)}%" data-freq-tooltip="${escapeHtml(tooltipText)}"></span></div>`
+  }).join('')
+  const months = FREQUENCY_MONTH_LABELS.map((m) => `<span>${escapeHtml(m)}</span>`).join('')
+  const annual = Number(frequencyData?.annual)
+  const annualText = formatFrequencyPercent(annual)
+  const axis = hasWeekly
+    ? `<div class="species-freq-weekly-months">${months}</div>`
+    : `<div class="species-freq-months">${months}</div>`
+  const scaleToggle = hasWeekly && isNationalPanel
+    ? `<button type="button" class="species-freq-scale-toggle" data-scale-mode="${escapeHtml(frequencyWeeklyScaleMode)}" aria-label="Frequency scale mode ${escapeHtml(frequencyWeeklyScaleMode === 'stretched' ? 'percent' : 'linear')}" title="Scale: ${escapeHtml(frequencyWeeklyScaleMode === 'stretched' ? '%' : 'LIN')}"><span class="species-freq-scale-text">${escapeHtml(frequencyWeeklyScaleMode === 'stretched' ? '%' : 'LIN')}</span></button>`
+    : ''
+  const panelClass = scaleToggle ? 'species-freq-panel species-freq-panel-has-toggle' : 'species-freq-panel'
+  const marker = hasWeekly
+    ? `<span class="species-freq-current-week-marker" style="left:calc(((100% / 48) * ${currentWeekIndex}) + (100% / 96));" title="Current week"></span>`
+    : ''
+  return `<section class="${panelClass}"><div class="species-freq-head"><span class="species-freq-title">${escapeHtml(panelTitle)}</span><span class="species-freq-annual">Annual avg ${escapeHtml(annualText)}</span></div><div class="species-freq-bars ${hasWeekly ? 'species-freq-bars-weekly species-freq-bars-centered' : ''}">${marker}${bars}</div>${axis}${scaleToggle}</section>`
+}
+
+async function updateSpeciesDetailFrequencyCharts(speciesName, targetPt = null) {
+  if (!speciesDetailBody || !speciesDetailPanel || speciesDetailPanel.hasAttribute('hidden')) return
+  const species = String(speciesName || '').trim()
+  if (!species) return
+
+  const requestId = ++latestSpeciesFrequencyRequestId
+  const container = speciesDetailBody.querySelector('.obs-popup-inner') || speciesDetailBody
+  const old = container.querySelector('.species-freq-section')
+  if (old) old.remove()
+
+  const section = document.createElement('div')
+  section.className = 'species-freq-section'
+  section.innerHTML = '<div class="species-freq-loading">Loading frequency charts…</div>'
+  container.appendChild(section)
+
+  const scientific = String(targetPt?.item?.sciName || targetPt?.item?.scientificName || getScientificNameForSpecies(species)?.name || '').trim()
+  const speciesCode = getSpeciesCodeForFrequency(species, targetPt)
+  const { nationalRegion, stateRegion, countyRegion } = deriveSpeciesFrequencyRegions(targetPt)
+  const targets = []
+  const isUsDetail = nationalRegion === 'US'
+  if (countyRegion) targets.push({ key: 'county', region: countyRegion, title: 'County' })
+  if (stateRegion) targets.push({ key: 'regional', region: stateRegion, title: isUsDetail ? 'State' : 'Province' })
+  if (nationalRegion && !isUsDetail) targets.push({ key: 'national', region: nationalRegion, title: 'National' })
+
+  if (!targets.length) {
+    section.innerHTML = '<div class="species-freq-empty">Frequency charts unavailable for this region.</div>'
+    return
+  }
+
+  const results = await Promise.all(targets.map(async (target) => {
+    const data = await fetchSpeciesFrequency(target.region, species, scientific, speciesCode)
+    return { ...target, data }
+  }))
+
+  if (requestId !== latestSpeciesFrequencyRequestId) return
+  if (!speciesDetailPanel || speciesDetailPanel.hasAttribute('hidden')) return
+  if (String(selectedSpecies || '').trim() !== species) return
+
+  const weeklySeries = results
+    .map((entry) => (Array.isArray(entry?.data?.weekly) ? entry.data.weekly : []))
+    .filter((series) => series.length === 48)
+  const sharedWeeklyMaxObservedPct = weeklySeries.length
+    ? Math.max(
+      0,
+      ...weeklySeries.map((series) => Math.max(0, ...series.map((n) => (Number(n) || 0) * 100))),
+    )
+    : 0
+  const sharedWeeklyAxisMax = weeklySeries.length
+    ? chooseFrequencyWeeklyAxisMax(sharedWeeklyMaxObservedPct)
+    : null
+
+  const panels = results
+    .filter((entry) => entry?.data && Array.isArray(entry.data.monthly) && entry.data.monthly.length)
+    .map((entry) => renderSpeciesFrequencyPanel(entry.title, entry.data, { sharedWeeklyAxisMax }))
+    .filter(Boolean)
+
+  const countyMissing = Boolean(results.find((entry) => entry?.key === 'county' && !entry?.data))
+  const regionalAvailable = Boolean(results.find((entry) => entry?.key === 'regional' && entry?.data))
+  const countyUnavailableNote = (countyMissing && regionalAvailable)
+    ? '<div class="species-freq-note">County frequency not available; showing state.</div>'
+    : ''
+
+  section.innerHTML = panels.length
+    ? `${countyUnavailableNote}<div class="species-freq-grid">${panels.join('')}</div>`
+    : '<div class="species-freq-empty">No frequency data found for this species in selected regions.</div>'
+}
+
+function deriveSpeciesDetailStateRegion(speciesName, targetPt = null) {
+  const fromTarget = String(targetPt?.item?.subnational1Code || '').toUpperCase()
+  if (isStateRegionCode(fromTarget)) return fromTarget
+
+  const pts = speciesMarkers.get(String(speciesName || ''))
+  if (Array.isArray(pts)) {
+    for (const pt of pts) {
+      const candidate = String(pt?.item?.subnational1Code || '').toUpperCase()
+      if (isStateRegionCode(candidate)) return candidate
+    }
+  }
+
+  const fallback = String(stateRegionFromAnyRegion(currentCountyRegion || '') || '').toUpperCase()
+  return isStateRegionCode(fallback) ? fallback : null
+}
+
+function openSpeciesDetailForSelection(speciesName, targetPt = null) {
+  const species = String(speciesName || '').trim()
+  if (!species) return
+  mapPointSpeciesFilter = new Set()
+  selectedSpecies = species
+  lastSpeciesDetailStateRegion = deriveSpeciesDetailStateRegion(species, targetPt)
+
+  if (speciesDetailPanel && speciesDetailBody && speciesDetailTitle) {
+    applySpeciesDetailPanelLayout()
+    setSpeciesDetailHeader(species)
+    speciesDetailBody.innerHTML = targetPt
+      ? buildObservationPopupHtml(targetPt, { hideHeader: true })
+      : '<div class="obs-popup-inner"><p>No recent observations found.</p></div>'
+    speciesDetailPanel.removeAttribute('hidden')
+    void updateSpeciesDetailFrequencyCharts(species, targetPt)
+  }
+}
+
+async function restoreSpeciesOverviewFromBack() {
+  const targetState = String(lastSpeciesDetailStateRegion || '').toUpperCase()
+  selectedSpecies = null
+
+  if (!targetState || !isStateRegionCode(targetState)) {
+    applyActiveFiltersAndRender({ allowAutoRecovery: false, fitToObservations: true })
+    return
+  }
+
+  const activeRegion = String(currentCountyRegion || '').toUpperCase()
+  if (activeRegion === targetState) {
+    applyActiveFiltersAndRender({ allowAutoRecovery: false, fitToObservations: true })
+    return
+  }
+
+  await activateStateByRegion(targetState)
 }
 
 // ---------------------------------------------------------------------------
@@ -4349,8 +5529,86 @@ function hitTestCanvas(containerPoint) {
   return best
 }
 
-function buildObservationPopupHtml(pt) {
+function findNearbyCanvasPoint(containerPoint, maxRadiusPx = 22) {
+  const m = map
+  if (!m || !containerPoint || !Array.isArray(fastCanvasData) || fastCanvasData.length === 0) return null
+  let best = null
+  let bestDist = Infinity
+  const maxR2 = maxRadiusPx * maxRadiusPx
+  for (const pt of fastCanvasData) {
+    if (!pt || pt.hidden) continue
+    const cp = m.latLngToContainerPoint([pt.lat, pt.lng])
+    const dx = cp.x - containerPoint.x
+    const dy = cp.y - containerPoint.y
+    const d2 = dx * dx + dy * dy
+    if (d2 <= maxR2 && d2 < bestDist) {
+      best = pt
+      bestDist = d2
+    }
+  }
+  return best
+}
+
+function getSpeciesNamesForMapPoint(pt) {
+  if (!pt) return []
+  const direct = Array.isArray(pt?.speciesList)
+    ? pt.speciesList.map((name) => String(name || '').trim()).filter(Boolean)
+    : []
+  if (direct.length > 0) return Array.from(new Set(direct))
+
+  const itemLocKey = String(pt?.locKey || getLocationKeyForItem(pt?.item) || '').trim()
+  if (!itemLocKey) return []
+  const entries = Array.isArray(lastPopupLocationIndexAllSpecies?.get?.(itemLocKey))
+    ? lastPopupLocationIndexAllSpecies.get(itemLocKey)
+    : []
+  const fromIndex = entries
+    .map((entry) => String(entry?.species || '').trim())
+    .filter(Boolean)
+  return Array.from(new Set(fromIndex))
+}
+
+function applyMapPointSpeciesFilter(pt) {
+  const names = getSpeciesNamesForMapPoint(pt)
+  if (!Array.isArray(names) || names.length === 0) return
+  selectedSpecies = null
+  mapPointSpeciesFilter = new Set(names)
+  applyActiveFiltersAndRender({ renderMap: false, allowAutoRecovery: false })
+}
+
+function handleMapPointTap(containerPoint) {
+  if (!map || !containerPoint) return false
+
+  let pt = null
+  if (fastCanvasData.length > 0) {
+    pt = hitTestCanvas(containerPoint) || findNearbyCanvasPoint(containerPoint, 22)
+  }
+  if (!pt) return false
+
+  if (pt.isCluster && map) {
+    const isCountyView = isCountyRegionCode(String(currentActiveCountyCode || '').toUpperCase())
+    const nextZoom = isCountyView
+      ? Math.max(map.getZoom() + 2, COUNTY_EXPLODE_ZOOM)
+      : Math.max(map.getZoom() + 2, CLUSTER_ZOOM_THRESHOLD + 1)
+    map.setView([pt.lat, pt.lng], nextZoom, { animate: true })
+    return true
+  }
+
+  const key = getCanvasPopupKey(pt)
+  if (key && fastCanvasPopup && fastCanvasPopupKey === key) {
+    fastCanvasPopup.remove()
+    fastCanvasPopup = null
+    fastCanvasPopupKey = null
+    return true
+  }
+
+  applyMapPointSpeciesFilter(pt)
+  openObservationPopup(pt)
+  return true
+}
+
+function buildObservationPopupHtml(pt, options = {}) {
   if (!pt) return ''
+  const hideHeader = Boolean(options?.hideHeader)
   const item = pt.item
   const locId = item?.locId ? String(item.locId) : null
   const locName = item?.locName ? String(item.locName) : ''
@@ -4375,13 +5633,15 @@ function buildObservationPopupHtml(pt) {
   })()
 
   const header = (() => {
+    if (hideHeader) return ''
     if (focusSpecies) {
-      const code = escapeHtml(getSpeciesMapLabel(focusSpecies))
       const name = escapeHtml(focusSpecies)
-      return `<div class="obs-popup-header"><span class="obs-popup-code">${code}</span><span class="obs-popup-species obs-popup-species-small">${name}</span><a class="obs-popup-mapit" href="${mapsUrl}" target="_blank" rel="noopener noreferrer" title="Map it">&#x1F4CD;</a></div>`
+      const showCode = shouldShowSpeciesAlphaCodes()
+      const codeHtml = showCode ? `<span class="obs-popup-code">${escapeHtml(getSpeciesMapLabel(focusSpecies))}</span>` : ''
+      return `<div class="obs-popup-header">${codeHtml}<span class="obs-popup-species obs-popup-species-small">${name}</span></div>`
     }
     const label = escapeHtml(speciesCount === 1 ? String(speciesList[0] || '') : `${speciesCount || 0} species`)
-    return `<div class="obs-popup-header"><span class="obs-popup-species">${label}</span><a class="obs-popup-mapit" href="${mapsUrl}" target="_blank" rel="noopener noreferrer" title="Map it">&#x1F4CD;</a></div>`
+    return `<div class="obs-popup-header"><span class="obs-popup-species">${label}</span></div>`
   })()
 
   const countyRaw = item?.subnational2Name ? String(item.subnational2Name) : ''
@@ -4392,9 +5652,12 @@ function buildObservationPopupHtml(pt) {
   const countyStateText = (countyDisplay && stateAbbrev) ? `${countyDisplay}, ${stateAbbrev}` : ''
 
   const locationLink = locName
-    ? (locId
-      ? `<a class="obs-popup-location" href="https://ebird.org/hotspot/${encodeURIComponent(locId)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(locName)}">${escapeHtml(locName)}</a>`
-      : `<span class="obs-popup-location" title="${escapeHtml(locName)}">${escapeHtml(locName)}</span>`)
+    ? (() => {
+      const hotspot = locId
+        ? `<a class="obs-popup-location" href="https://ebird.org/hotspot/${encodeURIComponent(locId)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(locName)}">${escapeHtml(locName)}</a>`
+        : `<span class="obs-popup-location" title="${escapeHtml(locName)}">${escapeHtml(locName)}</span>`
+      return `<span class="obs-popup-location-wrap">${hotspot}<a class="obs-popup-mapit" href="${mapsUrl}" target="_blank" rel="noopener noreferrer" title="Map it">&#x1F4CD;</a></span>`
+    })()
     : ''
 
   const metaParts = []
@@ -4406,7 +5669,9 @@ function buildObservationPopupHtml(pt) {
   // species (or overall at this location if no focused species).
   const sevenDayCutoff = cutoffDateForDaysBack(7)
   const focusNeedle = focusSpecies ? String(focusSpecies) : ''
-  const focusObs = (focusNeedle ? locObsAll.filter((o) => String(o?.species || '') === focusNeedle) : locObsAll)
+  const locFocusObs = focusNeedle ? locObsAll.filter((o) => String(o?.species || '') === focusNeedle) : locObsAll
+  const nearbyFocusObs = focusNeedle ? getNearbySpeciesObservations(pt, focusNeedle, nearbyObservationRadiusKm) : []
+  const focusObs = (nearbyFocusObs.length > locFocusObs.length ? nearbyFocusObs : locFocusObs)
     .filter((o) => {
       const parsed = parseObsDate(o?.obsDt)
       return Boolean(parsed && parsed >= sevenDayCutoff)
@@ -4421,12 +5686,13 @@ function buildObservationPopupHtml(pt) {
 
   const renderObsBullet = (o) => {
     if (!o) return ''
-    const dt = formatObsDateTime(o?.obsDt)
+    const dt = formatObsDateTimeByRegion(o?.obsDt)
     const sid = o?.subId ? String(o.subId) : ''
-    const listHtml = sid
-      ? `<a href="https://ebird.org/checklist/${encodeURIComponent(sid)}" target="_blank" rel="noopener noreferrer">list</a>`
-      : '<span>list unavailable</span>'
-    return `<li><span>${escapeHtml(dt)}</span> · ${listHtml}</li>`
+    if (sid) {
+      const label = `${escapeHtml(dt)} - list`
+      return `<li><a href="https://ebird.org/checklist/${encodeURIComponent(sid)}" target="_blank" rel="noopener noreferrer">${label}</a></li>`
+    }
+    return `<li><span>${escapeHtml(dt)} - list unavailable</span></li>`
   }
 
   const obsBullets = focusObs.map((o) => renderObsBullet(o)).filter(Boolean)
@@ -4468,9 +5734,10 @@ function buildObservationPopupHtml(pt) {
     })
 
     const items = others.map((sp) => {
-      const code = escapeHtml(getSpeciesMapLabel(sp))
       const name = escapeHtml(sp)
-      return `<li><a class="js-switch-species" href="#" data-species="${escapeHtml(sp)}" data-loc-key="${escapeHtml(ptLocKey)}" data-lat="${escapeHtml(pt.lat)}" data-lng="${escapeHtml(pt.lng)}"><span class="obs-popup-code">${code}</span> <span class="obs-popup-other-name">${name}</span></a></li>`
+      const showCode = shouldShowSpeciesAlphaCodes()
+      const codeHtml = showCode ? `<span class="obs-popup-code">${escapeHtml(getSpeciesMapLabel(sp))}</span> ` : ''
+      return `<li><a class="js-switch-species" href="#" data-species="${escapeHtml(sp)}" data-loc-key="${escapeHtml(ptLocKey)}" data-lat="${escapeHtml(pt.lat)}" data-lng="${escapeHtml(pt.lng)}">${codeHtml}<span class="obs-popup-other-name">${name}</span></a></li>`
     })
 
     return `<div class="obs-popup-section-title">Other notable species at location:</div><ul class="obs-popup-checklist obs-popup-other">${items.join('')}</ul>`
@@ -4481,6 +5748,9 @@ function buildObservationPopupHtml(pt) {
 
 function openObservationPopup(pt) {
   if (!map || !pt) return
+  if (speciesDetailPanel && !speciesDetailPanel.hasAttribute('hidden')) {
+    speciesDetailPanel.setAttribute('hidden', 'hidden')
+  }
   const html = buildObservationPopupHtml(pt)
   if (!html) return
   ensurePopupSpeciesSwitchHandler()
@@ -4516,9 +5786,12 @@ function ensurePopupSpeciesSwitchHandler() {
       : null) || pickBestSpeciesPoint(pts, species)
 
     if (targetPt) {
+      ensureSpeciesZoomLabelsVisible()
       map.invalidateSize()
       map.setView([targetPt.lat, targetPt.lng], Math.max(map.getZoom(), 13), { animate: true })
-      window.setTimeout(() => openObservationPopup(targetPt), 80)
+      if (fastCanvasPopup) { fastCanvasPopup.remove(); fastCanvasPopup = null }
+      fastCanvasPopupKey = null
+      window.setTimeout(() => openSpeciesDetailForSelection(species, targetPt), 80)
     }
   })
 }
@@ -4554,45 +5827,109 @@ function ensureCanvasClickHandler() {
     if (!map) return
     const rect = map.getContainer().getBoundingClientRect()
     const cp = L.point(e.clientX - rect.left, e.clientY - rect.top)
-    let pt = null
-    if (fastCanvasData.length > 0) {
-      pt = hitTestCanvas(cp)
-      if (pt) {
-        if (pt.isCluster && map) {
-          const isCountyView = isCountyRegionCode(String(currentActiveCountyCode || '').toUpperCase())
-          const nextZoom = isCountyView
-            ? Math.max(map.getZoom() + 2, COUNTY_EXPLODE_ZOOM)
-            : Math.max(map.getZoom() + 2, CLUSTER_ZOOM_THRESHOLD + 1)
-          map.setView([pt.lat, pt.lng], nextZoom, { animate: true })
-          return
-        }
-        e.stopPropagation()
-        const key = getCanvasPopupKey(pt)
-        if (key && fastCanvasPopup && fastCanvasPopupKey === key) {
-          fastCanvasPopup.remove()
-          fastCanvasPopup = null
-          fastCanvasPopupKey = null
-          return
-        }
-        openObservationPopup(pt)
-        return
-      }
+    if (mapMeasureMode) {
+      const latlng = map.containerPointToLatLng(cp)
+      addMeasurePoint(latlng)
+      e.stopPropagation()
+      return
+    }
+    if (handleMapPointTap(cp)) {
+      e.stopPropagation()
+      return
     }
 
     const latlng = map.containerPointToLatLng(cp)
     const neighborFeature = findNeighborCountyFeatureAtLatLng(latlng.lat, latlng.lng)
     if (neighborFeature) {
-      const region = String(neighborFeature?.properties?.countyRegion || neighborFeature?.properties?.subnational2Code || '').toUpperCase() || null
+      const region = String(
+        neighborFeature?.properties?.countyRegion
+        || neighborFeature?.properties?.subnational2Code
+        || neighborFeature?.properties?.subnational1Code
+        || ''
+      ).toUpperCase() || null
       const name = neighborFeature?.properties?.countyName || neighborFeature?.properties?.NAME || neighborFeature?.properties?.name || ''
+      const blockPolygonSwitch = shouldBlockPolygonSwitch(region)
       if (fastCanvasPopup) { fastCanvasPopup.remove(); fastCanvasPopup = null }
       fastCanvasPopupKey = null
+      if (blockPolygonSwitch) return
       switchCountyFromMapTap(region, latlng.lat, latlng.lng, name, 'canvas-fallback')
+      return
+    }
+
+    const blockPolygonSwitch = shouldBlockPolygonSwitch()
+    if (blockPolygonSwitch || (hasRenderedMapPoints() && isTapInsideActiveCounty(latlng.lat, latlng.lng))) {
+      if (fastCanvasPopup) { fastCanvasPopup.remove(); fastCanvasPopup = null }
+      fastCanvasPopupKey = null
       return
     }
 
     if (fastCanvasPopup) { fastCanvasPopup.remove(); fastCanvasPopup = null }
     fastCanvasPopupKey = null
   })
+}
+
+function clearMeasureLayers() {
+  if (mapMeasureLineLayer && map) map.removeLayer(mapMeasureLineLayer)
+  if (mapMeasureLabelMarker && map) map.removeLayer(mapMeasureLabelMarker)
+  mapMeasureLineLayer = null
+  mapMeasureLabelMarker = null
+}
+
+function formatMeasureDistance(totalMeters) {
+  const meters = Number(totalMeters)
+  if (!Number.isFinite(meters) || meters <= 0) return '0 m'
+  if (meters < 1000) return `${Math.round(meters)} m`
+  return `${(meters / 1000).toFixed(2)} km`
+}
+
+function updateMeasurePolyline() {
+  if (!map) return
+  clearMeasureLayers()
+  if (!Array.isArray(mapMeasurePoints) || mapMeasurePoints.length === 0) return
+
+  if (mapMeasurePoints.length > 1) {
+    mapMeasureLineLayer = L.polyline(mapMeasurePoints, {
+      color: '#2563eb',
+      weight: 3,
+      opacity: 0.95,
+      pane: 'notablePane',
+    }).addTo(map)
+  }
+
+  let totalMeters = 0
+  for (let index = 1; index < mapMeasurePoints.length; index += 1) {
+    totalMeters += mapMeasurePoints[index - 1].distanceTo(mapMeasurePoints[index])
+  }
+  const label = formatMeasureDistance(totalMeters)
+  const lastPoint = mapMeasurePoints[mapMeasurePoints.length - 1]
+  mapMeasureLabelMarker = L.marker(lastPoint, {
+    pane: 'notablePane',
+    interactive: false,
+    icon: L.divIcon({
+      className: 'map-measure-label',
+      html: `<span>${escapeHtml(label)}</span>`,
+      iconSize: null,
+    }),
+  }).addTo(map)
+}
+
+function setMeasureMode(active) {
+  mapMeasureMode = Boolean(active)
+  if (!mapMeasureBtn) return
+  mapMeasureBtn.setAttribute('aria-pressed', mapMeasureMode ? 'true' : 'false')
+  mapMeasureBtn.classList.toggle('active', mapMeasureMode)
+  mapMeasureBtn.title = mapMeasureMode ? 'Stop measuring' : 'Measure distance'
+}
+
+function addMeasurePoint(latlng) {
+  if (!latlng) return
+  mapMeasurePoints.push(latlng)
+  updateMeasurePolyline()
+}
+
+function resetMeasureTool() {
+  mapMeasurePoints = []
+  clearMeasureLayers()
 }
 // ---------------------------------------------------------------------------
 
@@ -4697,6 +6034,7 @@ function renderNotablesOnMap(observations, activeCountyCode = '', fitToObservati
   }
   const renderSignature = `${activeCountyCode}|${locationPoints.length}|${signatureHash}|${labelMode}`
   if (!fitToObservations && renderSignature === lastMapRenderSignature) {
+    syncPolygonBlockDebugBadge()
     perfEnd('map')
     return
   }
@@ -4726,7 +6064,10 @@ function renderNotablesOnMap(observations, activeCountyCode = '', fitToObservati
       }
       // Abbrev mode: show a short multi-species label without spamming overlays.
       const maxParts = 2
-      const parts = speciesList.slice(0, maxParts).map((name) => getSpeciesMapLabel(name))
+      const parts = speciesList.slice(0, maxParts).map((name) => {
+        if (!shouldShowSpeciesAlphaCodes()) return String(name || '')
+        return getSpeciesMapLabel(name)
+      })
       const remaining = speciesList.length - parts.length
       return `${parts.join(' ')}${remaining > 0 ? ` +${remaining}` : ''}`.trim() || null
     })()
@@ -4779,6 +6120,8 @@ function renderNotablesOnMap(observations, activeCountyCode = '', fitToObservati
   // Remove old Leaflet featureGroup layer if present from a previous render
   if (notableLayer) { map.removeLayer(notableLayer); notableLayer = null }
 
+  syncPolygonBlockDebugBadge()
+
   perfEnd('map')
 
   if (fitToObservations && nextData.length > 0) {
@@ -4807,6 +6150,43 @@ function recomputeCanvasVisibilityFromHiddenSpecies() {
     pt.hidden = list.length ? list.every((name) => hidden.has(String(name))) : false
   })
   fastCanvasOverlay?.redraw()
+  syncPolygonBlockDebugBadge()
+}
+
+function formatNearbyRadiusLabel(km) {
+  const value = Number(km)
+  if (!Number.isFinite(value) || value <= 0) return '1km'
+  if (value < 1) return `${Math.round(value * 1000)}m`
+  return `${value}km`
+}
+
+function syncNearbyRadiusButtonUi() {
+  if (!mapNearbyRadiusBtn) return
+  const label = formatNearbyRadiusLabel(nearbyObservationRadiusKm)
+  mapNearbyRadiusBtn.textContent = label
+  mapNearbyRadiusBtn.title = `Nearby radius: ${label}`
+  mapNearbyRadiusBtn.setAttribute('aria-label', `Nearby observations radius ${label}`)
+}
+
+function cycleNearbyObservationRadius() {
+  const options = Array.isArray(nearbyObservationRadiusOptionsKm) && nearbyObservationRadiusOptionsKm.length
+    ? nearbyObservationRadiusOptionsKm
+    : [1]
+  const current = Number(nearbyObservationRadiusKm)
+  const index = options.findIndex((value) => Math.abs(Number(value) - current) < 1e-9)
+  const next = options[(index >= 0 ? index + 1 : 0) % options.length]
+  nearbyObservationRadiusKm = Number(next)
+  syncNearbyRadiusButtonUi()
+
+  if (speciesDetailPanel && !speciesDetailPanel.hasAttribute('hidden') && selectedSpecies) {
+    const points = Array.isArray(speciesMarkers.get(String(selectedSpecies))) ? speciesMarkers.get(String(selectedSpecies)) : []
+    const currentLocKey = String(speciesDetailBody?.querySelector?.('.obs-popup-inner')?.dataset?.locKey || '')
+    const targetPt = points.find((pt) => String(pt?.locKey || '') === currentLocKey) || pickBestSpeciesPoint(points, String(selectedSpecies))
+    if (targetPt) {
+      speciesDetailBody.innerHTML = buildObservationPopupHtml(targetPt, { hideHeader: true })
+      void updateSpeciesDetailFrequencyCharts(String(selectedSpecies), targetPt)
+    }
+  }
 }
 
 async function loadCountyNotables(latitude, longitude, countyRegion = null, requestId = null, countySwitchRequestId = null, allowStateFallback = false) {
@@ -4895,7 +6275,7 @@ async function loadCountyNotables(latitude, longitude, countyRegion = null, requ
   }
   if (!hadPreviousRows && !hasCachedWarm) {
     updateStatPills('…', '…', '…')
-    notableRows.innerHTML = '<tr><td colspan="7">Loading county notables…</td></tr>'
+    notableRows.innerHTML = '<tr><td colspan="8">Loading county notables…</td></tr>'
   }
 
   const loadingWatchdog = window.setTimeout(() => {
@@ -4918,7 +6298,7 @@ async function loadCountyNotables(latitude, longitude, countyRegion = null, requ
     notableCount.textContent = '0'
     notableMeta.textContent = 'County notables request timed out'
     updateStatPills('0', '0', '0')
-    notableRows.innerHTML = '<tr><td colspan="7">County notables request timed out. Try refresh or Use My Location again.</td></tr>'
+    notableRows.innerHTML = '<tr><td colspan="8">County notables request timed out. Try refresh or Use My Location again.</td></tr>'
     setTableRenderStatus('watchdog-timeout')
     markMapPartReady('observations')
   }, 9000)
@@ -5179,7 +6559,7 @@ async function loadCountyNotables(latitude, longitude, countyRegion = null, requ
     notableCount.textContent = '0'
     notableMeta.textContent = 'County notables currently unavailable'
     updateStatPills('0', '0', '0')
-    notableRows.innerHTML = '<tr><td colspan="7">No notable observations available right now.</td></tr>'
+    notableRows.innerHTML = '<tr><td colspan="8">No notable observations available right now.</td></tr>'
     setTableRenderStatus(`load-error err=${error?.message || 'unknown'}`)
     updateRuntimeLog()
   } finally {
@@ -5203,7 +6583,7 @@ async function loadCountyNotables(latitude, longitude, countyRegion = null, requ
       notableCount.textContent = '0'
       updateStatPills('0', '0', '0')
       notableMeta.textContent = 'County notables request did not complete'
-      notableRows.innerHTML = '<tr><td colspan="7">County notables request did not complete. Please try again.</td></tr>'
+      notableRows.innerHTML = '<tr><td colspan="8">County notables request did not complete. Please try again.</td></tr>'
       setTableRenderStatus('load-finalized-no-data')
     }
     markMapPartReady('observations')
@@ -5241,7 +6621,7 @@ async function loadStateNotables(stateRegion, requestId = null) {
   notableCount.textContent = 'Loading…'
   notableMeta.textContent = `Loading rarities for ${stateRegion}…`
   updateStatPills('…', '…', '…')
-  notableRows.innerHTML = '<tr><td colspan="7">Loading notables…</td></tr>'
+  notableRows.innerHTML = '<tr><td colspan="8">Loading notables…</td></tr>'
   clearStateMarkers()
 
   try {
@@ -5292,7 +6672,7 @@ async function loadStateNotables(stateRegion, requestId = null) {
     notableMeta.textContent = `Error: ${error?.message || error}`
     updateStatPills('0', '0', '0')
     const safeErrorMessage = escapeHtml(error?.message || 'unknown error')
-    notableRows.innerHTML = `<tr><td colspan="7">Load failed: ${safeErrorMessage}.</td></tr>`
+    notableRows.innerHTML = `<tr><td colspan="8">Load failed: ${safeErrorMessage}.</td></tr>`
     setTableRenderStatus(`state-error: ${error?.message || ''}`)
     setMapLoading(false)
     markMapPartReady('observations')
@@ -5310,7 +6690,7 @@ async function loadNationalNotables(regionCode = US_REGION_CODE, abaMinFloor = 3
   notableCount.textContent = 'Loading…'
   notableMeta.textContent = `Loading rarities for ${normalizedRegion} (ABA ${effectiveAbaMin}+)…`
   updateStatPills('…', '…', '…')
-  notableRows.innerHTML = '<tr><td colspan="7">Loading US notables…</td></tr>'
+  notableRows.innerHTML = '<tr><td colspan="8">Loading US notables…</td></tr>'
 
   const effectiveDaysBack = Math.max(1, Math.min(14, Number(filterDaysBack) || 7))
   try {
@@ -5354,7 +6734,7 @@ async function loadNationalNotables(regionCode = US_REGION_CODE, abaMinFloor = 3
     notableMeta.textContent = `Error: ${error?.message || error}`
     updateStatPills('0', '0', '0')
     const safeErrorMessage = escapeHtml(error?.message || 'unknown error')
-    notableRows.innerHTML = `<tr><td colspan="7">US load failed: ${safeErrorMessage}.</td></tr>`
+    notableRows.innerHTML = `<tr><td colspan="8">US load failed: ${safeErrorMessage}.</td></tr>`
     setTableRenderStatus(`us-error: ${error?.message || ''}`)
     setMapLoading(false)
     markMapPartReady('observations')
@@ -5529,6 +6909,7 @@ async function requestUserLocation(manualRetry = false) {
       const regionHint = countyContext?.countyRegion ? ` (${countyContext.countyRegion})` : ''
       locationDetail.textContent = `${baseLocationDetail} · ${countyContext.countyLabel}${regionHint}`
     }
+    currentPhysicalCountryCode = countryCodeFromRegionCode(countyContext?.countyRegion || '')
     await notablesPromise
     updateRuntimeLog()
     return true
@@ -5580,6 +6961,7 @@ locPermRetryBtn?.addEventListener('click', () => {
 locPermDeclineBtn?.addEventListener('click', () => {
   hideLocationPermGate()
   setLocationUiUnavailable('Location declined. Showing Netherlands.')
+  currentPhysicalCountryCode = null
   void activateStateByRegion('NL')
 })
 menuInfoBtn?.addEventListener('click', () => {
@@ -5588,14 +6970,24 @@ menuInfoBtn?.addEventListener('click', () => {
   renderTapDebugLog()
   infoModal.removeAttribute('hidden')
 })
+speciesLangToggleBtn?.addEventListener('click', () => {
+  speciesNameLanguage = speciesNameLanguage === 'en' ? 'nl' : 'en'
+  syncSpeciesLanguageToggleUi()
+  renderSpeciesPickerOptions()
+  updateSpeciesButtonLabel()
+  applySortAndRender()
+  if (speciesDetailPanel && !speciesDetailPanel.hasAttribute('hidden') && selectedSpecies) {
+    setSpeciesDetailHeader(String(selectedSpecies))
+  }
+})
 infoCloseBtn?.addEventListener('click', () => {
   infoModal?.setAttribute('hidden', 'hidden')
 })
-headerDaysBackSelect?.addEventListener('change', (event) => {
+headerDaysBackSelect?.addEventListener('change', async (event) => {
   filterDaysBack = Number(event.target.value) || 7
   if (filterDaysBackInput) filterDaysBackInput.value = String(filterDaysBack)
   updateFilterUi()
-  applyActiveFiltersAndRender({ fitToObservations: true })
+  await refreshCurrentRegionDataForDaysBack()
 })
 
 headerCountyBtn?.addEventListener('click', (event) => {
@@ -5657,31 +7049,38 @@ headerStateBtn?.addEventListener('click', (event) => {
 headerStateSelect?.addEventListener('change', async (event) => {
   const next = String(event?.target?.value || '').toUpperCase()
   if (next !== US_REGION_CODE && !isStateRegionCode(next)) return
-  setPendingLocationSelection({ regionCode: next, countyOption: null })
+  clearPendingLocationSelection()
+  await activateStateByRegion(next)
 })
 
-headerCountySelect?.addEventListener('change', (event) => {
+headerCountySelect?.addEventListener('change', async (event) => {
   const selectEl = event.target
   const countyRegion = String(selectEl?.value || '').toUpperCase()
   if (!countyRegion) return
   const option = countyPickerOptions.find((opt) => String(opt.countyRegion || '').toUpperCase() === countyRegion) || null
   if (option) {
-    setPendingLocationSelection({ countyOption: option })
+    clearPendingLocationSelection()
+    await activateCountyFromOption(option)
     return
   }
 
-  setPendingLocationSelection({ regionCode: countyRegion, countyOption: { countyRegion, countyName: '' } })
+  clearPendingLocationSelection()
+  await activateCountyByRegion(countyRegion)
 })
 filterDaysBackInput?.addEventListener('input', (event) => {
   filterDaysBack = Number(event.target.value) || 7
   updateFilterUi()
   applyActiveFiltersAndRender({ fitToObservations: true })
 })
+filterDaysBackInput?.addEventListener('change', async () => {
+  await refreshCurrentRegionDataForDaysBack()
+})
 filterAbaMinInput?.addEventListener('input', (event) => {
   filterAbaMin = Math.max(1, Math.min(5, Number(event.target.value) || 1))
   updateFilterUi()
   applyActiveFiltersAndRender()
 })
+syncSpeciesLanguageToggleUi()
 updateFilterUi()
 menuSearchBtn?.addEventListener('click', () => {
   if (!searchPopover) return
@@ -5781,35 +7180,10 @@ menuPinBtn?.addEventListener('click', () => {
 })
 
 bottomReloadBtn?.addEventListener('click', async () => {
-  const targetRegion = pendingRegionCode
-  const targetCounty = pendingCountyOption
   try {
-    if (targetCounty) {
-      await activateCountyFromOption(targetCounty, { preservePending: true })
-      clearPendingLocationSelection()
-      return
-    }
-    if (targetRegion) {
-      await activateStateByRegion(targetRegion, { preservePending: true })
-      clearPendingLocationSelection()
-      return
-    }
-
-    // Re-fetch current context (no pending changes)
-    const cr = String(currentCountyRegion || '').toUpperCase()
-    if (!cr) return
-    if (cr === US_REGION_CODE || isStateRegionCode(cr)) {
-      await activateStateByRegion(cr)
-      return
-    }
-    const opt = countyPickerOptions.find((o) => String(o.countyRegion || '').toUpperCase() === cr)
-    if (opt) {
-      await activateCountyFromOption(opt)
-      return
-    }
-    await activateStateByRegion(stateRegionFromAnyRegion(cr) || 'NL')
+    await triggerHardRefresh()
   } catch (error) {
-    console.error('soft reload failed:', error)
+    console.error('hard reload failed:', error)
   }
 })
 mapFullscreenToggleBtn.addEventListener('click', () => {
@@ -5837,35 +7211,68 @@ mapLocateBtn?.addEventListener('click', () => {
   focusMapOnUserLocation()
 })
 
-mapLabelToggleBtn?.addEventListener('click', () => {
-  if (labelMode === 'abbr') labelMode = 'full'
-  else if (labelMode === 'full') labelMode = 'off'
-  else labelMode = 'abbr'
+mapMeasureBtn?.addEventListener('click', () => {
+  const next = !mapMeasureMode
+  if (!next) {
+    setMeasureMode(false)
+    resetMeasureTool()
+    return
+  }
+  if (!map) initializeMap()
+  setMeasureMode(true)
+  resetMeasureTool()
+})
 
+mapNearbyRadiusBtn?.addEventListener('click', () => {
+  cycleNearbyObservationRadius()
+})
+
+function syncMapLabelToggleUi() {
   const mapEl = document.querySelector('#map')
   if (mapEl) mapEl.classList.toggle('labels-hidden', labelMode === 'off')
+  if (!mapLabelToggleBtn) return
   mapLabelToggleBtn.setAttribute('aria-pressed', String(labelMode !== 'off'))
   mapLabelToggleBtn.style.opacity = labelMode === 'off' ? '0.5' : ''
   mapLabelToggleBtn.title = labelMode === 'abbr' ? 'Show full names' : labelMode === 'full' ? 'Hide labels' : 'Show abbreviated names'
-  
   const textEl = mapLabelToggleBtn.querySelector('text')
   if (textEl) {
     textEl.textContent = labelMode === 'abbr' ? 'B' : labelMode === 'full' ? 'F' : ''
   }
+}
 
-  // Re-render canvas so label visibility takes effect immediately
-  lastMapRenderSignature = ''
-  applyActiveFiltersAndRender()
+function setLabelMode(nextMode, { rerender = false } = {}) {
+  const allowed = new Set(['abbr', 'full', 'off'])
+  if (!allowed.has(nextMode)) return
+  labelMode = nextMode
+  syncMapLabelToggleUi()
+  if (rerender) {
+    lastMapRenderSignature = ''
+    applyActiveFiltersAndRender({ allowAutoRecovery: false })
+  }
+}
+
+function ensureSpeciesZoomLabelsVisible() {
+  if (labelMode === 'off') {
+    setLabelMode('abbr', { rerender: true })
+  }
+}
+
+mapLabelToggleBtn?.addEventListener('click', () => {
+  const nextMode = labelMode === 'abbr' ? 'full' : (labelMode === 'full' ? 'off' : 'abbr')
+  setLabelMode(nextMode, { rerender: true })
 })
 
-countyPickerList?.addEventListener('click', (event) => {
+syncNearbyRadiusButtonUi()
+
+countyPickerList?.addEventListener('click', async (event) => {
   const btn = event.target.closest('.county-option')
   if (!btn) return
   const index = Number(btn.dataset.index)
   const option = countyPickerOptions[index]
   if (!option) return
   closeCountyPicker()
-  setPendingLocationSelection({ countyOption: option })
+  clearPendingLocationSelection()
+  await activateCountyFromOption(option)
 })
 
 speciesPickerList?.addEventListener('click', (event) => {
@@ -5873,6 +7280,7 @@ speciesPickerList?.addEventListener('click', (event) => {
   if (!btn) return
   const species = String(btn.dataset.species || '').trim()
   closeSpeciesPicker()
+  mapPointSpeciesFilter = new Set()
   selectedSpecies = species || null
   applyActiveFiltersAndRender({ allowAutoRecovery: false })
 
@@ -5880,6 +7288,7 @@ speciesPickerList?.addEventListener('click', (event) => {
   if (selectedSpecies && map) {
     const pts = speciesMarkers.get(selectedSpecies)
     if (pts && pts.length > 0) {
+      ensureSpeciesZoomLabelsVisible()
       map.invalidateSize()
       const targetPt = pickBestSpeciesPoint(pts, selectedSpecies)
       if (pts.length === 1 && targetPt) {
@@ -5898,18 +7307,33 @@ speciesPickerList?.addEventListener('click', (event) => {
   }
 })
 
-statePickerList?.addEventListener('click', (event) => {
+statePickerList?.addEventListener('click', async (event) => {
   const btn = event.target.closest('.county-option')
   if (!btn) return
   const code = String(btn.dataset.code || '').toUpperCase()
   if (!code) return
   closeStatePicker()
-  setPendingLocationSelection({ regionCode: code, countyOption: null })
+  clearPendingLocationSelection()
+  await activateStateByRegion(code)
 })
 
 function activateAbaPill(pill) {
   if (!pill) return
-  const parsedCode = Number(pill.dataset.code)
+  const rawCode = String(pill.dataset.code || '').toUpperCase()
+  const isNlMode = isNlRarityPillMode()
+  if (isNlMode) {
+    if (rawCode !== 'R' && rawCode !== 'N') return
+    selectedAbaCodes = new Set()
+    if (!(selectedReviewFilters instanceof Set)) selectedReviewFilters = new Set()
+    if (selectedReviewFilters.has(rawCode)) selectedReviewFilters.delete(rawCode)
+    else selectedReviewFilters.add(rawCode)
+    applyActiveFiltersAndRender({ allowAutoRecovery: false })
+    return
+  }
+
+  selectedReviewFilters = new Set()
+
+  const parsedCode = Number(rawCode)
   if (!Number.isFinite(parsedCode)) return
   const code = Math.round(parsedCode)
   if (code < 0 || code > 5) return
@@ -6069,6 +7493,7 @@ notableRows.addEventListener('click', (event) => {
 
   if (isStateView && rowCountyRegion) {
     preservePinnedSpeciesOnce = true
+    mapPointSpeciesFilter = new Set()
     selectedSpecies = species
     const option = countyPickerOptions.find((opt) => String(opt.countyRegion || '').toUpperCase() === rowCountyRegion)
     if (option) {
@@ -6094,17 +7519,11 @@ notableRows.addEventListener('click', (event) => {
 
   // In list or hybrid mode: show species detail panel with observation info
   if (currentMode === 'list' || currentMode === 'hybrid') {
-    selectedSpecies = species
     const targetPt = pts?.length ? pickBestSpeciesPoint(pts, species) : null
-    if (speciesDetailPanel && speciesDetailBody && speciesDetailTitle) {
-      speciesDetailTitle.textContent = species
-      speciesDetailBody.innerHTML = targetPt
-        ? buildObservationPopupHtml(targetPt)
-        : '<div class="obs-popup-inner"><p>No recent observations found.</p></div>'
-      speciesDetailPanel.removeAttribute('hidden')
-    }
+    openSpeciesDetailForSelection(species, targetPt)
     // In hybrid mode, also zoom the map since it is visible
     if (currentMode === 'hybrid' && pts?.length && map) {
+      ensureSpeciesZoomLabelsVisible()
       map.invalidateSize()
       const targetPt2 = targetPt
       if (pts.length === 1 && targetPt2) {
@@ -6120,6 +7539,7 @@ notableRows.addEventListener('click', (event) => {
 
   // Map mode: zoom to point(s) and open popup
   if (!pts || pts.length === 0 || !map) return
+  ensureSpeciesZoomLabelsVisible()
   if (map) map.invalidateSize()
   const targetPt = pickBestSpeciesPoint(pts, species)
   if (pts.length === 1 && targetPt) {
@@ -6135,9 +7555,35 @@ notableRows.addEventListener('click', (event) => {
   }
 })
 
-// Close species detail panel when back button is clicked
-speciesDetailBackBtn?.addEventListener('click', () => {
+  speciesDetailBackBtn?.addEventListener('click', async () => {
+    if (speciesDetailPanel) speciesDetailPanel.setAttribute('hidden', 'hidden')
+    await restoreSpeciesOverviewFromBack()
   if (speciesDetailPanel) speciesDetailPanel.setAttribute('hidden', 'hidden')
+})
+
+function applySpeciesDetailPanelLayout() {
+  if (!speciesDetailPanel) return
+  if (currentMode === 'hybrid') {
+    const appMainEl = document.querySelector('.app-main')
+    const rect = appMainEl?.getBoundingClientRect()
+    if (rect) {
+      speciesDetailPanel.style.top = `${Math.round(rect.top)}px`
+      speciesDetailPanel.style.left = '0px'
+      speciesDetailPanel.style.right = '0px'
+      speciesDetailPanel.style.bottom = `${Math.max(0, Math.round(window.innerHeight - rect.bottom))}px`
+      return
+    }
+  }
+
+  speciesDetailPanel.style.top = ''
+  speciesDetailPanel.style.left = ''
+  speciesDetailPanel.style.right = ''
+  speciesDetailPanel.style.bottom = ''
+}
+
+window.addEventListener('resize', () => {
+  if (!speciesDetailPanel || speciesDetailPanel.hasAttribute('hidden')) return
+  applySpeciesDetailPanelLayout()
 })
 
 document.querySelector('#reportsHelpBtn')?.addEventListener('click', (event) => {
@@ -6176,7 +7622,7 @@ document.querySelector('.notable-table thead').addEventListener('click', (event)
     sortState.dir = sortState.dir === 'desc' ? 'asc' : 'desc'
   } else {
     sortState.col = col
-    sortState.dir = (col === 'species' || col === 'county') ? 'asc' : 'desc'
+    sortState.dir = (col === 'species' || col === 'state' || col === 'county') ? 'asc' : 'desc'
   }
   applySortAndRender()
 })
@@ -6212,6 +7658,10 @@ document.querySelector('#toggleAllVis')?.addEventListener('change', (event) => {
 })
 
 setMode('hybrid')
+ensureFrequencyScaleToggleHandler()
+
+// Keep ABA bar visible immediately in all modes (hybrid/list/map) even before data loads.
+renderAbaStatPills([])
 
 let appBooted = false
 
@@ -6226,11 +7676,13 @@ async function bootAppOnce() {
 
   const launchUrl = new URL(window.location.href)
   const forceFreshLocation = launchUrl.searchParams.get('force_location') === '1'
+  const resetToNl = launchUrl.searchParams.get('reset_nl') === '1'
   const prefetchBackParam = launchUrl.searchParams.get('prefetch_back')
   // Clean up all transient URL params injected by triggerHardRefresh or external tools
   // to avoid them persisting in the address bar and browser history.
   let urlMutated = false
   if (forceFreshLocation) { launchUrl.searchParams.delete('force_location'); urlMutated = true }
+  if (resetToNl) { launchUrl.searchParams.delete('reset_nl'); urlMutated = true }
   if (launchUrl.searchParams.has('refresh')) { launchUrl.searchParams.delete('refresh'); urlMutated = true }
   if (prefetchBackParam !== null) { launchUrl.searchParams.delete('prefetch_back'); urlMutated = true }
   if (urlMutated) window.history.replaceState({}, '', launchUrl.toString())
@@ -6244,6 +7696,20 @@ async function bootAppOnce() {
     }
   } else {
     statePrefetchDaysBack = DEFAULT_STATE_PREFETCH_DAYS_BACK
+  }
+
+  // Hard-reset path: always go to NL before any saved pending/active context restore.
+  if (resetToNl) {
+    locationStatus.className = 'badge warn'
+    locationStatus.textContent = 'Default'
+    locationDetail.textContent = 'Netherlands · reset'
+    try {
+      clearPendingLocationSelection()
+      await activateStateByRegion('NL')
+    } finally {
+      updateRuntimeLog()
+    }
+    return
   }
 
   if (restorePendingLocationSelection()) {
@@ -6278,8 +7744,7 @@ async function bootAppOnce() {
   }
 
   // Default fallback: Netherlands (province-level state view).
-  // The county-context worker is US-only, so we bypass it entirely and
-  // activate the NL state directly — the same path as the state picker.
+  // If geolocation is unavailable/blocked, fall back to NL so the app still loads.
   const startFromDefaultRegion = async () => {
     locationStatus.className = 'badge warn'
     locationStatus.textContent = 'Default'
@@ -6295,51 +7760,11 @@ async function bootAppOnce() {
     }
   }
 
-  // If we have a fresh cached GPS position and this isn't a forced refresh,
-  // load from cache to avoid triggering the browser location prompt on every reload.
-  let located = false
-  if (!forceFreshLocation) {
-    try {
-      const saved = JSON.parse(localStorage.getItem('mrm_last_pos') || 'null')
-      const MAX_CACHE_AGE_MS = 24 * 60 * 60 * 1000 // 24 hours
-      if (saved && Number.isFinite(saved.lat) && Number.isFinite(saved.lng) &&
-          (Date.now() - (saved.ts || 0)) < MAX_CACHE_AGE_MS) {
-        lastUserLat = saved.lat
-        lastUserLng = saved.lng
-        locationStatus.className = 'badge ok'
-        locationStatus.textContent = 'Located'
-        locationDetail.textContent = `Lat ${saved.lat.toFixed(5)}, Lon ${saved.lng.toFixed(5)} · cached`
-        const requestId = ++latestLocationRequestId
-        updateUserLocationOnMap(saved.lat, saved.lng, 0)
-        const cachedGeoJson = loadCountyContextCache(saved.lat, saved.lng)
-        const cachedActiveFeature = Array.isArray(cachedGeoJson?.features)
-          ? cachedGeoJson.features.find((f) => f?.properties?.isActiveCounty)
-          : null
-        const cachedCountyRegion = cachedActiveFeature?.properties?.countyRegion || cachedGeoJson?.activeCountyRegion || null
-        const countyContextPromise = updateCountyForLocation(saved.lat, saved.lng, requestId)
-        const notablesPromise = loadCountyNotables(saved.lat, saved.lng, cachedCountyRegion, requestId, null, false)
-        const countyContext = await countyContextPromise
-        if (countyContext?.countyLabel) {
-          const regionHint = countyContext?.countyRegion ? ` (${countyContext.countyRegion})` : ''
-          locationDetail.textContent = `Lat ${saved.lat.toFixed(5)}, Lon ${saved.lng.toFixed(5)} · cached · ${countyContext.countyLabel}${regionHint}`
-        }
-        await notablesPromise
-        updateRuntimeLog()
-        located = true
-      }
-    } catch (_) {}
-  }
-
-  // No fresh cache (or forced refresh): request current location — may show browser GPS prompt.
-  if (!located) {
-    located = await requestUserLocation(false)
-  }
+  // Default startup path: try device location first, then fall back to NL.
+  const located = await requestUserLocation(false)
   if (located) return
 
-  // Fallback: if GPS is blocked/unavailable, show Netherlands by default.
-  if (!forceFreshLocation) {
-    await startFromDefaultRegion()
-  }
+  await startFromDefaultRegion()
 }
 
 function ensureApiKeyOrGate() {
@@ -6471,6 +7896,8 @@ function maybeStartStressTestRunner() {
 }
 
 maybeStartStressTestRunner()
+
+validateNlReviewLabelConsistency()
 
 window.addEventListener('error', (event) => {
   handleUnhandledUiFault('window-error', event?.error || new Error(event?.message || 'Unknown runtime error'))

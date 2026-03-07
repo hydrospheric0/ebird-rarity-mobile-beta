@@ -1,0 +1,2550 @@
+{
+  "meta": {
+    "generatedAt": "2026-03-07T22:49:55.285814+00:00",
+    "generator": "scripts/build-avibase-nl-checklist.py",
+    "region": "NL",
+    "taxonomy": "AOS 7th edition incl. 66th suppl.",
+    "sources": {
+      "en": "https://avibase.bsc-eoc.org/checklist.jsp?region=nl&list=aou&lang=EN",
+      "nl": "https://avibase.bsc-eoc.org/checklist.jsp?region=nl&list=aou&lang=NL"
+    },
+    "counts": {
+      "rows_en": 358,
+      "rows_nl": 358,
+      "entries": 358,
+      "with_dutch_name": 353,
+      "with_status_en": 193
+    }
+  },
+  "entries": [
+    {
+      "englishName": "Alpine Swift",
+      "scientificName": "Tachymarptis melba",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "FA1CAD2906F7C845",
+      "dutchName": "Alpengierzwaluw",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "American Flamingo",
+      "scientificName": "Phoenicopterus ruber",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "E3FF6313179EC968",
+      "dutchName": "Caribische Flamingo",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "American Golden-Plover",
+      "scientificName": "Pluvialis dominica",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "2143A8526CA7C809",
+      "dutchName": "Amerikaanse Goudplevier",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "American Herring Gull",
+      "scientificName": "Larus smithsonianus",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "60F32AF8F5E3E40B",
+      "dutchName": "Amerikaanse Zilvermeeuw",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "American Kestrel",
+      "scientificName": "Falco sparverius",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "20C2214E655A79AB",
+      "dutchName": "Amerikaanse Torenvalk",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "American Pipit",
+      "scientificName": "Anthus rubescens",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "CDA2E56B1B283EA8",
+      "dutchName": "Pacifische Waterpieper",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "American Robin",
+      "scientificName": "Turdus migratorius",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "D77E4B418D581FB2",
+      "dutchName": "Roodborstlijster",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "American Wigeon",
+      "scientificName": "Mareca americana",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "D201EB7230F20770",
+      "dutchName": "Amerikaanse Smient",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Arctic Loon",
+      "scientificName": "Gavia arctica",
+      "avibaseId": "CA5852BE6E617DBD",
+      "dutchName": "Parelduiker"
+    },
+    {
+      "englishName": "Arctic Tern",
+      "scientificName": "Sterna paradisaea",
+      "avibaseId": "BDC5CF80BE6CFC21",
+      "dutchName": "Noordse Stern"
+    },
+    {
+      "englishName": "Arctic Warbler",
+      "scientificName": "Phylloscopus borealis",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "ECFC7E6C1A57A7BE",
+      "dutchName": "Noordse Boszanger",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Asian Stonechat",
+      "scientificName": "Saxicola maurus",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "3380CFC58F79BAB8",
+      "dutchName": "Aziatische Roodborsttapuit",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Atlantic Puffin",
+      "scientificName": "Fratercula arctica",
+      "statusEn": "Vulnerable",
+      "avibaseId": "2771624B64AD7F2C",
+      "dutchName": "Papegaaiduiker",
+      "statusNl": "Kwetsbaar"
+    },
+    {
+      "englishName": "Baikal Teal",
+      "scientificName": "Sibirionetta formosa",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "63EABB42903040B4",
+      "dutchName": "Siberische Taling",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Baird's Sandpiper",
+      "scientificName": "Calidris bairdii",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "1F1AD154DAE2E070",
+      "dutchName": "Bairds Strandloper",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Baltimore Oriole",
+      "scientificName": "Icterus galbula",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "5110842FA06DD11C",
+      "dutchName": "Baltimoretroepiaal",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Bank Swallow",
+      "scientificName": "Riparia riparia",
+      "avibaseId": "94A1C447583CB6D2",
+      "dutchName": "Oeverzwaluw"
+    },
+    {
+      "englishName": "Bar-tailed Godwit",
+      "scientificName": "Limosa lapponica",
+      "statusEn": "Near-threatened",
+      "avibaseId": "9A684C997C1AF1BA",
+      "dutchName": "Rosse Grutto",
+      "statusNl": "Bijna met uitsterven bedreigd"
+    },
+    {
+      "englishName": "Barn Swallow",
+      "scientificName": "Hirundo rustica",
+      "avibaseId": "58C502EA7AF3E023",
+      "dutchName": "Boerenzwaluw"
+    },
+    {
+      "englishName": "Barnacle Goose",
+      "scientificName": "Branta leucopsis",
+      "avibaseId": "3163ED86A508BB83",
+      "dutchName": "Brandgans"
+    },
+    {
+      "englishName": "Barrow's Goldeneye",
+      "scientificName": "Bucephala islandica",
+      "statusEn": "Uncertain origin",
+      "avibaseId": "9456DEDF7E1AADF3",
+      "dutchName": "IJslandse Brilduiker",
+      "statusNl": "Onzekere herkomst"
+    },
+    {
+      "englishName": "Belted Kingfisher",
+      "scientificName": "Megaceryle alcyon",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "3558066B4F7EEB8E",
+      "dutchName": "Bandijsvogel",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Black Guillemot",
+      "scientificName": "Cepphus grylle",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "B5AA5952E13FE5F3",
+      "dutchName": "Zwarte Zeekoet",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Black Kite",
+      "scientificName": "Milvus migrans",
+      "avibaseId": "06D9A2C8D1E3678A",
+      "dutchName": "Zwarte Wouw"
+    },
+    {
+      "englishName": "Black Scoter",
+      "scientificName": "Melanitta americana",
+      "statusEn": "Rare/Accidental Near-threatened",
+      "avibaseId": "B7B1A5DD94724A05",
+      "dutchName": "Amerikaanse Zee-eend",
+      "statusNl": "Zeldzaam/Dwaalgast Bijna met uitsterven bedreigd"
+    },
+    {
+      "englishName": "Black Tern",
+      "scientificName": "Chlidonias niger",
+      "avibaseId": "115AF02DD58018FB",
+      "dutchName": "Zwarte Stern"
+    },
+    {
+      "englishName": "Black-bellied Plover",
+      "scientificName": "Pluvialis squatarola",
+      "statusEn": "Vulnerable",
+      "avibaseId": "27903EF7E618A6A2",
+      "dutchName": "Zilverplevier",
+      "statusNl": "Kwetsbaar"
+    },
+    {
+      "englishName": "Black-crowned Night Heron",
+      "scientificName": "Nycticorax nycticorax",
+      "avibaseId": "6BB94D7EA4D041A8",
+      "dutchName": "Kwak"
+    },
+    {
+      "englishName": "Black-headed Gull",
+      "scientificName": "Chroicocephalus ridibundus",
+      "avibaseId": "FB02DD9658CC1EC6",
+      "dutchName": "Kokmeeuw"
+    },
+    {
+      "englishName": "Black-legged Kittiwake",
+      "scientificName": "Rissa tridactyla",
+      "statusEn": "Vulnerable",
+      "avibaseId": "FB4D08F0837D4683",
+      "dutchName": "Drieteenmeeuw",
+      "statusNl": "Kwetsbaar"
+    },
+    {
+      "englishName": "Black-tailed Godwit",
+      "scientificName": "Limosa limosa",
+      "statusEn": "Near-threatened",
+      "avibaseId": "454B5CD5F5285B77",
+      "dutchName": "Grutto",
+      "statusNl": "Bijna met uitsterven bedreigd"
+    },
+    {
+      "englishName": "Black-winged Stilt",
+      "scientificName": "Himantopus himantopus",
+      "avibaseId": "3CAEB7CEEC7FFF50",
+      "dutchName": "Steltkluut"
+    },
+    {
+      "englishName": "Blackpoll Warbler",
+      "scientificName": "Setophaga striata",
+      "statusEn": "Rare/Accidental Near-threatened",
+      "avibaseId": "544A5E6BC69CEAAC",
+      "dutchName": "Zwartkopzanger",
+      "statusNl": "Zeldzaam/Dwaalgast Bijna met uitsterven bedreigd"
+    },
+    {
+      "englishName": "Blue Rock-thrush",
+      "scientificName": "Monticola solitarius",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "41D76F4B19ACB4BD",
+      "dutchName": "Blauwe Rotslijster",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Blue-winged Teal",
+      "scientificName": "Spatula discors",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "90E2543E9A4ABA0A",
+      "dutchName": "Blauwvleugeltaling",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Bluethroat",
+      "scientificName": "Luscinia svecica",
+      "avibaseId": "AFD6FD811AA7D6A7",
+      "dutchName": "Blauwborst"
+    },
+    {
+      "englishName": "Blyth's Reed Warbler",
+      "scientificName": "Acrocephalus dumetorum",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "B22EAFC877C38967",
+      "dutchName": "Struikrietzanger",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Bobolink",
+      "scientificName": "Dolichonyx oryzivorus",
+      "statusEn": "Rare/Accidental Near-threatened",
+      "avibaseId": "F845062FC976B85B",
+      "dutchName": "Bobolink",
+      "statusNl": "Zeldzaam/Dwaalgast Bijna met uitsterven bedreigd"
+    },
+    {
+      "englishName": "Bohemian Waxwing",
+      "scientificName": "Bombycilla garrulus",
+      "avibaseId": "AEF821EC4625150E",
+      "dutchName": "Pestvogel"
+    },
+    {
+      "englishName": "Bonaparte's Gull",
+      "scientificName": "Chroicocephalus philadelphia",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "0337440E2A88E638",
+      "dutchName": "Kleine Kokmeeuw",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Boreal Owl",
+      "scientificName": "Aegolius funereus",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "8AB4EAF6DBFA02CE",
+      "dutchName": "Ruigpootuil",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Brambling",
+      "scientificName": "Fringilla montifringilla",
+      "avibaseId": "E16B2C0328E05DC5",
+      "dutchName": "Keep"
+    },
+    {
+      "englishName": "Brant",
+      "scientificName": "Branta bernicla",
+      "avibaseId": "3E04020B54C14FCC",
+      "dutchName": "Rotgans"
+    },
+    {
+      "englishName": "Bridled Tern",
+      "scientificName": "Onychoprion anaethetus",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "E6518B9D5C802F2A",
+      "dutchName": "Brilstern",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Broad-billed Sandpiper",
+      "scientificName": "Calidris falcinellus",
+      "statusEn": "Rare/Accidental Vulnerable",
+      "avibaseId": "0A14882F5F9F64E6",
+      "dutchName": "Breedbekstrandloper",
+      "statusNl": "Zeldzaam/Dwaalgast Kwetsbaar"
+    },
+    {
+      "englishName": "Brown Booby",
+      "scientificName": "Sula leucogaster",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "05520B42BE95E3ED",
+      "dutchName": "Bruine Gent",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Brown Shrike",
+      "scientificName": "Lanius cristatus",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "E4968582E577D9D1",
+      "dutchName": "Bruine Klauwier",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Buff-breasted Sandpiper",
+      "scientificName": "Calidris subruficollis",
+      "statusEn": "Rare/Accidental Vulnerable",
+      "avibaseId": "3A3C62BC935BDA72",
+      "dutchName": "Blonde Ruiter",
+      "statusNl": "Zeldzaam/Dwaalgast Kwetsbaar"
+    },
+    {
+      "englishName": "Bufflehead",
+      "scientificName": "Bucephala albeola",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "FB7383856D0DB2EA",
+      "dutchName": "Buffelkopeend",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Cackling Goose",
+      "scientificName": "Branta hutchinsii",
+      "statusEn": "Introduced species",
+      "avibaseId": "60214D4970BA4158",
+      "dutchName": "Kleine Canadese Gans",
+      "statusNl": "Geïntroduceerde soort"
+    },
+    {
+      "englishName": "Canada Goose",
+      "scientificName": "Branta canadensis",
+      "statusEn": "Introduced species",
+      "avibaseId": "B59E18633E2EFD25",
+      "dutchName": "Grote Canadese Gans",
+      "statusNl": "Geïntroduceerde soort"
+    },
+    {
+      "englishName": "Canvasback",
+      "scientificName": "Aythya valisineria",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "1929E1E16E073570",
+      "dutchName": "Grote Tafeleend",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Caspian Tern",
+      "scientificName": "Hydroprogne caspia",
+      "avibaseId": "BC06BC0D1056BC7B",
+      "dutchName": "Reuzenstern"
+    },
+    {
+      "englishName": "Chimney Swift",
+      "scientificName": "Chaetura pelagica",
+      "statusEn": "Rare/Accidental Vulnerable",
+      "avibaseId": "C3AD1AFF63D26461",
+      "dutchName": "Schoorsteengierzwaluw",
+      "statusNl": "Zeldzaam/Dwaalgast Kwetsbaar"
+    },
+    {
+      "englishName": "Citrine Wagtail",
+      "scientificName": "Motacilla citreola",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "5B0295C122B63ED3",
+      "dutchName": "Citroenkwikstaart",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Collared Pratincole",
+      "scientificName": "Glareola pratincola",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "D56ABB4EE468E9EF",
+      "dutchName": "Vorkstaartplevier",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Common Chaffinch",
+      "scientificName": "Fringilla coelebs",
+      "avibaseId": "37F522810CADE42A",
+      "dutchName": "Vink"
+    },
+    {
+      "englishName": "Common Chiffchaff",
+      "scientificName": "Phylloscopus collybita",
+      "avibaseId": "F9F4B04D08108B41",
+      "dutchName": "Tjiftjaf"
+    },
+    {
+      "englishName": "Common Crane",
+      "scientificName": "Grus grus",
+      "avibaseId": "99B8841E764117B1",
+      "dutchName": "Kraanvogel"
+    },
+    {
+      "englishName": "Common Cuckoo",
+      "scientificName": "Cuculus canorus",
+      "avibaseId": "B3D2C3C5B73EC8E8",
+      "dutchName": "Koekoek"
+    },
+    {
+      "englishName": "Common Eider",
+      "scientificName": "Somateria mollissima",
+      "statusEn": "Near-threatened",
+      "avibaseId": "B77377EEB852D0AF",
+      "dutchName": "Eider",
+      "statusNl": "Bijna met uitsterven bedreigd"
+    },
+    {
+      "englishName": "Common Goldeneye",
+      "scientificName": "Bucephala clangula",
+      "avibaseId": "68EA281AF74846D2",
+      "dutchName": "Brilduiker"
+    },
+    {
+      "englishName": "Common Grackle",
+      "scientificName": "Quiscalus quiscula",
+      "statusEn": "Rare/Accidental Near-threatened",
+      "avibaseId": "8BBB3255C6B7EE91",
+      "dutchName": "Glanstroepiaal",
+      "statusNl": "Zeldzaam/Dwaalgast Bijna met uitsterven bedreigd"
+    },
+    {
+      "englishName": "Common Greenshank",
+      "scientificName": "Tringa nebularia",
+      "avibaseId": "18B415D28BBF934C",
+      "dutchName": "Groenpootruiter"
+    },
+    {
+      "englishName": "Common Gull",
+      "scientificName": "Larus canus",
+      "avibaseId": "00DA9D9151189271",
+      "dutchName": "Stormmeeuw"
+    },
+    {
+      "englishName": "Common Hoopoe",
+      "scientificName": "Upupa epops",
+      "avibaseId": "FA2F91259125A6FA",
+      "dutchName": "Hop"
+    },
+    {
+      "englishName": "Common Loon",
+      "scientificName": "Gavia immer",
+      "avibaseId": "7E02237895784E9A",
+      "dutchName": "IJsduiker"
+    },
+    {
+      "englishName": "Common Merganser",
+      "scientificName": "Mergus merganser",
+      "avibaseId": "407E2CA886367DBB",
+      "dutchName": "Grote Zaagbek"
+    },
+    {
+      "englishName": "Common Moorhen",
+      "scientificName": "Gallinula chloropus",
+      "avibaseId": "8F82FF8C30667D90",
+      "dutchName": "Waterhoen"
+    },
+    {
+      "englishName": "Common Murre",
+      "scientificName": "Uria aalge",
+      "avibaseId": "39F29B55EF9A542F",
+      "dutchName": "Zeekoet"
+    },
+    {
+      "englishName": "Common Pochard",
+      "scientificName": "Aythya ferina",
+      "statusEn": "Vulnerable",
+      "avibaseId": "A96692E0C9F7508B",
+      "dutchName": "Tafeleend",
+      "statusNl": "Kwetsbaar"
+    },
+    {
+      "englishName": "Common Raven",
+      "scientificName": "Corvus corax",
+      "avibaseId": "B9B272F40EE1570F",
+      "dutchName": "Raaf"
+    },
+    {
+      "englishName": "Common Redshank",
+      "scientificName": "Tringa totanus",
+      "avibaseId": "D6BFC73A3E067711",
+      "dutchName": "Tureluur"
+    },
+    {
+      "englishName": "Common Redstart",
+      "scientificName": "Phoenicurus phoenicurus",
+      "avibaseId": "06DD9D954313582E",
+      "dutchName": "Gekraagde Roodstaart"
+    },
+    {
+      "englishName": "Common Ringed Plover",
+      "scientificName": "Charadrius hiaticula",
+      "avibaseId": "EDA37B7C5D4A25ED",
+      "dutchName": "Bontbekplevier"
+    },
+    {
+      "englishName": "Common Rosefinch",
+      "scientificName": "Carpodacus erythrinus",
+      "avibaseId": "3A713345F43AFFA6",
+      "dutchName": "Roodmus"
+    },
+    {
+      "englishName": "Common Sandpiper",
+      "scientificName": "Actitis hypoleucos",
+      "avibaseId": "8548B07ECA48773F",
+      "dutchName": "Oeverloper"
+    },
+    {
+      "englishName": "Common Scoter",
+      "scientificName": "Melanitta nigra",
+      "avibaseId": "246981996A4998ED",
+      "dutchName": "Zwarte Zee-eend"
+    },
+    {
+      "englishName": "Common Shelduck",
+      "scientificName": "Tadorna tadorna",
+      "avibaseId": "5EAB32D3007896F3",
+      "dutchName": "Bergeend"
+    },
+    {
+      "englishName": "Common Snipe",
+      "scientificName": "Gallinago gallinago",
+      "avibaseId": "9151E0BA75761647",
+      "dutchName": "Watersnip"
+    },
+    {
+      "englishName": "Common Swift",
+      "scientificName": "Apus apus",
+      "avibaseId": "4E6EF3F983079D73",
+      "dutchName": "Gierzwaluw"
+    },
+    {
+      "englishName": "Common Tern",
+      "scientificName": "Sterna hirundo",
+      "avibaseId": "4D2FF6F13790ED7E",
+      "dutchName": "Visdief"
+    },
+    {
+      "englishName": "Common Wood Pigeon",
+      "scientificName": "Columba palumbus",
+      "avibaseId": "760F307A30689D66",
+      "dutchName": "Houtduif"
+    },
+    {
+      "englishName": "Corn Crake",
+      "scientificName": "Crex crex",
+      "avibaseId": "7E2572426E200D08",
+      "dutchName": "Kwartelkoning"
+    },
+    {
+      "englishName": "Cory's Shearwater",
+      "scientificName": "Calonectris borealis",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "710BB4E6D1B2E7FF",
+      "dutchName": "Kuhls Pijlstormvogel",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Curlew Sandpiper",
+      "scientificName": "Calidris ferruginea",
+      "statusEn": "Vulnerable",
+      "avibaseId": "143A681C9BCE9A20",
+      "dutchName": "Krombekstrandloper",
+      "statusNl": "Kwetsbaar"
+    },
+    {
+      "englishName": "Dark-eyed Junco",
+      "scientificName": "Junco hyemalis",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "05FF3C9B3C854D53",
+      "dutchName": "Grijze Junco",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Dark-sided Flycatcher",
+      "scientificName": "Muscicapa sibirica",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "BCB683C21DCFC71C",
+      "dutchName": "Roetvliegenvanger",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Dovekie",
+      "scientificName": "Alle alle",
+      "avibaseId": "B0932D89F1F74318",
+      "dutchName": "Kleine Alk"
+    },
+    {
+      "englishName": "Dunlin",
+      "scientificName": "Calidris alpina",
+      "statusEn": "Near-threatened",
+      "avibaseId": "15369E8EB4CBD064",
+      "dutchName": "Bonte Strandloper",
+      "statusNl": "Bijna met uitsterven bedreigd"
+    },
+    {
+      "englishName": "Dusky Thrush",
+      "scientificName": "Turdus eunomus",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "E3B6927817B7ABB4",
+      "dutchName": "Bruine Lijster",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Dusky Warbler",
+      "scientificName": "Phylloscopus fuscatus",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "4CD1503827D3D462",
+      "dutchName": "Bruine Boszanger",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Eared Grebe",
+      "scientificName": "Podiceps nigricollis",
+      "avibaseId": "32DCEC14D7AE129B",
+      "dutchName": "Geoorde Fuut"
+    },
+    {
+      "englishName": "Eastern Yellow Wagtail",
+      "scientificName": "Motacilla tschutschensis",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "15761CE3308512CF",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Egyptian Goose",
+      "scientificName": "Alopochen aegyptiaca",
+      "statusEn": "Introduced species",
+      "avibaseId": "DA2F24E310CF72A6",
+      "dutchName": "Nijlgans",
+      "statusNl": "Geïntroduceerde soort"
+    },
+    {
+      "englishName": "Elegant Tern",
+      "scientificName": "Thalasseus elegans",
+      "statusEn": "Rare/Accidental Near-threatened",
+      "avibaseId": "3F9E1C51FBD48FC1",
+      "dutchName": "Sierlijke Stern",
+      "statusNl": "Zeldzaam/Dwaalgast Bijna met uitsterven bedreigd"
+    },
+    {
+      "englishName": "Eurasian Blackbird",
+      "scientificName": "Turdus merula",
+      "avibaseId": "88BB4F2A0C8492A5",
+      "dutchName": "Merel"
+    },
+    {
+      "englishName": "Eurasian Blackcap",
+      "scientificName": "Sylvia atricapilla",
+      "avibaseId": "61F9065BE0965E1A",
+      "dutchName": "Zwartkop"
+    },
+    {
+      "englishName": "Eurasian Bullfinch",
+      "scientificName": "Pyrrhula pyrrhula",
+      "avibaseId": "7009BC13FFFB94E7",
+      "dutchName": "Goudvink"
+    },
+    {
+      "englishName": "Eurasian Collared-Dove",
+      "scientificName": "Streptopelia decaocto",
+      "avibaseId": "0C1EFC9B44C459D3",
+      "dutchName": "Turkse Tortel"
+    },
+    {
+      "englishName": "Eurasian Coot",
+      "scientificName": "Fulica atra",
+      "avibaseId": "B682B2A9C922D4C4",
+      "dutchName": "Meerkoet"
+    },
+    {
+      "englishName": "Eurasian Curlew",
+      "scientificName": "Numenius arquata",
+      "statusEn": "Near-threatened",
+      "avibaseId": "3BB5CBA66CF48884",
+      "dutchName": "Wulp",
+      "statusNl": "Bijna met uitsterven bedreigd"
+    },
+    {
+      "englishName": "Eurasian Dotterel",
+      "scientificName": "Eudromias morinellus",
+      "avibaseId": "20BE9DF14579BD4A",
+      "dutchName": "Morinelplevier"
+    },
+    {
+      "englishName": "Eurasian Goshawk",
+      "scientificName": "Astur gentilis",
+      "avibaseId": "95DD1855EC896B90",
+      "dutchName": "Havik"
+    },
+    {
+      "englishName": "Eurasian Hobby",
+      "scientificName": "Falco subbuteo",
+      "avibaseId": "E91E287A2946B0C9",
+      "dutchName": "Boomvalk"
+    },
+    {
+      "englishName": "Eurasian Jackdaw",
+      "scientificName": "Coloeus monedula",
+      "avibaseId": "D4C32F8E792B65BA",
+      "dutchName": "Kauw"
+    },
+    {
+      "englishName": "Eurasian Kestrel",
+      "scientificName": "Falco tinnunculus",
+      "avibaseId": "D99158DF0C977827"
+    },
+    {
+      "englishName": "Eurasian Oystercatcher",
+      "scientificName": "Haematopus ostralegus",
+      "statusEn": "Near-threatened",
+      "avibaseId": "ED66316522B99A30",
+      "dutchName": "Scholekster",
+      "statusNl": "Bijna met uitsterven bedreigd"
+    },
+    {
+      "englishName": "Eurasian Siskin",
+      "scientificName": "Spinus spinus",
+      "avibaseId": "9820CECA12EC737D",
+      "dutchName": "Sijs"
+    },
+    {
+      "englishName": "Eurasian Skylark",
+      "scientificName": "Alauda arvensis",
+      "avibaseId": "ED2AC04E888EF9CF",
+      "dutchName": "Veldleeuwerik"
+    },
+    {
+      "englishName": "Eurasian Sparrowhawk",
+      "scientificName": "Accipiter nisus",
+      "avibaseId": "DB376A66278ED21E",
+      "dutchName": "Sperwer"
+    },
+    {
+      "englishName": "Eurasian Spoonbill",
+      "scientificName": "Platalea leucorodia",
+      "avibaseId": "A0A584C1E7D786FE",
+      "dutchName": "Lepelaar"
+    },
+    {
+      "englishName": "Eurasian Tree Sparrow",
+      "scientificName": "Passer montanus",
+      "avibaseId": "C22FBF8D36F91BCA",
+      "dutchName": "Ringmus"
+    },
+    {
+      "englishName": "Eurasian Wigeon",
+      "scientificName": "Mareca penelope",
+      "avibaseId": "15EE0D3685082E13",
+      "dutchName": "Smient"
+    },
+    {
+      "englishName": "Eurasian Woodcock",
+      "scientificName": "Scolopax rusticola",
+      "avibaseId": "BFE14290EA4326FA",
+      "dutchName": "Houtsnip"
+    },
+    {
+      "englishName": "Eurasian Wryneck",
+      "scientificName": "Jynx torquilla",
+      "avibaseId": "B2E6AB9FC2608DFA",
+      "dutchName": "Draaihals"
+    },
+    {
+      "englishName": "European Golden-Plover",
+      "scientificName": "Pluvialis apricaria",
+      "avibaseId": "25A20BA6F7EA9D9A",
+      "dutchName": "Goudplevier"
+    },
+    {
+      "englishName": "European Goldfinch",
+      "scientificName": "Carduelis carduelis",
+      "avibaseId": "59353A055941B20B",
+      "dutchName": "Putter"
+    },
+    {
+      "englishName": "European Herring Gull",
+      "scientificName": "Larus argentatus",
+      "avibaseId": "F002188E226DF09C",
+      "dutchName": "Zilvermeeuw"
+    },
+    {
+      "englishName": "European Robin",
+      "scientificName": "Erithacus rubecula",
+      "avibaseId": "C809B2B90399A43D",
+      "dutchName": "Roodborst"
+    },
+    {
+      "englishName": "European Starling",
+      "scientificName": "Sturnus vulgaris",
+      "avibaseId": "94A4403295E2D9BE",
+      "dutchName": "Spreeuw"
+    },
+    {
+      "englishName": "European Storm-Petrel",
+      "scientificName": "Hydrobates pelagicus",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "E1638A370D09095C",
+      "dutchName": "Stormvogeltje",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "European Turtle-Dove",
+      "scientificName": "Streptopelia turtur",
+      "statusEn": "Vulnerable",
+      "avibaseId": "5788552B694ED7B5",
+      "dutchName": "Zomertortel",
+      "statusNl": "Kwetsbaar"
+    },
+    {
+      "englishName": "Eyebrowed Thrush",
+      "scientificName": "Turdus obscurus",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "6E24CCD187765B9A",
+      "dutchName": "Vale Lijster",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Falcated Duck",
+      "scientificName": "Mareca falcata",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "978D448531E03998",
+      "dutchName": "Bronskopeend",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Fea's Petrel",
+      "scientificName": "Pterodroma feae",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "26B5280F0A46A17E",
+      "dutchName": "Kaapverdische Donsstormvogel",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Fieldfare",
+      "scientificName": "Turdus pilaris",
+      "avibaseId": "D120D5A070E8123C",
+      "dutchName": "Kramsvogel"
+    },
+    {
+      "englishName": "Fork-tailed Swift",
+      "scientificName": "Apus pacificus",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "68E950E5CA07E621",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Forster's Tern",
+      "scientificName": "Sterna forsteri",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "D13B91229B2F157E",
+      "dutchName": "Forsters Stern",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Franklin's Gull",
+      "scientificName": "Leucophaeus pipixcan",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "57C93A74CBC9863F",
+      "dutchName": "Franklins Meeuw",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Gadwall",
+      "scientificName": "Mareca strepera",
+      "avibaseId": "C235A4D712BB8855",
+      "dutchName": "Krakeend"
+    },
+    {
+      "englishName": "Garganey",
+      "scientificName": "Spatula querquedula",
+      "avibaseId": "F577BA0F5BB7BD3F",
+      "dutchName": "Zomertaling"
+    },
+    {
+      "englishName": "Glaucous Gull",
+      "scientificName": "Larus hyperboreus",
+      "avibaseId": "A59FA446D6B40057",
+      "dutchName": "Grote Burgemeester"
+    },
+    {
+      "englishName": "Glossy Ibis",
+      "scientificName": "Plegadis falcinellus",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "D4540F880A3EC3BB",
+      "dutchName": "Zwarte Ibis",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Golden Eagle",
+      "scientificName": "Aquila chrysaetos",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "5F8E7CA845BD413F",
+      "dutchName": "Steenarend",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Gray Heron",
+      "scientificName": "Ardea cinerea",
+      "avibaseId": "6429024DBA7AB672",
+      "dutchName": "Blauwe Reiger"
+    },
+    {
+      "englishName": "Gray Partridge",
+      "scientificName": "Perdix perdix",
+      "avibaseId": "C013A20E7F91419D",
+      "dutchName": "Patrijs"
+    },
+    {
+      "englishName": "Gray Wagtail",
+      "scientificName": "Motacilla cinerea",
+      "avibaseId": "AE073221679039C2",
+      "dutchName": "Grote Gele Kwikstaart"
+    },
+    {
+      "englishName": "Gray-cheeked Thrush",
+      "scientificName": "Catharus minimus",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "B904BB227C07317E",
+      "dutchName": "Grijswangdwerglijster",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Gray-tailed Tattler",
+      "scientificName": "Tringa brevipes",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "29256A389375B43E",
+      "dutchName": "Siberische Grijze Ruiter",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Graylag Goose",
+      "scientificName": "Anser anser",
+      "avibaseId": "4AED44E819A43204",
+      "dutchName": "Grauwe Gans"
+    },
+    {
+      "englishName": "Great Auk",
+      "scientificName": "Pinguinus impennis",
+      "statusEn": "Rare/Accidental Extinct",
+      "avibaseId": "57D2F32E062CB366",
+      "dutchName": "Reuzenalk",
+      "statusNl": "Zeldzaam/Dwaalgast Uitgestorven"
+    },
+    {
+      "englishName": "Great Black-backed Gull",
+      "scientificName": "Larus marinus",
+      "avibaseId": "E826E9F3FBAED223",
+      "dutchName": "Grote Mantelmeeuw"
+    },
+    {
+      "englishName": "Great Cormorant",
+      "scientificName": "Phalacrocorax carbo",
+      "avibaseId": "3DF5C587CE3CF1E1",
+      "dutchName": "Aalscholver"
+    },
+    {
+      "englishName": "Great Egret",
+      "scientificName": "Ardea alba",
+      "avibaseId": "49D9148A171E7F2E",
+      "dutchName": "Grote Zilverreiger"
+    },
+    {
+      "englishName": "Great Knot",
+      "scientificName": "Calidris tenuirostris",
+      "statusEn": "Rare/Accidental Endangered",
+      "avibaseId": "09C51FA9A4E5C3E8",
+      "dutchName": "Grote Kanoet",
+      "statusNl": "Zeldzaam/Dwaalgast In gevaar"
+    },
+    {
+      "englishName": "Great Shearwater",
+      "scientificName": "Ardenna gravis",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "8B879DFA2AFB1481",
+      "dutchName": "Grote Pijlstormvogel",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Great Skua",
+      "scientificName": "Stercorarius skua",
+      "avibaseId": "BB041C6E5DB73FC7",
+      "dutchName": "Grote Jager"
+    },
+    {
+      "englishName": "Great Spotted Woodpecker",
+      "scientificName": "Dendrocopos major",
+      "avibaseId": "D754DB8552A7AA42",
+      "dutchName": "Grote Bonte Specht"
+    },
+    {
+      "englishName": "Greater Sand-Plover",
+      "scientificName": "Anarhynchus leschenaultii",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "98B9C10B606A4FF1",
+      "dutchName": "Woestijnplevier",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Greater Scaup",
+      "scientificName": "Aythya marila",
+      "avibaseId": "25C94A8F90A829F7",
+      "dutchName": "Topper"
+    },
+    {
+      "englishName": "Greater White-fronted Goose",
+      "scientificName": "Anser albifrons",
+      "avibaseId": "466E9077BE220EBE",
+      "dutchName": "Kolgans"
+    },
+    {
+      "englishName": "Greater Yellowlegs",
+      "scientificName": "Tringa melanoleuca",
+      "statusEn": "Rare/Accidental Near-threatened",
+      "avibaseId": "6EB81C98A8FD9CE6",
+      "dutchName": "Grote Geelpootruiter",
+      "statusNl": "Zeldzaam/Dwaalgast Bijna met uitsterven bedreigd"
+    },
+    {
+      "englishName": "Green Heron",
+      "scientificName": "Butorides virescens",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "86D45B8F04F61F0E",
+      "dutchName": "Groene Reiger",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Green Sandpiper",
+      "scientificName": "Tringa ochropus",
+      "avibaseId": "A7B17EFC92B53D29",
+      "dutchName": "Witgat"
+    },
+    {
+      "englishName": "Green-winged Teal",
+      "scientificName": "Anas crecca",
+      "avibaseId": "BC6C3CCE5C1B5D9B",
+      "dutchName": "Wintertaling"
+    },
+    {
+      "englishName": "Gull-billed Tern",
+      "scientificName": "Gelochelidon nilotica",
+      "avibaseId": "87168739C37AC427",
+      "dutchName": "Lachstern"
+    },
+    {
+      "englishName": "Gyrfalcon",
+      "scientificName": "Falco rusticolus",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "E19252A76FC7845B",
+      "dutchName": "Giervalk",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Harlequin Duck",
+      "scientificName": "Histrionicus histrionicus",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "BCBD2EAECA774B19",
+      "dutchName": "Harlekijneend",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Hawfinch",
+      "scientificName": "Coccothraustes coccothraustes",
+      "avibaseId": "84E1F1149261F19E",
+      "dutchName": "Appelvink"
+    },
+    {
+      "englishName": "Hermit Thrush",
+      "scientificName": "Catharus guttatus",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "B01E8BD42E1785F2",
+      "dutchName": "Heremietlijster",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Hooded Crow",
+      "scientificName": "Corvus cornix",
+      "avibaseId": "F13D8350405F3C10",
+      "dutchName": "Bonte Kraai"
+    },
+    {
+      "englishName": "Hooded Merganser",
+      "scientificName": "Lophodytes cucullatus",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "60E6081E3DF8CFA4",
+      "dutchName": "Kokardezaagbek",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Horned Grebe",
+      "scientificName": "Podiceps auritus",
+      "statusEn": "Vulnerable",
+      "avibaseId": "018B316959E84738",
+      "dutchName": "Kuifduiker",
+      "statusNl": "Kwetsbaar"
+    },
+    {
+      "englishName": "Horned Lark",
+      "scientificName": "Eremophila alpestris",
+      "avibaseId": "FC0A1D951186B019",
+      "dutchName": "Strandleeuwerik"
+    },
+    {
+      "englishName": "House Finch",
+      "scientificName": "Haemorhous mexicanus",
+      "statusEn": "Uncertain origin",
+      "avibaseId": "89431E9F1CEDC995",
+      "dutchName": "Mexicaanse Roodmus",
+      "statusNl": "Onzekere herkomst"
+    },
+    {
+      "englishName": "House Sparrow",
+      "scientificName": "Passer domesticus",
+      "avibaseId": "6D3BD126D55F8B69"
+    },
+    {
+      "englishName": "Iceland Gull",
+      "scientificName": "Larus glaucoides",
+      "avibaseId": "FB4FCB27CC5566D1",
+      "dutchName": "Kleine Burgemeester"
+    },
+    {
+      "englishName": "Icterine Warbler",
+      "scientificName": "Hippolais icterina",
+      "avibaseId": "869C978C8E5840C8",
+      "dutchName": "Spotvogel"
+    },
+    {
+      "englishName": "Indigo Bunting",
+      "scientificName": "Passerina cyanea",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "043F337AA25E7D97",
+      "dutchName": "Indigogors",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Ivory Gull",
+      "scientificName": "Pagophila eburnea",
+      "statusEn": "Rare/Accidental Near-threatened",
+      "avibaseId": "FED91A1F00C4E67C",
+      "dutchName": "Ivoormeeuw",
+      "statusNl": "Zeldzaam/Dwaalgast Bijna met uitsterven bedreigd"
+    },
+    {
+      "englishName": "Jack Snipe",
+      "scientificName": "Lymnocryptes minimus",
+      "avibaseId": "1A15F0C6B4948C52",
+      "dutchName": "Bokje"
+    },
+    {
+      "englishName": "Kentish Plover",
+      "scientificName": "Anarhynchus alexandrinus",
+      "avibaseId": "0A787822FDD6B58C",
+      "dutchName": "Strandplevier"
+    },
+    {
+      "englishName": "Killdeer",
+      "scientificName": "Charadrius vociferus",
+      "statusEn": "Rare/Accidental Near-threatened",
+      "avibaseId": "BCF9A19AFE372627",
+      "dutchName": "Killdeerplevier",
+      "statusNl": "Zeldzaam/Dwaalgast Bijna met uitsterven bedreigd"
+    },
+    {
+      "englishName": "King Eider",
+      "scientificName": "Somateria spectabilis",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "F3D7491432CC59E7",
+      "dutchName": "Koningseider",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Lanceolated Warbler",
+      "scientificName": "Locustella lanceolata",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "10A37318BC10CA74",
+      "dutchName": "Kleine Sprinkhaanzanger",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Lapland Longspur",
+      "scientificName": "Calcarius lapponicus",
+      "avibaseId": "3534E4CEBACCB166",
+      "dutchName": "IJsgors"
+    },
+    {
+      "englishName": "Laughing Gull",
+      "scientificName": "Leucophaeus atricilla",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "6CDC3C9C8B50EA71",
+      "dutchName": "Lachmeeuw",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Leach's Storm-Petrel",
+      "scientificName": "Hydrobates leucorhous",
+      "statusEn": "Vulnerable",
+      "avibaseId": "C5FB15C6D112FE91",
+      "dutchName": "Vaal Stormvogeltje",
+      "statusNl": "Kwetsbaar"
+    },
+    {
+      "englishName": "Least Sandpiper",
+      "scientificName": "Calidris minutilla",
+      "statusEn": "Rare/Accidental Near-threatened",
+      "avibaseId": "A47B0BD448AA34E0",
+      "dutchName": "Kleinste Strandloper",
+      "statusNl": "Zeldzaam/Dwaalgast Bijna met uitsterven bedreigd"
+    },
+    {
+      "englishName": "Lesser Black-backed Gull",
+      "scientificName": "Larus fuscus",
+      "avibaseId": "2D52E3A509137804",
+      "dutchName": "Kleine Mantelmeeuw"
+    },
+    {
+      "englishName": "Lesser Scaup",
+      "scientificName": "Aythya affinis",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "50566E50C91B8686",
+      "dutchName": "Kleine Topper",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Lesser White-fronted Goose",
+      "scientificName": "Anser erythropus",
+      "statusEn": "Vulnerable",
+      "avibaseId": "184D232983E7AD10",
+      "dutchName": "Dwerggans",
+      "statusNl": "Kwetsbaar"
+    },
+    {
+      "englishName": "Lesser Whitethroat",
+      "scientificName": "Curruca curruca",
+      "avibaseId": "0DCD05BE8EE35C8D",
+      "dutchName": "Braamsluiper"
+    },
+    {
+      "englishName": "Lesser Yellowlegs",
+      "scientificName": "Tringa flavipes",
+      "statusEn": "Rare/Accidental Vulnerable",
+      "avibaseId": "2C7A2673444BECF0",
+      "dutchName": "Kleine Geelpootruiter",
+      "statusNl": "Zeldzaam/Dwaalgast Kwetsbaar"
+    },
+    {
+      "englishName": "Little Bittern",
+      "scientificName": "Botaurus minutus",
+      "avibaseId": "6A8D3B063B5A495A",
+      "dutchName": "Woudaapje"
+    },
+    {
+      "englishName": "Little Bunting",
+      "scientificName": "Emberiza pusilla",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "1866F80E52F4075F",
+      "dutchName": "Dwerggors",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Little Curlew",
+      "scientificName": "Numenius minutus",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "C00E1EB8C00BCC31",
+      "dutchName": "Kleine Regenwulp",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Little Egret",
+      "scientificName": "Egretta garzetta",
+      "avibaseId": "F2858F9FFB9DFDCF",
+      "dutchName": "Kleine Zilverreiger"
+    },
+    {
+      "englishName": "Little Gull",
+      "scientificName": "Hydrocoloeus minutus",
+      "avibaseId": "F89FD6E3A367C008",
+      "dutchName": "Dwergmeeuw"
+    },
+    {
+      "englishName": "Little Ringed Plover",
+      "scientificName": "Thinornis dubius",
+      "avibaseId": "35EC3BBF166AB032",
+      "dutchName": "Kleine Plevier"
+    },
+    {
+      "englishName": "Little Stint",
+      "scientificName": "Calidris minuta",
+      "avibaseId": "9936FF4AFB430504",
+      "dutchName": "Kleine Strandloper"
+    },
+    {
+      "englishName": "Little Tern",
+      "scientificName": "Sternula albifrons",
+      "avibaseId": "17310BF0FE9BAC8A",
+      "dutchName": "Dwergstern"
+    },
+    {
+      "englishName": "Long-billed Dowitcher",
+      "scientificName": "Limnodromus scolopaceus",
+      "statusEn": "Rare/Accidental Near-threatened",
+      "avibaseId": "CB343E43E8CAF303",
+      "dutchName": "Grote Grijze Snip",
+      "statusNl": "Zeldzaam/Dwaalgast Bijna met uitsterven bedreigd"
+    },
+    {
+      "englishName": "Long-eared Owl",
+      "scientificName": "Asio otus",
+      "avibaseId": "FC4D40D2D5CEA6BE",
+      "dutchName": "Ransuil"
+    },
+    {
+      "englishName": "Long-legged Buzzard",
+      "scientificName": "Buteo rufinus",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "CC65921FEBE1BB96",
+      "dutchName": "Arendbuizerd",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Long-tailed Duck",
+      "scientificName": "Clangula hyemalis",
+      "statusEn": "Vulnerable",
+      "avibaseId": "AF0C7BDEC7CEBAAC",
+      "dutchName": "IJseend",
+      "statusNl": "Kwetsbaar"
+    },
+    {
+      "englishName": "Long-tailed Jaeger",
+      "scientificName": "Stercorarius longicaudus",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "1D4464402EC9FD21",
+      "dutchName": "Kleinste Jager",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Long-toed Stint",
+      "scientificName": "Calidris subminuta",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "7D629288C753814E",
+      "dutchName": "Taigastrandloper",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Mallard",
+      "scientificName": "Anas platyrhynchos",
+      "avibaseId": "85625D75F2524457",
+      "dutchName": "Wilde Eend"
+    },
+    {
+      "englishName": "Manx Shearwater",
+      "scientificName": "Puffinus puffinus",
+      "avibaseId": "5AEDC00231A5201C",
+      "dutchName": "Noordse Pijlstormvogel"
+    },
+    {
+      "englishName": "Marsh Sandpiper",
+      "scientificName": "Tringa stagnatilis",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "15CF9352AD0E92DF",
+      "dutchName": "Poelruiter",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Meadow Pipit",
+      "scientificName": "Anthus pratensis",
+      "avibaseId": "14873249B607CEB1",
+      "dutchName": "Graspieper"
+    },
+    {
+      "englishName": "Merlin",
+      "scientificName": "Falco columbarius",
+      "avibaseId": "F3DA111CC8A6841B",
+      "dutchName": "Smelleken"
+    },
+    {
+      "englishName": "Mistle Thrush",
+      "scientificName": "Turdus viscivorus",
+      "avibaseId": "A95B43F1E9D10296",
+      "dutchName": "Grote Lijster"
+    },
+    {
+      "englishName": "Mourning Dove",
+      "scientificName": "Zenaida macroura",
+      "statusEn": "Uncertain origin",
+      "avibaseId": "00124D987C95811B",
+      "dutchName": "Treurduif",
+      "statusNl": "Onzekere herkomst"
+    },
+    {
+      "englishName": "Mute Swan",
+      "scientificName": "Cygnus olor",
+      "avibaseId": "694C127A5D849FFE",
+      "dutchName": "Knobbelzwaan"
+    },
+    {
+      "englishName": "Northern Fulmar",
+      "scientificName": "Fulmarus glacialis",
+      "avibaseId": "049D9AEA4AFBFDFA",
+      "dutchName": "Noordse Stormvogel"
+    },
+    {
+      "englishName": "Northern Gannet",
+      "scientificName": "Morus bassanus",
+      "avibaseId": "534FB490884C6D33",
+      "dutchName": "Jan-van-gent"
+    },
+    {
+      "englishName": "Northern Harrier",
+      "scientificName": "Circus hudsonius",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "A091D50AA92D949C",
+      "dutchName": "Amerikaanse Blauwe Kiekendief",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Northern Hawk Owl",
+      "scientificName": "Surnia ulula",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "C2018A5DD8CDB5F5",
+      "dutchName": "Sperweruil",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Northern Lapwing",
+      "scientificName": "Vanellus vanellus",
+      "statusEn": "Near-threatened",
+      "avibaseId": "F029489ABD9D1334",
+      "dutchName": "Kievit",
+      "statusNl": "Bijna met uitsterven bedreigd"
+    },
+    {
+      "englishName": "Northern Mockingbird",
+      "scientificName": "Mimus polyglottos",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "7EFF698DC564CF69",
+      "dutchName": "Spotlijster",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Northern Pintail",
+      "scientificName": "Anas acuta",
+      "avibaseId": "56CCA7179C9FA71D",
+      "dutchName": "Pijlstaart"
+    },
+    {
+      "englishName": "Northern Shoveler",
+      "scientificName": "Spatula clypeata",
+      "avibaseId": "ED4CE8E7CFF43696",
+      "dutchName": "Slobeend"
+    },
+    {
+      "englishName": "Northern Shrike",
+      "scientificName": "Lanius borealis",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "76158864558E850E",
+      "dutchName": "Noordelijke Klapekster",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Northern Waterthrush",
+      "scientificName": "Parkesia noveboracensis",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "709AF716468341F7",
+      "dutchName": "Noordse Waterlijster",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Northern Wheatear",
+      "scientificName": "Oenanthe oenanthe",
+      "avibaseId": "DF526047637004DD",
+      "dutchName": "Tapuit"
+    },
+    {
+      "englishName": "Olive-backed Pipit",
+      "scientificName": "Anthus hodgsoni",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "25F7AF6531AEED37",
+      "dutchName": "Siberische Boompieper",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Oriental Plover",
+      "scientificName": "Anarhynchus veredus",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "02091964A47E998B",
+      "dutchName": "Steppeplevier",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Oriental Pratincole",
+      "scientificName": "Glareola maldivarum",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "3222F80FA99A55A7",
+      "dutchName": "Oosterse Vorkstaartplevier",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Oriental Turtle-Dove",
+      "scientificName": "Streptopelia orientalis",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "6658BAC574088183",
+      "dutchName": "Oosterse Tortel",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Osprey",
+      "scientificName": "Pandion haliaetus",
+      "avibaseId": "1327AC55AA9D579B",
+      "dutchName": "Visarend"
+    },
+    {
+      "englishName": "Pacific Golden-Plover",
+      "scientificName": "Pluvialis fulva",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "07C11CF340D2017A",
+      "dutchName": "Aziatische Goudplevier",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Pacific Loon",
+      "scientificName": "Gavia pacifica",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "B7D7EF2398F42295",
+      "dutchName": "Pacifische Parelduiker",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Pallas's Grasshopper Warbler",
+      "scientificName": "Helopsaltes certhiola",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "4C3CF429E3FEFBA2",
+      "dutchName": "Siberische Sprinkhaanzanger",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Pallas's Gull",
+      "scientificName": "Ichthyaetus ichthyaetus",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "EF930CDC7CE618F7",
+      "dutchName": "Reuzenzwartkopmeeuw",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Pallas's Leaf Warbler",
+      "scientificName": "Phylloscopus proregulus",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "943E36CADFE7551B",
+      "dutchName": "Pallas' Boszanger",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Parasitic Jaeger",
+      "scientificName": "Stercorarius parasiticus",
+      "avibaseId": "39086887E9EAFEB3",
+      "dutchName": "Kleine Jager"
+    },
+    {
+      "englishName": "Pechora Pipit",
+      "scientificName": "Anthus gustavi",
+      "statusEn": "Uncertain origin",
+      "avibaseId": "9DC4CC5470034A96",
+      "dutchName": "Petsjorapieper",
+      "statusNl": "Onzekere herkomst"
+    },
+    {
+      "englishName": "Pectoral Sandpiper",
+      "scientificName": "Calidris melanotos",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "ACC99F35F0E8F7EB",
+      "dutchName": "Gestreepte Strandloper",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Peregrine Falcon",
+      "scientificName": "Falco peregrinus",
+      "avibaseId": "47E5840880DC9FA8",
+      "dutchName": "Slechtvalk"
+    },
+    {
+      "englishName": "Pied Wheatear",
+      "scientificName": "Oenanthe pleschanka",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "2FB34D83F74FCEAB",
+      "dutchName": "Bonte Tapuit",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Pied-billed Grebe",
+      "scientificName": "Podilymbus podiceps",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "9A8E55D00554A088",
+      "dutchName": "Dikbekfuut",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Pine Bunting",
+      "scientificName": "Emberiza leucocephalos",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "43EF3EA79A531279",
+      "dutchName": "Witkopgors",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Pine Grosbeak",
+      "scientificName": "Pinicola enucleator",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "83AC4DAD94AFC411",
+      "dutchName": "Haakbek",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Pink-footed Goose",
+      "scientificName": "Anser brachyrhynchus",
+      "avibaseId": "AFA7EE7470F000E9",
+      "dutchName": "Kleine Rietgans"
+    },
+    {
+      "englishName": "Pomarine Jaeger",
+      "scientificName": "Stercorarius pomarinus",
+      "avibaseId": "7CB8F5B711DE64D0",
+      "dutchName": "Middelste Jager"
+    },
+    {
+      "englishName": "Purple Heron",
+      "scientificName": "Ardea purpurea",
+      "avibaseId": "3395DCF1CE3A8C91",
+      "dutchName": "Purperreiger"
+    },
+    {
+      "englishName": "Purple Martin",
+      "scientificName": "Progne subis",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "ACB9D1C6AB7F3371",
+      "dutchName": "Purperzwaluw",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Purple Sandpiper",
+      "scientificName": "Calidris maritima",
+      "avibaseId": "0A0B84313ACFFB2F",
+      "dutchName": "Paarse Strandloper"
+    },
+    {
+      "englishName": "Purple Swamphen",
+      "scientificName": "Porphyrio porphyrio",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "AC1E791EF6C92723",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Razorbill",
+      "scientificName": "Alca torda",
+      "avibaseId": "64F4DD81371B269F",
+      "dutchName": "Alk"
+    },
+    {
+      "englishName": "Red Crossbill",
+      "scientificName": "Loxia curvirostra",
+      "avibaseId": "135564AAF6B01DA2",
+      "dutchName": "Kruisbek"
+    },
+    {
+      "englishName": "Red Knot",
+      "scientificName": "Calidris canutus",
+      "statusEn": "Near-threatened",
+      "avibaseId": "B5CE8FAD18923A94",
+      "dutchName": "Kanoet",
+      "statusNl": "Bijna met uitsterven bedreigd"
+    },
+    {
+      "englishName": "Red Phalarope",
+      "scientificName": "Phalaropus fulicarius",
+      "avibaseId": "18A1938091EEEA73",
+      "dutchName": "Rosse Franjepoot"
+    },
+    {
+      "englishName": "Red-backed Shrike",
+      "scientificName": "Lanius collurio",
+      "avibaseId": "F2CEFD1A4EA5F608",
+      "dutchName": "Grauwe Klauwier"
+    },
+    {
+      "englishName": "Red-billed Tropicbird",
+      "scientificName": "Phaethon aethereus",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "7EE005BD2701D129",
+      "dutchName": "Roodsnavelkeerkringvogel",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Red-breasted Merganser",
+      "scientificName": "Mergus serrator",
+      "avibaseId": "8DB64266A42FC19B",
+      "dutchName": "Middelste Zaagbek"
+    },
+    {
+      "englishName": "Red-eyed Vireo",
+      "scientificName": "Vireo olivaceus",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "847717E2FC283AD8",
+      "dutchName": "Roodoogvireo",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Red-flanked Bluetail",
+      "scientificName": "Tarsiger cyanurus",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "9F2611E8CB30A09E",
+      "dutchName": "Blauwstaart",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Red-footed Falcon",
+      "scientificName": "Falco vespertinus",
+      "statusEn": "Vulnerable",
+      "avibaseId": "997A9437E564FCFE",
+      "dutchName": "Roodpootvalk",
+      "statusNl": "Kwetsbaar"
+    },
+    {
+      "englishName": "Red-necked Grebe",
+      "scientificName": "Podiceps grisegena",
+      "avibaseId": "1CBD2CED48B674A4",
+      "dutchName": "Roodhalsfuut"
+    },
+    {
+      "englishName": "Red-necked Phalarope",
+      "scientificName": "Phalaropus lobatus",
+      "avibaseId": "E6F3BA54577746FB",
+      "dutchName": "Grauwe Franjepoot"
+    },
+    {
+      "englishName": "Red-necked Stint",
+      "scientificName": "Calidris ruficollis",
+      "statusEn": "Rare/Accidental Near-threatened",
+      "avibaseId": "BBDF2F1BAC640E4D",
+      "dutchName": "Roodkeelstrandloper",
+      "statusNl": "Zeldzaam/Dwaalgast Bijna met uitsterven bedreigd"
+    },
+    {
+      "englishName": "Red-throated Loon",
+      "scientificName": "Gavia stellata",
+      "avibaseId": "6C50988A5445ED76",
+      "dutchName": "Roodkeelduiker"
+    },
+    {
+      "englishName": "Red-throated Pipit",
+      "scientificName": "Anthus cervinus",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "319D044A667563CD",
+      "dutchName": "Roodkeelpieper",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Redhead",
+      "scientificName": "Aythya americana",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "3072CC168280168B",
+      "dutchName": "Amerikaanse Tafeleend",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Redpoll",
+      "scientificName": "Acanthis flammea",
+      "avibaseId": "B6C8DDB2812B061A",
+      "dutchName": "Grote Barmsijs"
+    },
+    {
+      "englishName": "Redwing",
+      "scientificName": "Turdus iliacus",
+      "avibaseId": "A8A85BCF1AFB7BBD",
+      "dutchName": "Koperwiek"
+    },
+    {
+      "englishName": "Reed Bunting",
+      "scientificName": "Emberiza schoeniclus",
+      "avibaseId": "C0B9787440316E20",
+      "dutchName": "Rietgors"
+    },
+    {
+      "englishName": "Ring-billed Gull",
+      "scientificName": "Larus delawarensis",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "23863F65441680FA",
+      "dutchName": "Ringsnavelmeeuw",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Ring-necked Duck",
+      "scientificName": "Aythya collaris",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "0783A7EA9C26947D",
+      "dutchName": "Ringsnaveleend",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Ring-necked Pheasant",
+      "scientificName": "Phasianus colchicus",
+      "statusEn": "Introduced species",
+      "avibaseId": "4B9EEF568857FB51",
+      "dutchName": "Fazant",
+      "statusNl": "Geïntroduceerde soort"
+    },
+    {
+      "englishName": "River Warbler",
+      "scientificName": "Locustella fluviatilis",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "2B020CA0ACF13B19",
+      "dutchName": "Krekelzanger",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Rock Pigeon",
+      "scientificName": "Columba livia",
+      "statusEn": "Introduced species",
+      "avibaseId": "BBA263C235B15B88",
+      "dutchName": "Rotsduif",
+      "statusNl": "Geïntroduceerde soort"
+    },
+    {
+      "englishName": "Rook",
+      "scientificName": "Corvus frugilegus",
+      "avibaseId": "1078FFEA23D9DD25",
+      "dutchName": "Roek"
+    },
+    {
+      "englishName": "Rose-ringed Parakeet",
+      "scientificName": "Psittacula krameri",
+      "statusEn": "Introduced species",
+      "avibaseId": "6B1CFC3CFA400D78",
+      "dutchName": "Halsbandparkiet",
+      "statusNl": "Geïntroduceerde soort"
+    },
+    {
+      "englishName": "Roseate Tern",
+      "scientificName": "Sterna dougallii",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "74236837A4AFD042",
+      "dutchName": "Dougalls Stern",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Ross's Goose",
+      "scientificName": "Anser rossii",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "7A24F57F87F66E97",
+      "dutchName": "Ross' Gans",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Ross's Gull",
+      "scientificName": "Rhodostethia rosea",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "4CD353D243C27F86",
+      "dutchName": "Ross' Meeuw",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Rough-legged Hawk",
+      "scientificName": "Buteo lagopus",
+      "avibaseId": "90B13ACF984D0DDF",
+      "dutchName": "Ruigpootbuizerd"
+    },
+    {
+      "englishName": "Ruddy Duck",
+      "scientificName": "Oxyura jamaicensis",
+      "statusEn": "Introduced species",
+      "avibaseId": "DF1E2A1DCA7F6791",
+      "dutchName": "Rosse Stekelstaart",
+      "statusNl": "Geïntroduceerde soort"
+    },
+    {
+      "englishName": "Ruddy Shelduck",
+      "scientificName": "Tadorna ferruginea",
+      "avibaseId": "1F9D883EB44DEFD6",
+      "dutchName": "Casarca"
+    },
+    {
+      "englishName": "Ruddy Turnstone",
+      "scientificName": "Arenaria interpres",
+      "statusEn": "Near-threatened",
+      "avibaseId": "DC3050A9771F2CE9",
+      "dutchName": "Steenloper",
+      "statusNl": "Bijna met uitsterven bedreigd"
+    },
+    {
+      "englishName": "Ruff",
+      "scientificName": "Calidris pugnax",
+      "avibaseId": "2DABF98FBEEAB7BB",
+      "dutchName": "Kemphaan"
+    },
+    {
+      "englishName": "Rufous-tailed Rock-thrush",
+      "scientificName": "Monticola saxatilis",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "736D38E7F9967842",
+      "dutchName": "Rode Rotslijster",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Rustic Bunting",
+      "scientificName": "Emberiza rustica",
+      "statusEn": "Rare/Accidental Near-threatened",
+      "avibaseId": "DA9746CEC82D30A3",
+      "dutchName": "Bosgors",
+      "statusNl": "Zeldzaam/Dwaalgast Bijna met uitsterven bedreigd"
+    },
+    {
+      "englishName": "Sabine's Gull",
+      "scientificName": "Xema sabini",
+      "avibaseId": "86182656472B476B",
+      "dutchName": "Vorkstaartmeeuw"
+    },
+    {
+      "englishName": "Sanderling",
+      "scientificName": "Calidris alba",
+      "avibaseId": "06B9BD243A756B28",
+      "dutchName": "Drieteenstrandloper"
+    },
+    {
+      "englishName": "Sandhill Crane",
+      "scientificName": "Antigone canadensis",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "E196D6F9AB1DFF7E",
+      "dutchName": "Canadese Kraanvogel",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Sandwich Tern",
+      "scientificName": "Thalasseus sandvicensis",
+      "avibaseId": "F7504353640C1055",
+      "dutchName": "Grote Stern"
+    },
+    {
+      "englishName": "Sedge Warbler",
+      "scientificName": "Acrocephalus schoenobaenus",
+      "avibaseId": "FED5AED5C59A00B6",
+      "dutchName": "Rietzanger"
+    },
+    {
+      "englishName": "Semipalmated Sandpiper",
+      "scientificName": "Calidris pusilla",
+      "statusEn": "Rare/Accidental Near-threatened",
+      "avibaseId": "F35821AAC21FFF20",
+      "dutchName": "Grijze Strandloper",
+      "statusNl": "Zeldzaam/Dwaalgast Bijna met uitsterven bedreigd"
+    },
+    {
+      "englishName": "Sharp-tailed Sandpiper",
+      "scientificName": "Calidris acuminata",
+      "statusEn": "Rare/Accidental Vulnerable",
+      "avibaseId": "A0A67A811E53D89F",
+      "dutchName": "Siberische Strandloper",
+      "statusNl": "Zeldzaam/Dwaalgast Kwetsbaar"
+    },
+    {
+      "englishName": "Short-eared Owl",
+      "scientificName": "Asio flammeus",
+      "avibaseId": "8F123A11E5DADFDD",
+      "dutchName": "Velduil"
+    },
+    {
+      "englishName": "Siberian Accentor",
+      "scientificName": "Prunella montanella",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "D32200407D81F285",
+      "dutchName": "Bergheggenmus",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Siberian Pipit",
+      "scientificName": "Anthus japonicus",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "CEF9CA9DCD341FC4",
+      "dutchName": "Siberische Waterpieper",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Siberian Rubythroat",
+      "scientificName": "Calliope calliope",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "786B0F98D1EE4C54",
+      "dutchName": "Roodkeelnachtegaal",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Slender-billed Curlew",
+      "scientificName": "Numenius tenuirostris",
+      "statusEn": "Rare/Accidental Extinct",
+      "avibaseId": "7A35DE8186E4DF43",
+      "dutchName": "Dunbekwulp",
+      "statusNl": "Zeldzaam/Dwaalgast Uitgestorven"
+    },
+    {
+      "englishName": "Smew",
+      "scientificName": "Mergellus albellus",
+      "avibaseId": "F1F520368CC95F88",
+      "dutchName": "Nonnetje"
+    },
+    {
+      "englishName": "Snow Bunting",
+      "scientificName": "Plectrophenax nivalis",
+      "avibaseId": "9BEBC02505B416EE",
+      "dutchName": "Sneeuwgors"
+    },
+    {
+      "englishName": "Snow Goose",
+      "scientificName": "Anser caerulescens",
+      "avibaseId": "D3A260BCA65503C6",
+      "dutchName": "Sneeuwgans"
+    },
+    {
+      "englishName": "Snowy Egret",
+      "scientificName": "Egretta thula",
+      "statusEn": "Uncertain origin",
+      "avibaseId": "AA7901D88E7203E5",
+      "dutchName": "Amerikaanse Kleine Zilverreiger",
+      "statusNl": "Onzekere herkomst"
+    },
+    {
+      "englishName": "Snowy Owl",
+      "scientificName": "Bubo scandiacus",
+      "statusEn": "Rare/Accidental Vulnerable",
+      "avibaseId": "5B23B360E7DEC4A9",
+      "dutchName": "Sneeuwuil",
+      "statusNl": "Zeldzaam/Dwaalgast Kwetsbaar"
+    },
+    {
+      "englishName": "Snowy Plover",
+      "scientificName": "Anarhynchus nivosus",
+      "statusEn": "Near-threatened",
+      "avibaseId": "F012ED4BC8CD3876",
+      "dutchName": "Amerikaanse Strandplevier",
+      "statusNl": "Bijna met uitsterven bedreigd"
+    },
+    {
+      "englishName": "Solitary Sandpiper",
+      "scientificName": "Tringa solitaria",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "D4A73324DB24F142",
+      "dutchName": "Amerikaanse Bosruiter",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Song Sparrow",
+      "scientificName": "Melospiza melodia",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "A5F09E0521019564",
+      "dutchName": "Zanggors",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Song Thrush",
+      "scientificName": "Turdus philomelos",
+      "avibaseId": "D929EB214A698282",
+      "dutchName": "Zanglijster"
+    },
+    {
+      "englishName": "Sooty Shearwater",
+      "scientificName": "Ardenna grisea",
+      "statusEn": "Near-threatened",
+      "avibaseId": "1725B07D51A40D6A",
+      "dutchName": "Grauwe Pijlstormvogel",
+      "statusNl": "Bijna met uitsterven bedreigd"
+    },
+    {
+      "englishName": "Sooty Tern",
+      "scientificName": "Onychoprion fuscatus",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "3E7F825D03C0DC3E",
+      "dutchName": "Bonte Stern",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Spectacled Eider",
+      "scientificName": "Somateria fischeri",
+      "statusEn": "Rare/Accidental Near-threatened",
+      "avibaseId": "7D8BF5CCA035FB99",
+      "dutchName": "Brileider",
+      "statusNl": "Zeldzaam/Dwaalgast Bijna met uitsterven bedreigd"
+    },
+    {
+      "englishName": "Spotted Crake",
+      "scientificName": "Porzana porzana",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "460708F99737A6A2",
+      "dutchName": "Porseleinhoen",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Spotted Flycatcher",
+      "scientificName": "Muscicapa striata",
+      "avibaseId": "EE8206E703914D22",
+      "dutchName": "Grauwe Vliegenvanger"
+    },
+    {
+      "englishName": "Spotted Redshank",
+      "scientificName": "Tringa erythropus",
+      "avibaseId": "0895DD84DB3A45D1",
+      "dutchName": "Zwarte Ruiter"
+    },
+    {
+      "englishName": "Spotted Sandpiper",
+      "scientificName": "Actitis macularius",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "0D88C072E71FE4B8",
+      "dutchName": "Amerikaanse Oeverloper",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Stejneger's Scoter",
+      "scientificName": "Melanitta stejnegeri",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "1A601D86C048CBAA",
+      "dutchName": "Aziatische Grote Zee-eend",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Steller's Eider",
+      "scientificName": "Polysticta stelleri",
+      "statusEn": "Rare/Accidental Vulnerable",
+      "avibaseId": "BA07D0168474EB92",
+      "dutchName": "Stellers Eider",
+      "statusNl": "Zeldzaam/Dwaalgast Kwetsbaar"
+    },
+    {
+      "englishName": "Steller's Sea-Eagle",
+      "scientificName": "Haliaeetus pelagicus",
+      "statusEn": "Uncertain origin Vulnerable",
+      "avibaseId": "C481FB2478D562BC",
+      "dutchName": "Stellers Zeearend",
+      "statusNl": "Onzekere herkomst Kwetsbaar"
+    },
+    {
+      "englishName": "Stilt Sandpiper",
+      "scientificName": "Calidris himantopus",
+      "statusEn": "Rare/Accidental Near-threatened",
+      "avibaseId": "ECDE73F2E6E6E622",
+      "dutchName": "Steltstrandloper",
+      "statusNl": "Zeldzaam/Dwaalgast Bijna met uitsterven bedreigd"
+    },
+    {
+      "englishName": "Striated Heron",
+      "scientificName": "Butorides striata",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "36DF115BD3E2C1C1",
+      "dutchName": "Mangrovereiger",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Surf Scoter",
+      "scientificName": "Melanitta perspicillata",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "624078BAC17F8111",
+      "dutchName": "Brilzee-eend",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Taiga Bean-Goose",
+      "scientificName": "Anser fabalis",
+      "avibaseId": "BDB497A352D152DB",
+      "dutchName": "Taigarietgans"
+    },
+    {
+      "englishName": "Temminck's Stint",
+      "scientificName": "Calidris temminckii",
+      "avibaseId": "5ACF7FB313BEF9EA",
+      "dutchName": "Temmincks Strandloper"
+    },
+    {
+      "englishName": "Tennessee Warbler",
+      "scientificName": "Leiothlypis peregrina",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "D204A9309E8CCC3A",
+      "dutchName": "Tennesseezanger",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Terek Sandpiper",
+      "scientificName": "Xenus cinereus",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "6D5992EEE12070E8",
+      "dutchName": "Terekruiter",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Thick-billed Murre",
+      "scientificName": "Uria lomvia",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "B70B5840ABCD5CFC",
+      "dutchName": "Kortbekzeekoet",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Tree Pipit",
+      "scientificName": "Anthus trivialis",
+      "avibaseId": "365F5E975B414FE6",
+      "dutchName": "Boompieper"
+    },
+    {
+      "englishName": "Tufted Duck",
+      "scientificName": "Aythya fuligula",
+      "avibaseId": "67CEA1C1FC88F1DB",
+      "dutchName": "Kuifeend"
+    },
+    {
+      "englishName": "Tundra Bean-Goose",
+      "scientificName": "Anser serrirostris",
+      "avibaseId": "AD849FCBCC68A520",
+      "dutchName": "Toendrarietgans"
+    },
+    {
+      "englishName": "Tundra Swan",
+      "scientificName": "Cygnus columbianus",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "0BCBA6B9CC19E7BA",
+      "dutchName": "Kleine Zwaan",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Upland Sandpiper",
+      "scientificName": "Bartramia longicauda",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "BF1DA86E0714FD01",
+      "dutchName": "Bartrams Ruiter",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Velvet Scoter",
+      "scientificName": "Melanitta fusca",
+      "statusEn": "Vulnerable",
+      "avibaseId": "BAF44E36E8D647CB",
+      "dutchName": "Grote Zee-eend",
+      "statusNl": "Kwetsbaar"
+    },
+    {
+      "englishName": "Western Cattle-Egret",
+      "scientificName": "Ardea ibis",
+      "avibaseId": "AB1CB2161CDC177A",
+      "dutchName": "Koereiger"
+    },
+    {
+      "englishName": "Western House-Martin",
+      "scientificName": "Delichon urbicum",
+      "avibaseId": "30FEC6BE132E1224",
+      "dutchName": "Huiszwaluw"
+    },
+    {
+      "englishName": "Western Marsh Harrier",
+      "scientificName": "Circus aeruginosus",
+      "avibaseId": "E2A19474E62F83E1",
+      "dutchName": "Bruine Kiekendief"
+    },
+    {
+      "englishName": "Western Sandpiper",
+      "scientificName": "Calidris mauri",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "01060BFDFF0D9D28",
+      "dutchName": "Alaskastrandloper",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Western Water-Rail",
+      "scientificName": "Rallus aquaticus",
+      "avibaseId": "DE1D2DF4456931FF",
+      "dutchName": "Waterral"
+    },
+    {
+      "englishName": "Whimbrel",
+      "scientificName": "Numenius phaeopus",
+      "avibaseId": "F9305BAA638BAEFC",
+      "dutchName": "Regenwulp"
+    },
+    {
+      "englishName": "Whiskered Tern",
+      "scientificName": "Chlidonias hybrida",
+      "avibaseId": "7AB4E42B260B5954",
+      "dutchName": "Witwangstern"
+    },
+    {
+      "englishName": "White Wagtail",
+      "scientificName": "Motacilla alba",
+      "avibaseId": "400E032C4624AA36",
+      "dutchName": "Witte Kwikstaart"
+    },
+    {
+      "englishName": "White's Thrush",
+      "scientificName": "Zoothera aurea",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "8E267A2656A555F5",
+      "dutchName": "Goudlijster",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "White-crowned Sparrow",
+      "scientificName": "Zonotrichia leucophrys",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "8601A4678CABA542",
+      "dutchName": "Witkruingors",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "White-faced Storm-Petrel",
+      "scientificName": "Pelagodroma marina",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "E9DF118ED56564A9",
+      "dutchName": "Bont Stormvogeltje",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "White-rumped Sandpiper",
+      "scientificName": "Calidris fuscicollis",
+      "statusEn": "Rare/Accidental Vulnerable",
+      "avibaseId": "153BA3069DFCDDCA",
+      "dutchName": "Bonapartes Strandloper",
+      "statusNl": "Zeldzaam/Dwaalgast Kwetsbaar"
+    },
+    {
+      "englishName": "White-tailed Eagle",
+      "scientificName": "Haliaeetus albicilla",
+      "avibaseId": "5A3D91D3254A568D",
+      "dutchName": "Zeearend"
+    },
+    {
+      "englishName": "White-throated Needletail",
+      "scientificName": "Hirundapus caudacutus",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "EA55CA2791012786",
+      "dutchName": "Stekelstaartgierzwaluw",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "White-throated Sparrow",
+      "scientificName": "Zonotrichia albicollis",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "39BD9FF20A9613C4",
+      "dutchName": "Witkeelgors",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "White-winged Crossbill",
+      "scientificName": "Loxia leucoptera",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "80C297E6B82452E7",
+      "dutchName": "Witbandkruisbek",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "White-winged Scoter",
+      "scientificName": "Melanitta deglandi",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "4800D6B673F13A48",
+      "dutchName": "Amerikaanse Grote Zee-eend",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "White-winged Tern",
+      "scientificName": "Chlidonias leucopterus",
+      "avibaseId": "43CAAEE3B0D305D9",
+      "dutchName": "Witvleugelstern"
+    },
+    {
+      "englishName": "Whooper Swan",
+      "scientificName": "Cygnus cygnus",
+      "avibaseId": "BDDB5670D2D20A55",
+      "dutchName": "Wilde Zwaan"
+    },
+    {
+      "englishName": "Willow Warbler",
+      "scientificName": "Phylloscopus trochilus",
+      "avibaseId": "88F4B969622B8268",
+      "dutchName": "Fitis"
+    },
+    {
+      "englishName": "Wilson's Phalarope",
+      "scientificName": "Phalaropus tricolor",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "667C6969D7874433",
+      "dutchName": "Grote Franjepoot",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Wilson's Snipe",
+      "scientificName": "Gallinago delicata",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "F5C8516D3B9C7686",
+      "dutchName": "Amerikaanse Watersnip",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Wilson's Storm-Petrel",
+      "scientificName": "Oceanites oceanicus",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "D295D249BDB7E046",
+      "dutchName": "Wilsons Stormvogeltje",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Wood Duck",
+      "scientificName": "Aix sponsa",
+      "statusEn": "Uncertain origin",
+      "avibaseId": "27B2749A88E3E2C8",
+      "dutchName": "Carolina-eend",
+      "statusNl": "Onzekere herkomst"
+    },
+    {
+      "englishName": "Wood Sandpiper",
+      "scientificName": "Tringa glareola",
+      "avibaseId": "8E67DC5F68BDF62C",
+      "dutchName": "Bosruiter"
+    },
+    {
+      "englishName": "Wood Warbler",
+      "scientificName": "Phylloscopus sibilatrix",
+      "avibaseId": "572C4C7FD4322D14",
+      "dutchName": "Fluiter"
+    },
+    {
+      "englishName": "Yellow-billed Cuckoo",
+      "scientificName": "Coccyzus americanus",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "0CF12F8155708DC8",
+      "dutchName": "Geelsnavelkoekoek",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Yellow-billed Loon",
+      "scientificName": "Gavia adamsii",
+      "statusEn": "Rare/Accidental Near-threatened",
+      "avibaseId": "5349255DB4579713",
+      "dutchName": "Geelsnavelduiker",
+      "statusNl": "Zeldzaam/Dwaalgast Bijna met uitsterven bedreigd"
+    },
+    {
+      "englishName": "Yellow-breasted Bunting",
+      "scientificName": "Emberiza aureola",
+      "statusEn": "Rare/Accidental Critically endangered",
+      "avibaseId": "7574C0E53A34CCFD",
+      "dutchName": "Wilgengors",
+      "statusNl": "Zeldzaam/Dwaalgast In kritiek gevaar"
+    },
+    {
+      "englishName": "Yellow-browed Bunting",
+      "scientificName": "Emberiza chrysophrys",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "4A50E26530277C6D",
+      "dutchName": "Geelbrauwgors",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Yellow-browed Warbler",
+      "scientificName": "Phylloscopus inornatus",
+      "avibaseId": "0C120038E5CA37D7",
+      "dutchName": "Bladkoning"
+    },
+    {
+      "englishName": "Yellow-crowned Night Heron",
+      "scientificName": "Nyctanassa violacea",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "C677249004161A94",
+      "dutchName": "Geelkruinkwak",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Yellow-headed Blackbird",
+      "scientificName": "Xanthocephalus xanthocephalus",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "3E2D0C9BADB782DB",
+      "dutchName": "Geelkoptroepiaal",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    },
+    {
+      "englishName": "Yellow-legged Gull",
+      "scientificName": "Larus michahellis",
+      "avibaseId": "E074D7069AE1303C",
+      "dutchName": "Geelpootmeeuw"
+    },
+    {
+      "englishName": "Yellow-rumped Warbler",
+      "scientificName": "Setophaga coronata",
+      "statusEn": "Rare/Accidental",
+      "avibaseId": "BC5A949807108302",
+      "dutchName": "Geelstuitzanger",
+      "statusNl": "Zeldzaam/Dwaalgast"
+    }
+  ]
+}

@@ -513,7 +513,9 @@
       "scientificName": "Hirundo rustica",
       "order": "Passeriformes",
       "family": "Hirundinidae",
-      "aliases": []
+      "aliases": [
+        "nl: Boerenzwaluw"
+      ]
     },
     "Barred Owl": {
       "yoloCode": 0,
@@ -2570,7 +2572,9 @@
       "scientificName": "Alauda arvensis",
       "order": "Passeriformes",
       "family": "Alaudidae",
-      "aliases": []
+      "aliases": [
+        "nl: Veldleeuwerik"
+      ]
     },
     "Eurasian Wigeon": {
       "yoloCode": 3,
