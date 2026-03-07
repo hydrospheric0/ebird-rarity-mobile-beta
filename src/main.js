@@ -4835,36 +4835,14 @@ function setSpeciesDetailTitle(speciesName) {
     localSource: 'none',
   })
 
-  const titleParts = [displayName]
-  if (scientificName) titleParts.push(`(${scientificName})`)
-  speciesDetailTitle.innerHTML = `<span class="species-detail-title-en">${escapeHtml(titleParts.join(' · '))}</span>`
+  speciesDetailTitle.innerHTML = `<span class="species-detail-title-en">${escapeHtml(displayName)}</span>`
 }
 
 function setSpeciesDetailHeader(speciesName) {
   setSpeciesDetailTitle(speciesName)
   if (!speciesDetailStatus) return
-
-  const species = String(speciesName || '')
-  const row = Array.isArray(currentTableData)
-    ? currentTableData.find((entry) => String(entry?.species || '') === species)
-    : null
-
-  if (!row) {
-    speciesDetailStatus.innerHTML = ''
-    speciesDetailStatus.setAttribute('hidden', 'hidden')
-    return
-  }
-
-  const isConfirmed = Boolean(row.confirmedAny)
-  const labelParts = [isConfirmed ? 'Confirmed' : 'Unconfirmed']
-  const scientificName = String(row?.scientificName || getScientificNameForSpecies(species)?.name || '').trim()
-  const avibase = getAvibaseNlChecklistInfo(species, scientificName)
-  const avibaseStatusEn = String(avibase?.statusEn || '').trim()
-  if (avibaseStatusEn) labelParts.push(avibaseStatusEn)
-
-  const cls = isConfirmed ? 'status-dot-confirmed' : 'status-dot-pending'
-  speciesDetailStatus.innerHTML = `<span class="status-dot ${cls}" aria-hidden="true"></span><span>${escapeHtml(labelParts.join(' · '))}</span>`
-  speciesDetailStatus.removeAttribute('hidden')
+  speciesDetailStatus.innerHTML = ''
+  speciesDetailStatus.setAttribute('hidden', 'hidden')
 }
 
 function normalizeFrequencyNeedle(value) {
@@ -4952,7 +4930,7 @@ async function fetchFrequencyRegionDocStatic(region) {
   if (!isValidRegionCodeForFrequency(normalized)) return null
   if (speciesFrequencyRegionCache.has(normalized)) return speciesFrequencyRegionCache.get(normalized)
 
-  const endpoint = `/data/frequency/regions/${encodeURIComponent(normalized)}.json`
+  const endpoint = `./data/frequency/regions/${encodeURIComponent(normalized)}.json`
   try {
     const response = await fetchWithTimeout(endpoint, 8000)
     if (!response.ok) return null
@@ -5698,6 +5676,29 @@ function buildObservationPopupHtml(pt, options = {}) {
   if (locationLink) metaParts.push(locationLink)
   const metaLine = metaParts.length ? `<div class="obs-popup-meta">${metaParts.join(' · ')}</div>` : ''
 
+  const speciesMetaLine = (() => {
+    if (!hideHeader || !focusSpecies) return ''
+    const species = String(focusSpecies || '').trim()
+    if (!species) return ''
+
+    const row = Array.isArray(currentTableData)
+      ? currentTableData.find((entry) => String(entry?.species || '') === species)
+      : null
+    const scientificName = String(row?.scientificName || getScientificNameForSpecies(species)?.name || '').trim()
+    const avibase = getAvibaseNlChecklistInfo(species, scientificName)
+    const avibaseStatusEn = String(avibase?.statusEn || '').trim()
+    const isConfirmed = row ? Boolean(row.confirmedAny) : false
+    const statusParts = [isConfirmed ? 'Confirmed' : 'Unconfirmed']
+    if (avibaseStatusEn) statusParts.push(avibaseStatusEn)
+    const statusCls = isConfirmed ? 'status-dot-confirmed' : 'status-dot-pending'
+
+    const latinHtml = scientificName
+      ? `<span class="obs-popup-latin">${escapeHtml(scientificName)}</span>`
+      : ''
+    const statusHtml = `<span class="obs-popup-status"><span class="status-dot ${statusCls}" aria-hidden="true"></span><span>${escapeHtml(statusParts.join(' · '))}</span></span>`
+    return `<div class="obs-popup-species-meta">${latinHtml}${statusHtml}</div>`
+  })()
+
   // Observation bullets: all observations from the past 7 days for focused
   // species (or overall at this location if no focused species).
   const sevenDayCutoff = cutoffDateForDaysBack(7)
@@ -5778,7 +5779,7 @@ function buildObservationPopupHtml(pt, options = {}) {
     return `<div class="obs-popup-section-title">Other notable species at location:</div><ul class="obs-popup-checklist obs-popup-other">${items.join('')}</ul>`
   })()
 
-  return `<div class="obs-popup-inner" data-loc-key="${escapeHtml(ptLocKey)}">${header}${metaLine}${obsSection}${otherSpeciesSection}</div>`
+  return `<div class="obs-popup-inner" data-loc-key="${escapeHtml(ptLocKey)}">${header}${speciesMetaLine}${metaLine}${obsSection}${otherSpeciesSection}</div>`
 }
 
 function openObservationPopup(pt) {
