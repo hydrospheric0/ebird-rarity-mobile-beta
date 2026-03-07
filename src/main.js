@@ -32,6 +32,7 @@ import {
 const BUILD_TAG = typeof __BUILD_TAG__ !== 'undefined' ? __BUILD_TAG__ : 'dev'
 
 const YOLO_COUNTY_REGION = 'US-CA-113'
+const DEFAULT_NO_LOCATION_REGION = 'US-CA'
 
 const EBIRD_API_KEY_STORAGE_KEY = 'mrm_ebird_api_key'
 
@@ -595,6 +596,7 @@ let latestSearchCountyOptionsRequestId = 0
 let searchApplyInProgress = false
 const LAST_ACTIVE_CONTEXT_STORAGE_KEY = 'mrm_last_active_context_v1'
 const TAP_DEBUG_STORAGE_KEY = 'mrm_tap_debug_enabled'
+const LOCATION_BOOT_PREF_STORAGE_KEY = 'mrm_location_boot_pref_v1'
 const TAP_DEBUG_MAX_ENTRIES = 40
 let tapDebugEnabled = false
 let tapDebugEvents = []
@@ -2083,6 +2085,32 @@ function loadTapDebugEnabled() {
   }
 }
 
+function saveLocationBootPreference(value) {
+  const normalized = value === 'granted' || value === 'declined' ? value : 'unknown'
+  try {
+    localStorage.setItem(LOCATION_BOOT_PREF_STORAGE_KEY, normalized)
+  } catch {
+    // ignore storage failures
+  }
+}
+
+function loadLocationBootPreference() {
+  try {
+    const raw = String(localStorage.getItem(LOCATION_BOOT_PREF_STORAGE_KEY) || '').trim().toLowerCase()
+    return raw === 'granted' || raw === 'declined' ? raw : 'unknown'
+  } catch {
+    return 'unknown'
+  }
+}
+
+function clearLocationBootPreference() {
+  try {
+    localStorage.removeItem(LOCATION_BOOT_PREF_STORAGE_KEY)
+  } catch {
+    // ignore storage failures
+  }
+}
+
 function renderTapDebugLog() {
   if (!tapDebugLog) return
   if (!tapDebugEnabled) {
@@ -3154,6 +3182,7 @@ async function triggerHardRefresh() {
 
   try {
     localStorage.removeItem('mrm_last_pos')
+    clearLocationBootPreference()
     localStorage.removeItem(LAST_ACTIVE_CONTEXT_STORAGE_KEY)
     localStorage.removeItem(PENDING_LOCATION_STORAGE_KEY)
     localStorage.removeItem('mrm_runtime_log')
@@ -3182,7 +3211,9 @@ async function triggerHardRefresh() {
 
   const url = new URL(window.location.href)
   url.searchParams.set('refresh', String(Date.now()))
-  url.searchParams.set('reset_nl', '1')
+  url.searchParams.set('reset_default', '1')
+  url.searchParams.set('force_location', '1')
+  url.searchParams.delete('reset_nl')
   window.location.replace(url.toString())
 }
 
@@ -6836,6 +6867,7 @@ async function requestUserLocation(manualRetry = false) {
 
   const permissionState = await getGeolocationPermissionState()
   if (permissionState === 'denied') {
+    saveLocationBootPreference('declined')
     setLocationUiBlocked()
     showLocationPermGate()
     return false
@@ -6882,6 +6914,7 @@ async function requestUserLocation(manualRetry = false) {
 
     locationStatus.className = 'badge ok'
     locationStatus.textContent = 'Located'
+    saveLocationBootPreference('granted')
     const baseLocationDetail = `Lat ${latitude.toFixed(5)}, Lon ${longitude.toFixed(5)} · ±${Math.round(accuracy)} m`
     locationDetail.textContent = baseLocationDetail
     perfEnd('location')
@@ -6918,6 +6951,7 @@ async function requestUserLocation(manualRetry = false) {
 
     if (error && typeof error.code === 'number') {
       if (error.code === 1) {
+        saveLocationBootPreference('declined')
         setLocationUiBlocked()
         showLocationPermGate()
         setMapLoading(false)
@@ -6960,9 +6994,10 @@ locPermRetryBtn?.addEventListener('click', () => {
 
 locPermDeclineBtn?.addEventListener('click', () => {
   hideLocationPermGate()
-  setLocationUiUnavailable('Location declined. Showing Netherlands.')
+  saveLocationBootPreference('declined')
+  setLocationUiUnavailable('Location declined. Showing California.')
   currentPhysicalCountryCode = null
-  void activateStateByRegion('NL')
+  void activateStateByRegion(DEFAULT_NO_LOCATION_REGION)
 })
 menuInfoBtn?.addEventListener('click', () => {
   if (!infoModal) return
@@ -7676,13 +7711,17 @@ async function bootAppOnce() {
 
   const launchUrl = new URL(window.location.href)
   const forceFreshLocation = launchUrl.searchParams.get('force_location') === '1'
-  const resetToNl = launchUrl.searchParams.get('reset_nl') === '1'
+  const resetToDefault = launchUrl.searchParams.get('reset_default') === '1' || launchUrl.searchParams.get('reset_nl') === '1'
   const prefetchBackParam = launchUrl.searchParams.get('prefetch_back')
   // Clean up all transient URL params injected by triggerHardRefresh or external tools
   // to avoid them persisting in the address bar and browser history.
   let urlMutated = false
   if (forceFreshLocation) { launchUrl.searchParams.delete('force_location'); urlMutated = true }
-  if (resetToNl) { launchUrl.searchParams.delete('reset_nl'); urlMutated = true }
+  if (resetToDefault) {
+    launchUrl.searchParams.delete('reset_default')
+    launchUrl.searchParams.delete('reset_nl')
+    urlMutated = true
+  }
   if (launchUrl.searchParams.has('refresh')) { launchUrl.searchParams.delete('refresh'); urlMutated = true }
   if (prefetchBackParam !== null) { launchUrl.searchParams.delete('prefetch_back'); urlMutated = true }
   if (urlMutated) window.history.replaceState({}, '', launchUrl.toString())
@@ -7698,14 +7737,15 @@ async function bootAppOnce() {
     statePrefetchDaysBack = DEFAULT_STATE_PREFETCH_DAYS_BACK
   }
 
-  // Hard-reset path: always go to NL before any saved pending/active context restore.
-  if (resetToNl) {
+  // Hard-reset path: force default flow and clear pending selections.
+  if (resetToDefault) {
     locationStatus.className = 'badge warn'
     locationStatus.textContent = 'Default'
-    locationDetail.textContent = 'Netherlands · reset'
+    locationDetail.textContent = 'California · reset'
     try {
+      clearLocationBootPreference()
       clearPendingLocationSelection()
-      await activateStateByRegion('NL')
+      await activateStateByRegion(DEFAULT_NO_LOCATION_REGION)
     } finally {
       updateRuntimeLog()
     }
@@ -7730,27 +7770,13 @@ async function bootAppOnce() {
     }
   }
 
-  try {
-    locationStatus.className = 'badge warn'
-    locationStatus.textContent = 'Restoring'
-    locationDetail.textContent = 'Restoring last viewed region…'
-    const restoredContext = await restoreLastActiveContextOnBoot()
-    if (restoredContext) {
-      updateRuntimeLog()
-      return
-    }
-  } catch (error) {
-    console.error('active context startup restore failed:', error)
-  }
-
-  // Default fallback: Netherlands (province-level state view).
-  // If geolocation is unavailable/blocked, fall back to NL so the app still loads.
+  // Default fallback: California state view when no location is available.
   const startFromDefaultRegion = async () => {
     locationStatus.className = 'badge warn'
     locationStatus.textContent = 'Default'
-    locationDetail.textContent = 'Netherlands · no location'
+    locationDetail.textContent = 'California · no location'
     try {
-      await activateStateByRegion('NL')
+      await activateStateByRegion(DEFAULT_NO_LOCATION_REGION)
       updateRuntimeLog()
       return true
     } catch (error) {
@@ -7760,9 +7786,14 @@ async function bootAppOnce() {
     }
   }
 
-  // Default startup path: try device location first, then fall back to NL.
-  const located = await requestUserLocation(false)
-  if (located) return
+  // Default startup path: try device location first (unless user explicitly declined),
+  // then fall back to California.
+  const locationBootPref = loadLocationBootPreference()
+  const shouldAttemptAutoLocation = forceFreshLocation || locationBootPref !== 'declined'
+  if (shouldAttemptAutoLocation) {
+    const located = await requestUserLocation(false)
+    if (located) return
+  }
 
   await startFromDefaultRegion()
 }

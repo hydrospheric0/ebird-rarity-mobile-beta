@@ -3,6 +3,8 @@ dist/
 .vite/
 .wrangler/
 temp/
+TEMP/
+.cache/
 .env
 .env.*
 .DS_Store
