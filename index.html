@@ -11,18 +11,33 @@
     <title>Twitcher - find eBird Rarities</title>
     <link rel="manifest" href="./assets/manifest-WrvQHCem.webmanifest" />
     <link rel="icon" href="./assets/icon-EYQ1AWFl.svg" type="image/svg+xml" />
-    <script type="module" crossorigin src="./assets/index-CbtyltnG.js"></script>
+    <script type="module" crossorigin src="./assets/index-Clfz99JI.js"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-CMVCawCy.css">
   </head>
   <body>
     <div id="app"></div>
     <!-- Plain (non-module) script so Vite preserves it verbatim in the build output.
-         Registers the SW with updateViaCache:'none' so the browser byte-checks sw.js
-         on every load, and does a one-time cache+SW wipe when CACHE_RESET_VERSION changes. -->
+         1. Redirects to ?_v=BUILD_VER so CDN cold-miss guarantees fresh HTML on each deploy.
+         2. One-time SW/cache nuke when CACHE_RESET_VERSION changes.
+         3. Registers SW with updateViaCache:'none' for automatic future updates. -->
     <script>
       (function () {
+        var BUILD_VER = '0.7.0-beta.19'
         var CACHE_RESET_VERSION = '2026-03-06-3'
         var CACHE_RESET_KEY = 'mrm_bootstrap_cache_reset_version'
+
+        // Step 1: if the URL doesn't have ?_v=BUILD_VER, redirect to it.
+        // This forces a cache miss at the CDN edge since the URL is new each deploy.
+        var sp = new URLSearchParams(location.search)
+        if (sp.get('_v') !== BUILD_VER) {
+          sp.set('_v', BUILD_VER)
+          location.replace(location.pathname + '?' + sp.toString() + (location.hash || ''))
+          return
+        }
+        // Step 2: strip _v from address bar so it doesn't linger.
+        history.replaceState(null, '', location.pathname + (location.hash || ''))
+
+        // Step 3: one-time full wipe of old SWs and caches.
         function nukeAndReload() {
           try {
             if (navigator.serviceWorker) {
@@ -43,6 +58,8 @@
             nukeAndReload()
           }
         } catch (e) {}
+
+        // Step 4: register SW with updateViaCache:'none'.
         if ('serviceWorker' in navigator) {
           window.addEventListener('load', function () {
             navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })

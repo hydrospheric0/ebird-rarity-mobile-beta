@@ -1,7 +1,7 @@
 // SW_VERSION is stamped by pushit-beta.sh on every deploy so the browser
 // detects a change and re-installs, triggering the activate handler which
 // clears all caches and reloads every open tab to the latest build.
-const SW_VERSION = '0.7.0-beta.18'
+const SW_VERSION = '0.7.0-beta.19'
 const LEGACY_CACHE_PREFIXES = ['rarity-mobile-', 'workbox-', 'vite-']
 
 self.addEventListener('install', (event) => {
