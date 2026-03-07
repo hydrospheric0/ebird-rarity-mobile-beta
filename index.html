@@ -23,6 +23,7 @@
         var BUILD_VER = '0.7.0-beta.20'
         var CACHE_RESET_VERSION = '2026-03-07-1'
         var CACHE_RESET_KEY = 'mrm_bootstrap_cache_reset_version'
+        window.__TWITCHER_BUILD_VER__ = BUILD_VER
 
         // Step 1: if the URL doesn't have ?_v=BUILD_VER, redirect to it.
         // This forces a cache miss at the CDN edge since the URL is new each deploy.

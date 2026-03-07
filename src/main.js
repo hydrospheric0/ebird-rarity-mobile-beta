@@ -30,6 +30,9 @@ import {
 } from './modules/cache.js'
 
 const BUILD_TAG = typeof __BUILD_TAG__ !== 'undefined' ? __BUILD_TAG__ : 'dev'
+const BUILD_VERSION = typeof window !== 'undefined' && window.__TWITCHER_BUILD_VER__
+  ? String(window.__TWITCHER_BUILD_VER__)
+  : String(BUILD_TAG)
 
 const YOLO_COUNTY_REGION = 'US-CA-113'
 const DEFAULT_NO_LOCATION_REGION = 'US-CA'
@@ -85,7 +88,7 @@ app.innerHTML = `
       </div>
     </div>
     <header class="app-header">
-      <h1 class="app-title"><span class="brandName">Twitcher</span><span class="brandTagline"> - find eBird Rarities</span></h1>
+      <h1 class="app-title"><span class="brandName">Twitcher</span><span class="brandTagline"> - find eBird Rarities</span><span class="build-badge-inline" title="Build ${BUILD_VERSION}">v${BUILD_VERSION}</span></h1>
       <button id="menuPin" class="header-toggle" type="button" aria-label="Zoom to my location" title="Zoom to my location">
         <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><polygon points="12,3 19,20 12,16 5,20"/></svg>
       </button>
@@ -4825,16 +4828,15 @@ function setSpeciesDetailTitle(speciesName) {
 
   const sci = getScientificNameForSpecies(english)
   const scientificName = String(sci?.name || '').trim()
-  const localName = String(getNlLocalNameForSpecies(english, scientificName) || '').trim()
+  const displayName = String(getDisplaySpeciesLabel(english, scientificName) || english).trim()
 
   setSpeciesDetailDebug({
     latinSource: sci?.source || 'none',
-    localSource: localName ? 'nl' : 'none',
+    localSource: 'none',
   })
 
-  const titleParts = [english]
+  const titleParts = [displayName]
   if (scientificName) titleParts.push(`(${scientificName})`)
-  if (localName && normalizeSpeciesLookupKey(localName) !== normalizeSpeciesLookupKey(english)) titleParts.push(localName)
   speciesDetailTitle.innerHTML = `<span class="species-detail-title-en">${escapeHtml(titleParts.join(' · '))}</span>`
 }
 
@@ -5702,7 +5704,9 @@ function buildObservationPopupHtml(pt, options = {}) {
   const focusNeedle = focusSpecies ? String(focusSpecies) : ''
   const locFocusObs = focusNeedle ? locObsAll.filter((o) => String(o?.species || '') === focusNeedle) : locObsAll
   const nearbyFocusObs = focusNeedle ? getNearbySpeciesObservations(pt, focusNeedle, nearbyObservationRadiusKm) : []
-  const focusObs = (nearbyFocusObs.length > locFocusObs.length ? nearbyFocusObs : locFocusObs)
+  const focusObs = (focusNeedle
+    ? (nearbyFocusObs.length > 0 ? nearbyFocusObs : locFocusObs)
+    : locFocusObs)
     .filter((o) => {
       const parsed = parseObsDate(o?.obsDt)
       return Boolean(parsed && parsed >= sevenDayCutoff)
@@ -7041,7 +7045,11 @@ modeTabBar?.addEventListener('click', (event) => {
   if (!btn) return
   event.preventDefault()
   const newMode = btn.dataset.mode
-  if (newMode && newMode !== currentMode) setMode(newMode)
+  if (!newMode || newMode === currentMode) return
+  if (speciesDetailPanel && !speciesDetailPanel.hasAttribute('hidden')) {
+    speciesDetailPanel.setAttribute('hidden', 'hidden')
+  }
+  setMode(newMode)
 })
 
 // Country button: quick NL/US switch (2-char fixed) — sets pending, opens region picker
@@ -7525,8 +7533,27 @@ notableRows.addEventListener('click', (event) => {
   const rowCountyName = String(row?.dataset?.county || '')
   const activeRegion = String(currentCountyRegion || '').toUpperCase()
   const isStateView = isStateRegionCode(activeRegion)
+  const isDetailOpen = Boolean(speciesDetailPanel && !speciesDetailPanel.hasAttribute('hidden'))
 
-  if (isStateView && rowCountyRegion) {
+  if (isDetailOpen) {
+    mapPointSpeciesFilter = new Set()
+    selectedSpecies = species
+    const pts = Array.isArray(speciesMarkers.get(species)) ? speciesMarkers.get(species) : []
+    const currentLocKey = String(speciesDetailBody?.querySelector?.('.obs-popup-inner')?.dataset?.locKey || '')
+    const targetPt = (currentLocKey
+      ? (pts.find((p) => String(p?.locKey || '') === currentLocKey) || null)
+      : null) || pickBestSpeciesPoint(pts, species)
+    openSpeciesDetailForSelection(species, targetPt)
+
+    if (currentMode === 'hybrid' && targetPt && map) {
+      ensureSpeciesZoomLabelsVisible()
+      map.invalidateSize()
+      map.setView([targetPt.lat, targetPt.lng], Math.max(map.getZoom(), 13), { animate: true })
+    }
+    return
+  }
+
+  if (currentMode !== 'list' && isStateView && rowCountyRegion) {
     preservePinnedSpeciesOnce = true
     mapPointSpeciesFilter = new Set()
     selectedSpecies = species

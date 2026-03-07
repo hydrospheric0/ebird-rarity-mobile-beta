@@ -62,10 +62,27 @@ body {
   margin: 0;
   font-size: 0.9rem;
   font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
+}
+
+.build-badge-inline {
+  display: inline-block;
+  font-size: 0.56rem;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 0.16rem 0.28rem;
+  border-radius: 999px;
+  color: rgba(248, 250, 252, 0.92);
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  flex: 0 0 auto;
 }
 
 .brandName {
