@@ -151,9 +151,6 @@ app.innerHTML = `
         <button id="mapMeasureBtn" class="map-ctrl-btn" type="button" aria-pressed="false" aria-label="Measure distance" title="Measure distance">
           <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l12-6 6 12-12 6z"/><path d="M8 6l2 4"/><path d="M12 4l2 4"/><path d="M7 12l2 4"/><path d="M11 10l2 4"/></svg>
         </button>
-        <button id="mapNearbyRadiusBtn" class="map-ctrl-btn map-radius-btn" type="button" aria-label="Nearby observations radius" title="Nearby radius">
-          1km
-        </button>
         <button id="mapLabelToggle" class="map-ctrl-btn" type="button" aria-pressed="true" aria-label="Toggle point labels" title="Toggle labels">
           <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><text x="12" y="17" text-anchor="middle" font-size="9" font-weight="700" font-family="sans-serif" fill="currentColor" stroke="none">B</text></svg>
         </button>
@@ -4828,21 +4825,31 @@ function setSpeciesDetailTitle(speciesName) {
 
   const sci = getScientificNameForSpecies(english)
   const scientificName = String(sci?.name || '').trim()
-  const displayName = String(getDisplaySpeciesLabel(english, scientificName) || english).trim()
+  const displayName = english
 
   setSpeciesDetailDebug({
     latinSource: sci?.source || 'none',
     localSource: 'none',
   })
 
-  speciesDetailTitle.innerHTML = `<span class="species-detail-title-en">${escapeHtml(displayName)}</span>`
+  const latinHtml = scientificName
+    ? `<span class="species-detail-title-alt">${escapeHtml(scientificName)}</span>`
+    : ''
+  speciesDetailTitle.innerHTML = `<span class="species-detail-title-en">${escapeHtml(displayName)}</span>${latinHtml}`
 }
 
 function setSpeciesDetailHeader(speciesName) {
   setSpeciesDetailTitle(speciesName)
   if (!speciesDetailStatus) return
-  speciesDetailStatus.innerHTML = ''
-  speciesDetailStatus.setAttribute('hidden', 'hidden')
+
+  const species = String(speciesName || '')
+  const row = Array.isArray(currentTableData)
+    ? currentTableData.find((entry) => String(entry?.species || '') === species)
+    : null
+  const isConfirmed = row ? Boolean(row.confirmedAny) : false
+  const cls = isConfirmed ? 'status-dot-confirmed' : 'status-dot-pending'
+  speciesDetailStatus.innerHTML = `<span class="status-dot ${cls}" aria-hidden="true"></span><span>${isConfirmed ? 'Confirmed' : 'Unconfirmed'}</span>`
+  speciesDetailStatus.removeAttribute('hidden')
 }
 
 function normalizeFrequencyNeedle(value) {
@@ -5132,6 +5139,15 @@ async function updateSpeciesDetailFrequencyCharts(speciesName, targetPt = null) 
     const data = await fetchSpeciesFrequency(target.region, species, scientific, speciesCode)
     return { ...target, data }
   }))
+
+  // California county coverage fallback: if county frequency is missing,
+  // reuse state frequency so the county panel still renders.
+  const countyEntry = results.find((entry) => entry?.key === 'county')
+  const regionalEntry = results.find((entry) => entry?.key === 'regional' && entry?.data)
+  const countyRegionCode = String(countyEntry?.region || '').toUpperCase()
+  if (countyEntry && !countyEntry.data && regionalEntry?.data && countyRegionCode.startsWith('US-CA-')) {
+    countyEntry.data = regionalEntry.data
+  }
 
   if (requestId !== latestSpeciesFrequencyRequestId) return
   if (!speciesDetailPanel || speciesDetailPanel.hasAttribute('hidden')) return
@@ -5687,16 +5703,9 @@ function buildObservationPopupHtml(pt, options = {}) {
     const scientificName = String(row?.scientificName || getScientificNameForSpecies(species)?.name || '').trim()
     const avibase = getAvibaseNlChecklistInfo(species, scientificName)
     const avibaseStatusEn = String(avibase?.statusEn || '').trim()
-    const isConfirmed = row ? Boolean(row.confirmedAny) : false
-    const statusParts = [isConfirmed ? 'Confirmed' : 'Unconfirmed']
-    if (avibaseStatusEn) statusParts.push(avibaseStatusEn)
-    const statusCls = isConfirmed ? 'status-dot-confirmed' : 'status-dot-pending'
-
-    const latinHtml = scientificName
-      ? `<span class="obs-popup-latin">${escapeHtml(scientificName)}</span>`
-      : ''
-    const statusHtml = `<span class="obs-popup-status"><span class="status-dot ${statusCls}" aria-hidden="true"></span><span>${escapeHtml(statusParts.join(' · '))}</span></span>`
-    return `<div class="obs-popup-species-meta">${latinHtml}${statusHtml}</div>`
+    if (!avibaseStatusEn) return ''
+    const statusHtml = `<span class="obs-popup-status">${escapeHtml(avibaseStatusEn)}</span>`
+    return `<div class="obs-popup-species-meta">${statusHtml}</div>`
   })()
 
   // Observation bullets: all observations from the past 7 days for focused

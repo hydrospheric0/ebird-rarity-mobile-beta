@@ -65,6 +65,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
+  flex: 1 1 auto;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -83,6 +84,12 @@ body {
   background: rgba(255, 255, 255, 0.16);
   border: 1px solid rgba(255, 255, 255, 0.24);
   flex: 0 0 auto;
+}
+
+@media (max-width: 430px) {
+  .build-badge-inline {
+    display: none;
+  }
 }
 
 .brandName {
@@ -1918,9 +1925,33 @@ button.primary {
   font-size: 0.72rem;
   line-height: 1.25;
   color: #334155;
-  white-space: nowrap;
+  white-space: normal;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.obs-popup-species-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin-top: 0.05rem;
+}
+
+.obs-popup-latin {
+  font-size: 0.71rem;
+  line-height: 1.25;
+  color: #334155;
+  font-style: italic;
+}
+
+.obs-popup-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.71rem;
+  line-height: 1.2;
+  color: #334155;
+  font-weight: 700;
 }
 
 .obs-popup-county {
@@ -2102,7 +2133,7 @@ a.obs-popup-species {
   top: calc(var(--header-height) + env(safe-area-inset-top));
   left: 0;
   right: 0;
-  bottom: calc(var(--bottom-tab-height) + var(--bottom-loc-height) + env(safe-area-inset-bottom));
+  bottom: calc(var(--bottom-menu-height) + env(safe-area-inset-bottom));
   background: var(--card);
   z-index: 1350;
   display: flex;
@@ -2116,7 +2147,7 @@ a.obs-popup-species {
 
 #appShell[data-mode="list"] .species-detail-panel {
   top: calc(var(--header-height) + env(safe-area-inset-top));
-  bottom: calc(var(--bottom-tab-height) + var(--bottom-loc-height) + var(--bottom-aba-filter-height) + env(safe-area-inset-bottom));
+  bottom: calc(var(--bottom-menu-height) + env(safe-area-inset-bottom));
 }
 
 .species-detail-panel[hidden] {
@@ -2124,65 +2155,70 @@ a.obs-popup-species {
 }
 
 .species-detail-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.4rem 0.7rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "back back"
+    "title status";
+  gap: 0.35rem 0.6rem;
+  padding: 0.5rem 0.7rem 0.55rem;
   background: var(--brand);
   color: #f8fafc;
   flex-shrink: 0;
-  min-height: 2.8rem;
+  min-height: 4.1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .species-detail-back {
-  position: fixed;
-  right: 0.7rem;
-  bottom: calc(var(--bottom-tab-height) + var(--bottom-loc-height) + var(--bottom-aba-filter-height) + env(safe-area-inset-bottom) + 0.38rem);
-  z-index: 1365;
-  background: #f97316;
-  border: 1px solid #ea580c;
-  color: #fff7ed;
-  font-size: 0.82rem;
+  grid-area: back;
+  justify-self: start;
+  position: static;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #f8fafc;
+  font-size: 0.76rem;
   font-weight: 600;
   cursor: pointer;
-  padding: 0.34rem 0.78rem;
-  border-radius: 0.62rem;
+  padding: 0.22rem 0.55rem;
+  border-radius: 0.48rem;
   flex-shrink: 0;
   white-space: nowrap;
-  min-height: 2rem;
-  box-shadow: 0 4px 14px rgba(124, 45, 18, 0.32);
+  min-height: 1.6rem;
+  box-shadow: none;
 }
 
 .species-detail-back:active {
-  background: #ea580c;
+  background: rgba(255, 255, 255, 0.24);
 }
 
 .species-detail-title {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.4rem;
+  grid-area: title;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.08rem;
   font-size: 0.88rem;
   font-weight: 700;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   min-width: 0;
-  flex: 1 1 auto;
 }
 
 .species-detail-title-en {
   font-weight: 700;
   color: #f8fafc;
+  line-height: 1.15;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .species-detail-title-alt {
+  display: block;
   font-size: 0.74rem;
-  font-weight: 500;
+  font-weight: 600;
+  font-style: italic;
   color: #cbd5e1;
+  line-height: 1.15;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2190,6 +2226,7 @@ a.obs-popup-species {
 }
 
 .species-detail-status {
+  grid-area: status;
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
@@ -2229,6 +2266,7 @@ a.obs-popup-species {
 
 .species-detail-body {
   flex: 1 1 0;
+  min-height: 0;
   overflow-y: auto;
   padding: 0.85rem 0.9rem;
   -webkit-overflow-scrolling: touch;
